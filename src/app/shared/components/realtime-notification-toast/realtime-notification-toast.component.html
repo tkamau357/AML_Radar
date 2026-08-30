@@ -1,0 +1,8 @@
+<article class="notification-toast" [class.notification-toast--leaving]="leaving" role="status">
+  <div class="notification-toast__icon" aria-hidden="true">!</div>
+  <div class="notification-toast__content">
+    <p class="notification-toast__title">{{ data.title }}</p>
+    <p class="notification-toast__message">{{ data.message || 'You have a new notification.' }}</p>
+  </div>
+  <button class="notification-toast__close" type="button" (click)="dismiss()" aria-label="Dismiss notification">×</button>
+</article>

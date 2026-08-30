@@ -1,0 +1,138 @@
+<div class="modal-content overflow-hidden"> 
+    <div class="bg-gradient text-white px-4 py-2 d-flex justify-content-between align-items-center header-s"
+        style="background: linear-gradient(90deg, #1e293b, #334155);">
+        <div class="d-flex align-items-center gap-3">
+            <div class="p-2 bg-gradient bg-opacity-10 rounded-3">
+                <span class="material-icons fs-4">{{ getEventIcon(auditInfo.eventType) }}</span>
+            </div>
+            <div>
+                <h5 class="mb-0">Audit Event Details</h5>
+                <small>Event ID: {{ auditInfo.id.slice(0, 20) }}...</small>
+            </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="dialogRef.close()"></button>
+    </div>
+
+    <div class="p-4" style="max-height: 70vh; overflow-y: auto;">
+        <div class="row g-4 mb-4">
+            <div class="col-6">
+                <label class="form-label text-uppercase small fw-bold text-muted"
+                    style="font-size: 11px;">Timestamp</label>
+                <p class="mb-0">{{ auditInfo.timestamp }}</p>
+            </div>
+
+            <div class="col-6 d-flex flex-column">
+                <label class="form-label text-uppercase small fw-bold text-muted"
+                    style="font-size: 11px;">Module</label>
+                <span class="badge rounded-pill px-3 py-1 {{ getCategoryClass(auditInfo.moduleType) }}"
+                    style="width: fit-content;">
+                    {{ auditInfo.moduleType }}
+                </span>
+            </div>
+
+            <div class="col-6 d-flex flex-column">
+                <label class="form-label text-uppercase small fw-bold text-muted" style="font-size: 11px;">Event
+                    Type</label>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 bg-light rounded">
+                        <span class="material-icons">{{ getEventIcon(auditInfo.eventType) }}</span>
+                    </div>
+                    <span>{{ auditInfo.eventType }}</span>
+                </div>
+            </div>
+            <div class="col-6 d-flex flex-column">
+                <label class="form-label text-uppercase small fw-bold text-muted"
+                    style="font-size: 11px;">Status</label>
+                <span
+                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1 align-items-center gap-1"
+                    style="width: fit-content;">
+                    <span class="material-icons" style="font-size:16px;vertical-align:middle">check_circle</span> {{ auditInfo.status }}
+                </span>
+            </div>
+
+            <div class="col-6 d-flex flex-column">
+                <label class="form-label text-uppercase small fw-bold text-muted"
+                    style="font-size: 11px;">Actor</label>
+                <p class="mb-0">{{ auditInfo.userEmail }}</p>
+            </div>
+            <div class="col-6 d-flex flex-column">
+                <label class="form-label text-uppercase small fw-bold text-muted" style="font-size: 11px;">IP
+                    Address</label>
+                <p class="font-monospace mb-0">{{ auditInfo.ipAddress }}</p>
+            </div>
+        </div>
+
+        <div class="p-3 bg-light rounded border my-4 d-flex flex-column">
+            <label class="form-label text-uppercase small fw-bold text-muted" style="font-size: 11px;">Activity</label>
+            <p class="mb-0">{{ auditInfo.activity }}</p>
+        </div>
+
+        <!-- Changes -->
+        <div *ngIf="hasMetadata">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="material-icons fs-6">timeline</span>
+                <h6 class="mb-0">Changes Made</h6>
+            </div>
+
+            <div class="border rounded-3 overflow-hidden mb-3" *ngFor="let change of objectEntries(auditInfo.metadata)">
+                <div class="bg-light px-3 py-2 border-bottom">
+                    <strong>{{ change[0] | titlecase }}</strong>
+                </div>
+
+                <div class="p-3">
+                    <!-- From -->
+                    <div class="d-flex gap-3 mb-3 align-items-center">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="px-1 rounded-circle bg-danger bg-opacity-10 border border-danger border-2 d-flex align-items-center justify-content-center">
+                                <span class="text-danger fw-bold small">−</span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex-grow-1 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-3 px-3 py-1">
+                            <small class="text-danger fw-bold" style="font-size: 10px !important; ">From:</small>
+                            <p class="text-decoration-line-through text-danger mb-0"
+                                style="font-size: 14px !important;">
+                                {{ change[1].from }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- To -->
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="px-1 rounded-circle bg-success bg-opacity-10 border border-success border-2 d-flex align-items-center justify-content-center">
+                                <span class="text-success fw-bold small">+</span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex-grow-1 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3  px-3 py-1">
+                            <small class="text-success text-uppercase fw-bold"
+                                style="font-size: 10px !important; ">To:</small>
+                            <p class="fw-semibold text-success mb-0" style="font-size: 14px !important;">
+                                {{ change[1].to }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!hasMetadata">
+            <div class="text-center py-2">
+                <div
+                    class="d-inline-flex align-items-center justify-content-center w-16 h-16 rounded-circle bg-light mb-3">
+                    <span class="material-icons fs-3 text-muted">timeline</span>
+                </div>
+                <p class="text-muted">No changes recorded for this event</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="border-top bg-light px-4 py-3 d-flex justify-content-between align-items-center">
+        <small class="text-muted">User Agent: {{ auditInfo.deviceId }}</small>
+        <button class="btn btn-dark" (click)="dialogRef.close()">Close</button>
+    </div>
+</div>

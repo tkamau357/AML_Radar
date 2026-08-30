@@ -1,0 +1,130 @@
+<!-- src/app/layout/sidebar/sidebar.component.html -->
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="isSidebarCollapsed"
+>
+  <!-- ── Logo bar ─────────────────────────────────────────────────────── -->
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-logo">
+      <img
+        src="assets/images/EmTechHouse.png"
+        alt="AML Radar"
+        class="h-7 w-auto object-contain"
+      />
+    </div>
+    <span class="sidebar-brand-name">AML Radar</span>
+  </div>
+
+  <!-- ── Search ─────────────────────────────────────────────────────────── -->
+  <div class="sidebar-search-wrap">
+    <div class="sidebar-search">
+      <i-feather name="search" class="sidebar-search-icon !w-3.5 !h-3.5"></i-feather>
+      <input
+        type="text"
+        [ngModel]="sidebarSearchTerm"
+        (ngModelChange)="onSidebarSearch($event)"
+        placeholder="Search menu..."
+        class="sidebar-search-input"
+      />
+      <button
+        *ngIf="isSearchActive()"
+        type="button"
+        (click)="clearSidebarSearch()"
+        class="sidebar-search-clear"
+        aria-label="Clear search"
+      >
+        <i-feather name="x" class="!w-3.5 !h-3.5"></i-feather>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Nav ──────────────────────────────────────────────────────────── -->
+  <nav class="sidebar-nav sidebar-scroll">
+    <ul class="sidebar-list">
+      <li *ngFor="let item of filteredSidebarItems">
+
+        <!-- Group title -->
+        <div *ngIf="item.groupTitle" class="sidebar-group-label">
+          {{ item.title }}
+        </div>
+
+        <!-- Nav item -->
+        <div *ngIf="!item.groupTitle">
+          <a
+            (click)="callLevel1Toggle($event, item.moduleName)"
+            [routerLink]="!hasChildren(item) ? [item.path] : null"
+            routerLinkActive="nav-item--active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            [attr.data-tour-target]="item.moduleName"
+            class="nav-item"
+          >
+            <i-feather
+              [name]="item.icon || 'circle'"
+              class="nav-item-icon !w-4 !h-4"
+            ></i-feather>
+            <span class="nav-item-label">{{ item.title }}</span>
+            <span
+              *ngIf="item.badge"
+              class="nav-item-badge"
+            >{{ item.badge }}</span>
+            <i-feather
+              *ngIf="hasChildren(item)"
+              name="chevron-right"
+              class="nav-item-chevron !w-3.5 !h-3.5 ml-auto"
+              [class.rotate-90]="isLevel1Expanded(item)"
+            ></i-feather>
+          </a>
+
+          <!-- Level 2 submenu -->
+          <ul
+            *ngIf="hasChildren(item) && isLevel1Expanded(item)"
+            class="sidebar-submenu"
+          >
+            <li *ngFor="let sub of item.submenu">
+              <a
+                *ngIf="canView(sub)"
+                (click)="callLevel2Toggle($event, sub.moduleName)"
+                [routerLink]="!hasChildren(sub) ? [sub.path] : null"
+                routerLinkActive="nav-sub-item--active"
+                [routerLinkActiveOptions]="{ exact: false }"
+                class="nav-sub-item"
+              >
+                <i-feather
+                  *ngIf="sub.icon"
+                  [name]="sub.icon"
+                  class="!w-3.5 !h-3.5 opacity-60"
+                ></i-feather>
+                <span>{{ sub.title }}</span>
+                <i-feather
+                  *ngIf="hasChildren(sub)"
+                  name="chevron-right"
+                  class="!w-3 !h-3 ml-auto"
+                  [class.rotate-90]="isLevel2Expanded(sub)"
+                ></i-feather>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <div
+      *ngIf="isSearchActive() && filteredSidebarItems.length === 0"
+      class="sidebar-empty"
+    >
+      No menu items found.
+    </div>
+  </nav>
+
+  <!-- ── Logout ────────────────────────────────────────────────────────── -->
+  <div class="sidebar-footer">
+    <button
+      (click)="logout()"
+      [disabled]="isLoggingOut"
+      class="sidebar-logout"
+    >
+      <i-feather name="log-out" class="!w-4 !h-4"></i-feather>
+      <span>{{ isLoggingOut ? 'Logging out…' : 'Log Out' }}</span>
+    </button>
+  </div>
+</aside>

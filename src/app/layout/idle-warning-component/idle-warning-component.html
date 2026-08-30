@@ -1,0 +1,12 @@
+<div *ngIf="showWarning" class="idle-warning-overlay">
+    <div class="idle-warning-modal">
+        <div class="idle-warning-icon">
+            <i class="material-icons text-warning">warning</i>
+        </div>
+        <h3>Session Expiring</h3>
+        <p>Your session will expire in <strong>{{ timeLeft }}</strong> seconds due to inactivity.</p>
+        <button class="btn btn-primary" (click)="stayLoggedIn()">
+            Stay Logged In
+        </button>
+    </div>
+</div>

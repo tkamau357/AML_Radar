@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sweepGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299E1;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#4299E1;stop-opacity:0.3"/>
+    </linearGradient>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A365D"/>
+      <stop offset="100%" style="stop-color:#2C5282"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <circle cx="200" cy="200" r="190" fill="url(#bgGradient)"/>
+  
+  <!-- Radar circles -->
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="200" cy="200" r="106" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="200" cy="200" r="63" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Cross lines -->
+  <line x1="50" y1="200" x2="350" y2="200" stroke="#FFFFFF" stroke-width="1.5" opacity="0.5"/>
+  <line x1="200" y1="50" x2="200" y2="350" stroke="#FFFFFF" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Sweep -->
+  <path d="M200,200 L200,50 A150,150 0 0,1 331,131 Z" fill="url(#sweepGradient)" opacity="0.8"/>
+  
+  <!-- Detection points -->
+  <circle cx="244" cy="119" r="16" fill="#48BB78"/>
+  <circle cx="281" cy="156" r="12" fill="#ED8936"/>
+  <circle cx="231" cy="81" r="12" fill="#F56565"/>
+  
+  <!-- Center -->
+  <circle cx="200" cy="200" r="16" fill="#FFFFFF"/>
+</svg>

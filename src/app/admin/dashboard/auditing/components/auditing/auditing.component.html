@@ -1,0 +1,180 @@
+<!-- Audit Trail page -->
+<div class="audit-page">
+
+  <!-- ── Page header ─────────────────────────────────────────────────── -->
+  <div class="audit-page-header">
+    <div>
+      <h2 class="audit-page-title">Audit Trail</h2>
+      <p class="audit-page-subtitle">System activity log — all recorded events</p>
+    </div>
+  </div>
+
+  <!-- ── Filter card ─────────────────────────────────────────────────── -->
+  <div class="audit-filter-card">
+    <form [formGroup]="dateForm" (ngSubmit)="fetchByDate()" class="audit-filter-row">
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label" for="audit-date">Date</label>
+        <input
+          type="date"
+          id="audit-date"
+          formControlName="date"
+          class="audit-filter-input"
+          [max]="maxDate"
+        />
+      </div>
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label">Filter by user (email)</label>
+        <input
+          type="text"
+          [(ngModel)]="filterEmail"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="e.g. admin@amlradar.co.ke"
+          class="audit-filter-input"
+        />
+      </div>
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label">Event type</label>
+        <select [(ngModel)]="filterEventType" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
+          <option value="">All</option>
+          <option value="LOGIN">LOGIN</option>
+          <option value="LOGOUT">LOGOUT</option>
+          <option value="CREATE">CREATE</option>
+          <option value="UPDATE">UPDATE</option>
+          <option value="DELETE">DELETE</option>
+          <option value="READ">READ</option>
+        </select>
+      </div>
+
+      <div class="audit-filter-actions">
+        <button type="submit" class="audit-btn-primary" [disabled]="dateForm.invalid || loading">
+          <mat-icon class="audit-btn-icon">search</mat-icon>
+          Fetch Records
+        </button>
+        <button type="button" class="audit-btn-ghost" (click)="resetFilters()">
+          <mat-icon class="audit-btn-icon">refresh</mat-icon>
+          Reset
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── Table card ──────────────────────────────────────────────────── -->
+  <div class="audit-card">
+
+    <!-- Card toolbar -->
+    <div class="audit-card-toolbar">
+      <div>
+        <span class="audit-card-title">Audit Records</span>
+        <span class="audit-card-count" *ngIf="!loading">{{ totalRows | number }} total</span>
+      </div>
+      <div class="audit-toolbar-actions">
+        <button class="audit-icon-btn" matTooltip="Refresh" (click)="fetchByDate()">
+          <mat-icon class="audit-icon">refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="audit-table-wrap">
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="audit-state">
+        <div class="audit-spinner"></div>
+        <span class="audit-state-text">Loading records…</span>
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="!loading && auditData.length === 0" class="audit-state">
+        <mat-icon class="audit-empty-icon">inbox</mat-icon>
+        <span class="audit-state-text">No audit records found for the selected criteria.</span>
+      </div>
+
+      <!-- Data -->
+      <table *ngIf="!loading && auditData.length > 0" class="audit-table">
+        <thead>
+          <tr class="audit-thead-row">
+            <th class="audit-th audit-th--num">#</th>
+            <th class="audit-th">Module</th>
+            <th class="audit-th">Event Type</th>
+            <th class="audit-th">User</th>
+            <th class="audit-th">Timestamp</th>
+            <th class="audit-th audit-th--center">Status</th>
+            <th class="audit-th">Activity</th>
+            <th class="audit-th audit-th--center">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let row of auditData; let i = index"
+            class="audit-row"
+            (click)="detailsCall(row)"
+          >
+            <td class="audit-td audit-td--muted audit-td--num">{{ getRowNumber(i) }}</td>
+
+            <td class="audit-td">
+              <span class="audit-module-tag">{{ row.moduleType || '—' }}</span>
+            </td>
+
+            <td class="audit-td">
+              <div class="audit-event-cell">
+                <mat-icon class="audit-event-icon">{{ getEventIcon(row.eventType || '') }}</mat-icon>
+                <span>{{ row.eventType }}</span>
+              </div>
+            </td>
+
+            <td class="audit-td audit-td--email">{{ row.userEmail }}</td>
+
+            <td class="audit-td audit-td--mono audit-td--nowrap">
+            {{ row.timestamp ? (row.timestamp | date:'dd MMM yyyy, HH:mm:ss') : '—' }}
+            </td>
+
+            <td class="audit-td audit-td--center">
+              <span class="audit-status-badge" [ngClass]="getStatusClass(row.status || '')">
+                {{ row.status || '—' }}
+              </span>
+            </td>
+
+            <td class="audit-td audit-td--activity">{{ row.activity }}</td>
+
+            <td class="audit-td audit-td--center">
+              <button
+                class="audit-detail-btn"
+                (click)="detailsCall(row); $event.stopPropagation()"
+                matTooltip="View details"
+              >
+                <mat-icon class="audit-icon">open_in_new</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="audit-pagination" *ngIf="!loading && auditData.length > 0">
+      <span class="audit-pag-info">
+        Showing {{ startRecord }}–{{ endRecord }} of {{ totalRows | number }}
+      </span>
+      <div class="audit-pag-controls">
+        <div class="audit-per-page">
+          <span class="audit-per-page-label">Rows per page:</span>
+          <mat-select
+            [(ngModel)]="rowsPerPage"
+            (selectionChange)="setRowsPerPage(rowsPerPage)"
+            class="audit-per-page-select"
+          >
+            <mat-option *ngFor="let n of rowsPerPageOptions" [value]="n">{{ n }}</mat-option>
+          </mat-select>
+        </div>
+        <div class="audit-nav">
+          <button class="audit-nav-btn" (click)="prevPage()" [disabled]="page === 0">‹</button>
+          <span class="audit-nav-page">{{ page + 1 }} / {{ totalPages }}</span>
+          <button class="audit-nav-btn" (click)="nextPage()" [disabled]="page >= totalPages - 1">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

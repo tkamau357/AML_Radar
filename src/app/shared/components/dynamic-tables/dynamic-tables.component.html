@@ -1,0 +1,333 @@
+<!-- ── Page header: title + add button ──────────────────────────────────────── -->
+<div class="dt-page-header">
+  <div class="dt-page-titles">
+    <h2 class="dt-page-title">{{ pageTitle }}</h2>
+    <p class="dt-page-subtitle" *ngIf="pageSubtitle">{{ pageSubtitle }}</p>
+  </div>
+
+  <div class="dt-page-actions">
+    <ng-container *appHasPermission="[secondaryButtonPermission]">
+      <button
+        *ngIf="showSecondaryButton"
+        (click)="onSecondaryButton()"
+        [ngClass]="secondaryButtonClass"
+      >{{ secondaryButtonLabel }}</button>
+    </ng-container>
+
+    <ng-container >
+      <button
+        *ngIf="showAddButton"
+        (click)="onAdd()"
+        class="dt-add-btn"
+        [style.background]="addButtonBackground"
+      >
+        <span class="dt-add-btn-icon">+</span>
+        {{ addButtonLabel }}
+      </button>
+    </ng-container>
+  </div>
+</div>
+
+<!-- ── Optional widgets slot ────────────────────────────────────────────────── -->
+<ng-content select="[page-widgets]"></ng-content>
+
+<!-- ── Search bar ───────────────────────────────────────────────────────────── -->
+<div class="dt-toolbar" *ngIf="showSearch || showModuleTypeFilter || customFilters.length > 0">
+
+  <!-- Search input -->
+  <div class="dt-search" *ngIf="showSearch">
+    <mat-icon class="dt-search-icon">search</mat-icon>
+    <input
+      type="text"
+      [placeholder]="searchPlaceholder"
+      [(ngModel)]="searchText"
+      (input)="onSearch()"
+      class="dt-search-input"
+    />
+    <button *ngIf="searchText" (click)="clearSearch()" class="dt-search-clear" aria-label="Clear">
+      <mat-icon class="dt-search-clear-icon">close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Module type filter -->
+  <div class="dt-filter-wrap" *ngIf="showModuleTypeFilter">
+    <input
+      type="text"
+      [formControl]="moduleControl"
+      [matAutocomplete]="moduleAuto"
+      (input)="onModuleInput($event)"
+      (focus)="onModuleFocus()"
+      (click)="onModuleFocus()"
+      (keydown)="onModuleKeydown($event)"
+      (blur)="onModuleBlur()"
+      placeholder="Filter by module type..."
+      class="dt-filter-input"
+    />
+    <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
+    <button *ngIf="isSelectedModule()" (click)="clearModuleFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-autocomplete #moduleAuto="matAutocomplete" [displayWith]="displayModuleType" (optionSelected)="onModuleSelected($event)">
+      <mat-option *ngFor="let mod of filteredModuleTypes" [value]="mod">{{ mod.name }}</mat-option>
+    </mat-autocomplete>
+  </div>
+
+  <!-- Custom filter -->
+  @if(customFilters.length > 0) {
+    <div class="dt-filter-wrap">
+      <input
+        type="text"
+        [formControl]="customFilterControl"
+        [matAutocomplete]="customFilterAuto"
+        (input)="onCustomFilterInput($event)"
+        (focus)="onCustomFilterFocus()"
+        (click)="onCustomFilterFocus()"
+        (keydown)="onCustomFilterKeydown($event)"
+        (blur)="onCustomFilterBlur()"
+        [placeholder]="customFilterLabel"
+        class="dt-filter-input"
+      />
+      <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
+      <button *ngIf="isSelectedCustomFilter()" (click)="clearCustomFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-autocomplete #customFilterAuto="matAutocomplete" [displayWith]="displayCustomFilter" (optionSelected)="onCustomFilterSelected($event)">
+        <mat-option *ngFor="let f of filteredCustomFilters" [value]="f">{{ f.label }}</mat-option>
+      </mat-autocomplete>
+    </div>
+  }
+</div>
+
+<!-- ── Table card ────────────────────────────────────────────────────────────── -->
+<div class="dt-card">
+
+  <!-- Card toolbar: subtitle + header actions + export -->
+  <div class="dt-card-toolbar">
+    <div class="dt-card-titles">
+      <span class="dt-card-title">{{ pageTitle }}</span>
+      <span class="dt-card-subtitle" *ngIf="TableSubtitle">{{ TableSubtitle }}</span>
+    </div>
+
+    <div class="dt-card-actions">
+      <!-- Header icon actions -->
+      <ng-container *ngFor="let action of getVisibleHeaderActions()">
+        <button
+          type="button"
+          [disabled]="action.disabled ? action.disabled() : false"
+          [matTooltip]="action.tooltip || action.label || ''"
+          (click)="action.onClick()"
+          class="dt-header-action-btn"
+          [ngClass]="action.className || ''"
+        >
+          <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
+        </button>
+      </ng-container>
+
+      <!-- Export -->
+      <button *ngIf="showExcel" type="button" (click)="exportToExcel()" matTooltip="Export to Excel" class="dt-export-btn">
+        <img src="assets/images/xls.png" alt="Excel" class="dt-export-img" />
+      </button>
+      <button *ngIf="showPdf" type="button" (click)="exportToPDF()" matTooltip="Export to PDF" class="dt-export-btn">
+        <img src="assets/images/pdf.png" alt="PDF" class="dt-export-img" />
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────────── -->
+  <div class="dt-table-wrap">
+    <div *ngIf="isAnyDropdownOpen" class="dt-dropdown-backdrop"></div>
+
+    <table class="dt-table">
+      <!-- Head -->
+      <thead>
+        <tr class="dt-thead-row">
+          <th
+            *ngFor="let col of columns"
+            class="dt-th"
+            [ngClass]="{ 'dt-th--center': col.type === 'badge' || col.type === 'date', 'dt-th--checkbox': col.type === 'checkbox' }"
+          >
+            <ng-container [ngSwitch]="col.type">
+              <!-- Select all checkbox -->
+              <ng-container *ngSwitchCase="'checkbox'">
+                <input type="checkbox" [checked]="isAllSelected()" [indeterminate]="isIndeterminate()" (click)="masterToggle($event)" class="dt-checkbox" />
+              </ng-container>
+              <!-- Sortable / normal header -->
+              <ng-container *ngSwitchDefault>
+                <div
+                  class="dt-th-inner"
+                  [ngClass]="{ 'dt-th-inner--center': col.type === 'badge' || col.type === 'date', 'dt-th-inner--sortable': isSortable(col) }"
+                  (click)="onSort(col)"
+                >
+                  {{ col.label }}
+                  <mat-icon
+                    *ngIf="isSortable(col) && activeSortField === col.field && sortDirection"
+                    class="dt-sort-icon"
+                  >{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                </div>
+              </ng-container>
+            </ng-container>
+          </th>
+
+          <th *ngIf="hasAnyVisibleActions()" class="dt-th dt-th--center">Actions</th>
+        </tr>
+      </thead>
+
+      <!-- Body -->
+      <tbody>
+        <!-- Loading -->
+        <tr *ngIf="isLoading">
+          <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
+            <div class="dt-loading">
+              <div class="dt-spinner"></div>
+              <span class="dt-state-text">Loading records…</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Empty -->
+        <tr *ngIf="!isLoading && pagedData.length === 0">
+          <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
+            <div class="dt-empty">
+              <mat-icon class="dt-empty-icon">inbox</mat-icon>
+              <span class="dt-state-text">{{ searchText ? 'No results match your search.' : noRecordsMessage }}</span>
+              <button *ngIf="searchText" (click)="clearSearch()" class="dt-clear-search-link">Clear search</button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Data rows -->
+        <ng-container *ngIf="!isLoading && pagedData.length > 0">
+          <tr
+            *ngFor="let row of pagedData; let i = index"
+            class="dt-row"
+          >
+            <td
+              *ngFor="let col of columns"
+              class="dt-td"
+              [ngClass]="{ 'dt-td--center': col.type === 'badge' || col.type === 'date', 'dt-td--checkbox': col.type === 'checkbox' }"
+            >
+              <ng-container [ngSwitch]="col.type">
+
+                <!-- Checkbox -->
+                <ng-container *ngSwitchCase="'checkbox'">
+                  <input type="checkbox" [checked]="selection.isSelected(row)" [disabled]="checkboxDisabled(row)" (click)="toggleRow(row, $event)" class="dt-checkbox" />
+                </ng-container>
+
+                <!-- Badge -->
+                <span
+                  *ngSwitchCase="'badge'"
+                  class="dt-badge"
+                  [ngClass]="getStatusBadgeClass(row?.[col.field]).class"
+                >{{ getStatusBadgeClass(row?.[col.field]).text }}</span>
+
+                <!-- Date -->
+                <span *ngSwitchCase="'date'" class="dt-td-text">
+                  <ng-container *ngIf="col.field === 'startedAt' || col.field === 'completedAt'; else normalDate">
+                    {{ formatBackendDate(row?.[col.field]) | date:'yyyy-MM-dd, HH:mm' }}
+                  </ng-container>
+                  <ng-template #normalDate>
+                    {{ row?.[col.field] | date:'dd/MM/yyyy' }}
+                  </ng-template>
+                </span>
+
+                <!-- Default -->
+                <span
+                  *ngSwitchDefault
+                  class="dt-td-text"
+                  [title]="row?.[col.field]"
+                  [style.maxWidth]="col.width || ''"
+                >
+                  <ng-container *ngIf="col.field === 'index'; else normalField">
+                    {{ getRowNumber(i) }}
+                  </ng-container>
+                  <ng-template #normalField>
+                    {{ col.formatter ? col.formatter(row) : row?.[col.field] }}
+                  </ng-template>
+                </span>
+              </ng-container>
+            </td>
+
+            <!-- Row actions -->
+            <td *ngIf="hasAnyVisibleActions()" class="dt-td dt-td--actions">
+              <div class="dt-row-actions">
+                <ng-container *ngFor="let action of getVisibleActions(row) | slice:0:maxVisibleActions">
+                  <button
+                    *ngIf="!action.show || action.show(row)"
+                    (click)="action.onClick(row); $event.stopPropagation()"
+                    [matTooltip]="action.label || getActionLabel(action.icon)"
+                    class="dt-action-btn"
+                  >
+                    <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="dt-action-label">{{ action.label }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Overflow menu -->
+                <ng-container *ngIf="getVisibleActions(row).length > maxVisibleActions">
+                  <div class="dt-overflow-wrap">
+                    <button
+                      class="dt-overflow-btn"
+                      (click)="toggleRowActions(row, $event); $event.stopPropagation()"
+                    >⋮</button>
+                    <div
+                      *ngIf="row.showMoreActions"
+                      class="dt-overflow-menu"
+                      [style.bottom]="row.dropdownPosition === 'top' ? '100%' : 'auto'"
+                      [style.top]="row.dropdownPosition === 'top' ? 'auto' : '100%'"
+                    >
+                      <button
+                        *ngFor="let action of getVisibleActions(row) | slice:maxVisibleActions"
+                        (click)="action.onClick(row); closeRowActions(row); $event.stopPropagation()"
+                        class="dt-overflow-item"
+                      >
+                        <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
+                        <span>{{ action.label || getActionLabel(action.icon) }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Pagination ─────────────────────────────────────────────────────────── -->
+  <div class="dt-pagination">
+    <span class="dt-pagination-info">
+      Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }}
+    </span>
+
+    <div class="dt-pagination-controls">
+      <div class="dt-per-page">
+        <span class="dt-per-page-label">Items per page:</span>
+        <mat-select
+          [(ngModel)]="pageSize"
+          (selectionChange)="onPageSizeChange()"
+          class="dt-per-page-select"
+          panelClass="dt-select-panel"
+        >
+          <mat-option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</mat-option>
+        </mat-select>
+      </div>
+
+      <div class="dt-nav">
+        <button
+          class="dt-nav-btn"
+          (click)="prevPage()"
+          [disabled]="pageIndex === 0"
+          aria-label="Previous page"
+        >‹</button>
+        <span class="dt-nav-page">{{ pageIndex + 1 }}</span>
+        <button
+          class="dt-nav-btn"
+          (click)="nextPage()"
+          [disabled]="pageIndex === totalPages.length - 1"
+          aria-label="Next page"
+        >›</button>
+      </div>
+    </div>
+  </div>
+</div>

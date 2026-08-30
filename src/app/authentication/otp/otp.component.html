@@ -1,0 +1,86 @@
+<section class="aml-otp-page">
+  <div class="hex-bg"></div>
+
+  <!-- Perfectly Centered Container -->
+  <div class="otp-wrapper">
+    <div class="otp-card">
+      
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="/assets/logos/aml-radar-logo.svg" alt="AML RADAR Logo" class="logo-img" />
+      </div>
+
+      <!-- Header -->
+      <div class="header-text">
+        <h2>Verify OTP</h2>
+        <p>Enter the 6-digit OTP sent to your email address</p>
+        <div class="email-badge">
+          <mat-icon>mail</mat-icon>
+          <span>{{ email }}</span>
+        </div>
+      </div>
+
+      <!-- OTP Input -->
+      <form [formGroup]="otpForm" (ngSubmit)="validateOtp()" class="otp-form">
+        
+        <!-- OTP Input Boxes -->
+        <div class="otp-input-container">
+          <input
+            #otpInput
+            *ngFor="let digit of otpDigits; let i = index"
+            type="text"
+            maxlength="1"
+            [value]="digit"
+            (input)="onInput(i, $event)"
+            (keydown)="onKeydown(i, $event)"
+            (paste)="onPaste(i, $event)"
+            class="otp-box"
+            [class.error]="error"
+            [class.success]="!error && otpDigits.every(d => d)"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            (focus)="currentIndex = i"
+          />
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="error" class="error-msg">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error }}</span>
+        </div>
+
+        <!-- Verify Button - Only disabled during loading so users can trigger validation -->
+        <!-- Verify Button - Disabled while loading -->
+        <button type="submit" class="verify-btn" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          <mat-icon *ngIf="!loading" class="btn-icon">verified_user</mat-icon>
+          {{ loading ? 'Verifying...' : 'Verify OTP' }}
+        </button>
+
+        <!-- Footer Actions -->
+        <div class="footer-actions">
+          
+          <!-- Resend Timer -->
+          <div class="resend-container">
+            <button
+              type="button"
+              (click)="resendOtp()"
+              [disabled]="!canResend || loading"
+              class="resend-btn"
+            >
+              <mat-icon *ngIf="!canResend" class="timer-icon">schedule</mat-icon>
+              <mat-icon *ngIf="canResend" class="resend-icon">refresh</mat-icon>
+              <span>{{ resendText }}</span>
+            </button>
+          </div>
+
+          <!-- Back to Login -->
+          <button type="button" (click)="backToLogin()" class="back-btn">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back To Login</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

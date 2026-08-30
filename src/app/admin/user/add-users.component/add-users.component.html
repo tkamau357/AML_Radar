@@ -1,0 +1,132 @@
+<div class="form-page">
+
+  <div class="form-page-header">
+    <button class="back-btn" (click)="cancel()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="form-page-title">Create User</h2>
+      <p class="form-page-subtitle">Add a new system user and assign their role and branch</p>
+    </div>
+  </div>
+
+  <!-- Loading ref data -->
+  <div *ngIf="isLoadingRefs" class="state-loading">
+    <div class="spinner-sm"></div>
+    <span>Loading roles and branches…</span>
+  </div>
+
+  <form *ngIf="!isLoadingRefs" [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
+
+    <div class="form-main">
+
+      <!-- Personal details -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">person</mat-icon>
+          <span class="form-card-title">Personal Information</span>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">First Name <span class="required">*</span></label>
+              <input type="text" formControlName="firstName" class="field-input"
+                [class.field-input--error]="err('firstName')" placeholder="John" />
+              <span class="field-error" *ngIf="err('firstName')">First name is required</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Last Name <span class="required">*</span></label>
+              <input type="text" formControlName="lastName" class="field-input"
+                [class.field-input--error]="err('lastName')" placeholder="Doe" />
+              <span class="field-error" *ngIf="err('lastName')">Last name is required</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Email Address <span class="required">*</span></label>
+            <input type="email" formControlName="email" class="field-input"
+              [class.field-input--error]="err('email')" placeholder="john.doe@bank.co.ke" />
+            <span class="field-error" *ngIf="err('email')">Valid email is required</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Phone Number</label>
+            <input type="tel" formControlName="phoneNumber" class="field-input" placeholder="+254 7xx xxx xxx" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Account setup -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">manage_accounts</mat-icon>
+          <span class="form-card-title">Account Setup</span>
+        </div>
+        <div class="form-card-body">
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Role <span class="required">*</span></label>
+              <select formControlName="roleId" class="field-input field-select"
+                [class.field-input--error]="err('roleId')">
+                <option [value]="null" disabled>Select a role…</option>
+                <option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</option>
+              </select>
+              <span class="field-error" *ngIf="err('roleId')">Role is required</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Branch <span class="required">*</span></label>
+              <select formControlName="branchCode" class="field-input field-select"
+                [class.field-input--error]="err('branchCode')">
+                <option [value]="null" disabled>Select a branch…</option>
+                <option *ngFor="let b of branches" [value]="b.branchCode">
+                  {{ b.branchName }} ({{ b.branchCode }})
+                </option>
+              </select>
+              <span class="field-error" *ngIf="err('branchCode')">Branch is required</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Password <span class="required">*</span></label>
+            <div class="field-password-wrap">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                class="field-input"
+                [class.field-input--error]="err('password')"
+                placeholder="Minimum 8 characters"
+              />
+              <button type="button" class="field-password-toggle" (click)="showPassword = !showPassword">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="err('password')">Password must be at least 8 characters</span>
+            <span class="field-hint">User will be prompted to change this on first login</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Aside -->
+    <div class="form-aside">
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-title">Actions</span>
+        </div>
+        <div class="form-card-body">
+          <button type="submit" class="action-btn action-btn--primary"
+            [disabled]="form.invalid || isSubmitting">
+            <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
+            <mat-icon *ngIf="!isSubmitting">person_add</mat-icon>
+            {{ isSubmitting ? 'Creating…' : 'Create User' }}
+          </button>
+          <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,99 @@
+<div class="form-page">
+
+  <div class="form-page-header">
+    <button class="back-btn" (click)="back()" type="button"><mat-icon>arrow_back</mat-icon></button>
+    <div>
+      <h2 class="form-page-title">User Details</h2>
+      <p class="form-page-subtitle">View account information for this user</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="state-loading">
+    <div class="spinner-sm"></div><span>Loading user…</span>
+  </div>
+
+  <div *ngIf="!isLoading && user" class="form-layout">
+
+    <div class="form-main">
+
+      <!-- Profile card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <div class="user-avatar">
+            {{ (user.firstName || ' ')[0] }}{{ (user.lastName || ' ')[0] }}
+          </div>
+          <div class="user-header-info">
+            <span class="user-fullname">{{ user.firstName }} {{ user.lastName }}</span>
+            <span class="user-email">{{ user.email }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="isActive ? 'badge-active' : 'badge-inactive'">
+            {{ user.status || 'Unknown' }}
+          </span>
+        </div>
+        <div class="detail-body detail-body--grid">
+          <div class="detail-row">
+            <span class="detail-label">Phone</span>
+            <span class="detail-value">{{ user.phoneNumber || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role</span>
+            <span class="detail-value">{{ user.role?.name || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Branch</span>
+            <span class="detail-value">
+              {{ user.branch?.branchName || '—' }}
+              <span class="detail-sub" *ngIf="user.branch?.branchCode">({{ user.branch?.branchCode }})</span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Last Login</span>
+            <span class="detail-value">{{ user.lastLoginAt ? (user.lastLoginAt | date:'dd MMM yyyy, HH:mm') : 'Never' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Account Created</span>
+            <span class="detail-value">{{ user.createdAt ? (user.createdAt | date:'dd MMM yyyy') : '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Must Change Password</span>
+            <span class="detail-value">{{ user.mustChangePassword ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Aside actions -->
+    <div class="form-aside">
+      <div class="detail-card">
+        <div class="detail-card-header"><span class="detail-card-title">Actions</span></div>
+        <div class="detail-body">
+          <button class="action-btn action-btn--primary" (click)="editUser()" type="button">
+            <mat-icon>edit</mat-icon> Edit User
+          </button>
+          <button
+            *ngIf="!isActive"
+            class="action-btn action-btn--success"
+            (click)="changeStatus('ACTIVE')"
+            [disabled]="isChanging"
+            type="button"
+          >
+            <mat-icon>check_circle</mat-icon> Activate
+          </button>
+          <button
+            *ngIf="isActive"
+            class="action-btn action-btn--danger"
+            (click)="changeStatus('INACTIVE')"
+            [disabled]="isChanging"
+            type="button"
+          >
+            <mat-icon>block</mat-icon> Deactivate
+          </button>
+          <button class="action-btn action-btn--ghost" (click)="back()" type="button">
+            Back to list
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

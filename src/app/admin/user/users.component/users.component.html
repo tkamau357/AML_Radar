@@ -1,0 +1,17 @@
+<app-dynamic-tables
+  pageTitle="Users"
+  pageSubtitle="Manage system users and their access"
+  TableSubtitle="All users"
+  addButtonLabel="Add User"
+  buttonPermission="CREATE_USER"
+  [showAddButton]="true"
+  [columns]="columns"
+  [data]="users"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No users found."
+  [showExcel]="true"
+  [showPdf]="true"
+  (add)="onAdd()"
+></app-dynamic-tables>

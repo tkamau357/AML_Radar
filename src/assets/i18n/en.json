@@ -1,0 +1,257 @@
+{
+  "MENUITEMS": {
+    "MAIN": {
+      "TEXT": "Main"
+    },
+    "DASHBOARD": {
+      "TEXT": "Dashboard",
+      "LIST": {
+        "DASHBOARD1": "Dashboard 1",
+        "DASHBOARD2": "Dashboard 2"
+      }
+    },
+    "PROJECTS": {
+      "TEXT": "Projects",
+      "LIST": {
+        "ALL-PROJECTS": "All Projects",
+        "ADD-PROJECT": "Add Project",
+        "PROJECT-DETAILS": "Project Details"
+      }
+    },
+    "EMPLOYEES": {
+      "TEXT": "Employees",
+      "LIST": {
+        "ALL-EMPLOYEE": "All Employees",
+        "ADD-EMPLOYEE": "Add Employee",
+        "EDIT-EMPLOYEE": "Edit Employee",
+        "PROFILE": "Employee Profile"
+      }
+    },
+    "CLIENTS": {
+      "TEXT": "Clients",
+      "LIST": {
+        "ALL-CLIENTS": "All Clients",
+        "ADD-CLIENT": "Add Client",
+        "EDIT-CLIENT": "Edit Client"
+      }
+    },
+    "ACCOUNTS": {
+      "TEXT": "Accounts",
+      "LIST": {
+        "ALL-PAYMENTS": "All Payments",
+        "ADD-PAYMENT": "Add Payment",
+        "INVOICE": "Invoice"
+      }
+    },
+    "EMPLOYEE": {    
+        "DASHBOARD": "Dashboard",
+        "ATTENDANCE": "Attendance",
+        "MY-LEAVES": "My Leaves",
+        "MYTEAM": "My Team",
+        "MYPROJECTS": "My Projects",
+        "MYTASKS": "My Tasks",
+        "SETTINGS": "Settings",
+        "CHAT": "Chat"
+    },
+    "LEAVES": {
+      "TEXT": "Leave Management",
+      "LIST": {
+        "LEAVE-REQUESTS": "All Leave Requests",
+        "LEAVE-BALANCE": "Leave Balance",
+        "LEAVE-TYPES": "Leave Types"
+      }
+    },
+    "HOLIDAYS": {
+      "TEXT": "Holidays",
+      "LIST": {
+        "ALL-HOLIDAYS": "All Holidays",
+        "ADD-HOLIDAY": "Add Holiday",
+        "EDIT-HOLIDAY": "Edit Holiday"
+      }
+    },
+    "ATTENDANCE": {
+      "TEXT": "Attendance",
+      "LIST": {
+        "TODAY": "Today's Attendance",
+        "EMPLOYEE": "Employee Attendance",
+        "SHEET": "Attendance Sheet"
+      }
+    },
+    "CLIENT": {    
+      "TEXT": "Client",
+      "DASHBOARD": "Dashboard",
+      "PROJECTS": {
+        "TEXT": "Projects",
+        "LIST": {
+          "MY-PROJECTS": "My Projects",
+          "PROJECT-DETAILS": "Project Details"
+        }
+      },
+      "SUPPORTS": {
+        "TEXT": "Supports",
+        "LIST": {
+          "TICKETS": "Tickets",
+          "TICKET-DETAILS": "Ticket Details"
+        }
+      },
+      "BILLING": "Billing",
+      "CHAT": "Chat",
+      "SETTINGS": "Settings"
+    },
+    "APPS": {
+      "TEXT": "Apps"
+    },
+    "CALENDAR": {
+      "TEXT": "Calendar"
+    },
+    "TASK": {
+      "TEXT": "Task"
+    },
+    "CONTACTS": {
+      "TEXT": "Contacts"
+    }
+  },
+  "NAV": {
+    "BACK_DASHBOARD": "Back to Dashboard"
+  },
+  "CARDS": {
+      "ALL": "All",
+      "MATCHED": "Matched",
+      "EXCEPTIONS": "Exceptions",
+      "MANUAL": "Manual",
+      "MANUALVALIDATION": "Manual Validation",
+      "MANUALVERIFICATION": "Manual Verification",
+      "MANUALVERIFIED": "Manual Verified",
+      "SPILLOVER": "Spillover",
+      "REVERSAL": "Reversal",
+      "CHARGES": "Charges",
+      "THIRDPARTYSPILLOVERS": "Third-Party Spillovers",
+      "AUTO-REVERSAL": "Auto Reversal",
+      "OTHER-TRANSACTIONS": "Other Trans",
+      "SETTLEMENT-REPORT": "Settlement Report",
+      "REFUND-REPORT": "Refund Report",
+      "TOTALRECORDS": "Total Records",
+      "MATCHEDRECORDS": "Matched Records",
+      "PENDINGEXCEPTIONS": "Pending Exceptions",
+      "ALLSETTLEMENTS": "All Settlements",
+      "PAIDSETTLEMENTS": "Paid Settlements",
+      "POSTINGFILE": "Posting File",
+      "PARTNERSUMMARY": "Partner Summary",
+      "INCOMPLETE": "Incomplete",
+      "HTTUM": "HTTUM",
+      "SUMMARY": "Summary",
+      "VALIDATED": "Validated",
+      "PENDING": "Pending",
+      "MANAGEMENT": "Management",
+      "ROLLBACK": "Rollback",
+      "RECORDS": "Records",
+      "OPENINGBALANCE": "Opening Balance",
+      "CLOSINGBALANCE": "Closing Balance",
+      "THIRDPARTYCLOSINGBALANCE": "Third Party Closing Balance",
+      "GLNUMBER": "GL Number",
+      "RECONDATE": "Recon Date",
+      "BALANCES": "Balances"
+    },
+    "DIALOGS": {
+      "VERIFY": "Verify",
+      "REJECT": "Reject",
+      "MARK": "Mark",
+      "ADDROLLBACK": "Add Rollback",
+      "UPDATECOMMENT": "Update Comment",
+      "VALIDATE": "Validate",
+      "TRANSACTIONDETAILS": "Transaction Details"
+    },
+    "EXCEL_REPORTS": {
+      "MATCHED": "Generate Matched Records Excel",
+      "MATCH": "Generate Match Records Excel",
+      "EXCEPTION": "Generate Exception Records Excel",
+      "PENDING": "Generate Pending Records Excel",
+      "ALL": "Generate All Records Excel",
+      "MANUAL": "Generate Manual Records Excel",
+      "MANUALVALIDATED": "Generate Manual Validated Records Excel",
+      "MANUALVERIFIED": "Generate Manual Verified Records Excel",
+      "REVERSAL": "Generate Reversed Records Excel",
+      "AUTO_REVERSAL": "Generate Auto Reversal Records Excel",
+      "OTHER": "Generate Other Transaction Records Excel",
+      "SPILLOVER": "Generate Spillover Records Excel",
+      "CHARGES": "Generate Charges Records Excel",
+      "INCOMPLETE": "Generate Incomplete Records Excel",
+      "POSTING": "Generate Posting File Excel",
+      "SUMMARY": "Generate Summary Records Excel",
+      "PARTNERSUMMARY": "Generate Partner Summary Records Excel",
+      "HTTUM": "Generate HTTUM Records Excel",
+      "THIRDPARTYSPILLOVERS": "Generate Third Party Spillover Records Excel",
+      "MATCHED-MPESA": "Generate Mpesa Matched Records Excel",
+      "EXCEPTION-MPESA": "Generate Mpesa Exception Records Excel",
+      "ALL-MPESA": "Generate Mpesa All Records Excel",
+      "MANUAL-MPESA": "Generate Mpesa Manual Records Excel",
+      "MANUALVALIDATED-MPESA": "Generate Mpesa Manual Validated Records Excel",
+      "MANUALVERIFIED-MPESA": "Generate Mpesa Manual Verified Records Excel",
+      "AUTO_REVERSAL-MPESA": "Generate Mpesa Auto Reversal Records Excel",
+      "OTHER-MPESA": "Generate Mpesa Other Transaction Records Excel",
+      "SPILLOVER-MPESA": "Generate Mpesa Spillover Records Excel",
+      "CHARGES-MPESA": "Generate Mpesa Charges Records Excel",
+      "POSTING-MPESA": "Generate Mpesa Posting File Excel",
+      "THIRDPARTYSPILLOVERS-MPESA": "Generate Mpesa Third Party Spillover Records Excel",
+      "MATCHED-ARCHIVED": "Generate Archived Matched Records Excel",
+      "EXCEPTION-ARCHIVED": "Generate Archived Exception Records Excel",
+      "ALL-ARCHIVED": "Generate Archived All Records Excel",
+      "MANUALVALIDATED-ARCHIVED": "Generate Archived Manual Validated Records Excel",
+      "MANUALVERIFIED-ARCHIVED": "Generate Archived Manual Verified Records Excel",
+      "AUTO_REVERSAL-ARCHIVED": "Generate Archived Auto Reversal Records Excel",
+      "SPILLOVER-ARCHIVED": "Generate Archived Spillover Records Excel"
+    },
+    "SUB-TITLES": {
+      "DOWNLOAD-SETTLEMENT": "Download Settlement records",
+      "DOWNLOAD-REFUND": "Download refund report",
+      "DOWNLOADALLTRANSACTIONRECORDS": "Download all transaction records",
+      "DOWNLOADALLMATCHEDRECORDS": "Download all matched records",
+      "DOWNLOADRECORDSWITHEXCEPTIONS": "Download records with exceptions",
+      "DOWNLOADSETTLEMENTFILE": "Download Settlement File",
+      "DOWNLOADPOSTINGFILE": "Download Posting File",
+      "DOWNLOADPAIDSETTLEMENTS": "Download paid settlements",
+      "DOWNLOADALL": "Download All",
+      "DOWNLOADMATCHED": "Download Matched",
+      "DOWNLOADEXCEPTIONS": "Download Exceptions",
+      "DOWNLOADPENDING": "Download Pending",
+      "DOWNLOADMANUAL": "Download Manual",
+      "DOWNLOADMANUALVALIDATION": "Download Manual Validation",
+      "DOWNLOADMANUALVERIFICATION": "Download Manual Verification",
+      "DOWNLOADMANUALVERIFIED": "Download Manual Verified",
+      "DOWNLOADSPILLOVER": "Download Spillovers",
+      "DOWNLOADREVERSAL": "Download Reversals",
+      "DOWNLOADCHARGES": "Download Charges",
+      "DOWNLOADAUTOREVERSAL": "Download Auto Reversals",
+      "DOWNLOADOTHERTRANSACTIONS": "Download Other Transactions",
+      "DOWNLOADPARTNERSUMMARY": "Download Partner Summary",
+      "DOWNLOADSUMMARY": "Download Summary",
+      "DOWNLOADTHIRDPARTYSPILLOVERS": "Download Third-Party Spillovers",
+      "DOWNLOADHTTUM": "Download HTTUM",
+      "DOWNLOADINCOMPLETE": "Download Incomplete"
+    },
+  "BUTTONS": {
+    "INITIATERECONCILIATION": "Initiate Reconciliation",
+    "INITIATESETTLEMENT": "Initiate Settlement",
+    "FETCHRECONCILIATION": "Fetch Reconciliation",
+    "ADD": "Add",
+    "CONTINUE": "Continue",
+    "PROCESSSETTLEMENT": "Process Settlement",
+    "ADDNEW": "Add New",
+    "CANCEL": "Cancel",
+    "VERIFY": "Verify",
+    "MARK": "Mark",
+    "REJECT": "Reject",
+    "VALIDATE": "Validate",
+    "UNVALIDATE": "Unvalidate",
+    "DELETE": "Delete",
+    "VIEW": "View",
+    "SUBMIT": "Submit",
+    "DOWNLOAD": "Download",
+    "SELECTTYPE": "Select Type",
+    "SELECTTHERECONTYPE": "Select the recon type",
+    "SELECTTHECURRENCY": "Select the currency",
+    "VIEWRECON": "View Recon",
+    "ROLLBACK": "Rollback",
+    "GENERATE": "Generate"
+  }
+}

@@ -1,0 +1,142 @@
+/* styles.scss */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+/* 1. Import Tailwind CSS */
+@import "tailwindcss";
+
+/* 2. Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: #f4f4f4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 3. Custom scrollbar (optional) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+// Snackbar base styles
+.mat-mdc-snack-bar-container {
+
+  &.snackbar-success,
+  &.snackbar-danger,
+  &.snackbar-info {
+    // Reduce height
+    // max-height: 36px !important;
+    
+    .mdc-snackbar__surface {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+      padding: 2px 8px !important;
+    }
+
+     .mdc-snackbar__label{
+      padding: 8px 16px !important;
+    }
+
+    .mdc-button{
+      padding: 0 !important;
+    }
+  }
+  
+  &.snackbar-success {
+    background-color: #e8f5e9 !important;
+    border: .5px solid #e8f5e9 !important;
+    border-radius: 0.5rem !important;
+    
+    .mdc-snackbar__surface {
+      background-color: transparent !important;
+    }
+    
+    .mat-mdc-snack-bar-label {
+      color: #2e7d32;
+      font-weight: 500;
+    }
+    
+    .mat-mdc-button {
+      color: #2e7d32 !important;
+    }
+    .mdc-button { 
+      color : #2e7d32 !important;
+    }
+  }
+
+  &.snackbar-danger {
+    background-color: #ffebee !important;
+    border: .5px solid #ffebee !important;
+    border-radius: 0.5rem !important;
+    
+    .mdc-snackbar__surface {
+      background-color: transparent !important;
+    }
+    
+    .mat-mdc-snack-bar-label {
+      color: #c62828;
+      font-weight: 500;
+    }
+    
+    .mat-mdc-button {
+      color: #c62828  !important;
+    }
+    .mdc-button {
+      color: #c62828 !important;
+    }
+  }
+
+  &.snackbar-info {
+    background-color: #e3f2fd !important;
+    border: .5px solid #e3f2fd !important;
+    border-radius: 0.5rem !important;
+    .mdc-snackbar__surface {
+      background-color: transparent !important;
+    }
+    
+    .mat-mdc-snack-bar-label {
+      color: var(--dark-blue);
+      font-weight: 500;
+    }
+    
+    .mat-mdc-button {
+      color:   var(--dark-blue) !important;
+    }
+    .mdc-button {
+      color: var(--dark-blue) !important;
+    }
+  }
+}
+
+// The custom realtime toast supplies its own card and slide animations.
+.mat-mdc-snack-bar-container.realtime-notification-alert {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: none !important;
+
+  &.mat-snack-bar-container-animations-enabled {
+    animation: none !important;
+  }
+
+  .mdc-snackbar__surface {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,129 @@
+<div class="form-page">
+
+  <!-- Page header -->
+  <div class="form-page-header">
+    <button class="back-btn" (click)="cancel()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="form-page-title">Create Role</h2>
+      <p class="form-page-subtitle">Define a new system role and assign permissions</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
+
+    <!-- Left column: basic info -->
+    <div class="form-main">
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">shield</mat-icon>
+          <span class="form-card-title">Role Details</span>
+        </div>
+        <div class="form-card-body">
+
+          <div class="field-group">
+            <label class="field-label" for="roleName">
+              Role Name <span class="required">*</span>
+            </label>
+            <input
+              id="roleName"
+              type="text"
+              formControlName="name"
+              class="field-input"
+              [class.field-input--error]="form.get('name')!.invalid && form.get('name')!.touched"
+              placeholder="e.g. Branch Compliance Officer"
+            />
+            <span class="field-error" *ngIf="form.get('name')!.invalid && form.get('name')!.touched">
+              Role name is required (min 2 characters)
+            </span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="roleDesc">Description</label>
+            <textarea
+              id="roleDesc"
+              formControlName="description"
+              class="field-input field-textarea"
+              rows="3"
+              placeholder="Describe what this role is responsible for…"
+            ></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Permissions card -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">lock_open</mat-icon>
+          <span class="form-card-title">Permissions</span>
+          <span class="perm-badge" *ngIf="selectedCount > 0">{{ selectedCount }} selected</span>
+        </div>
+
+        <!-- Loading skeleton -->
+        <div *ngIf="isLoading" class="perm-loading">
+          <div class="spinner-sm"></div>
+          <span>Loading permissions…</span>
+        </div>
+
+        <!-- No permissions from API -->
+        <div *ngIf="!isLoading && groupedPermissions.length === 0" class="perm-empty">
+          <mat-icon>info_outline</mat-icon>
+          <span>Permissions will be assigned after the role is created.</span>
+        </div>
+
+        <div *ngIf="!isLoading && groupedPermissions.length > 0" class="perm-list">
+          <div *ngFor="let group of groupedPermissions" class="perm-group">
+            <label class="perm-group-header">
+              <input
+                type="checkbox"
+                class="perm-checkbox"
+                [checked]="isGroupSelected(group.perms)"
+                [indeterminate]="isGroupIndeterminate(group.perms)"
+                (change)="toggleGroup(group.perms)"
+              />
+              <span class="perm-group-label">{{ group.category }}</span>
+              <span class="perm-group-count">{{ group.perms.length }}</span>
+            </label>
+            <div class="perm-items">
+              <label *ngFor="let p of group.perms" class="perm-item">
+                <input
+                  type="checkbox"
+                  class="perm-checkbox"
+                  [checked]="selectedPermissions.has(p.code)"
+                  (change)="togglePermission(p.code)"
+                />
+                <div class="perm-item-info">
+                  <span class="perm-item-name">{{ p.name }}</span>
+                  <code class="perm-item-code">{{ p.code }}</code>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions sidebar -->
+    <div class="form-aside">
+      <div class="form-card form-card--actions">
+        <div class="form-card-body">
+          <button
+            type="submit"
+            class="action-btn action-btn--primary"
+            [disabled]="form.invalid || isSubmitting"
+          >
+            <mat-icon *ngIf="!isSubmitting">save</mat-icon>
+            <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
+            {{ isSubmitting ? 'Saving…' : 'Create Role' }}
+          </button>
+          <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#C6F6D5"/>
+  
+  <!-- Gauge background -->
+  <path d="M12,44 A24,24 0 0,1 52,44" fill="none" stroke="#E2E8F0" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Gauge fill (low - left portion) -->
+  <path d="M12,44 A24,24 0 0,1 24,24" fill="none" stroke="#48BB78" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Needle -->
+  <line x1="32" y1="44" x2="20" y2="30" stroke="#2F855A" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="44" r="4" fill="#2F855A"/>
+  
+  <!-- Label -->
+  <text x="32" y="56" font-family="Arial" font-size="10" font-weight="bold" fill="#2F855A" text-anchor="middle">LOW</text>
+</svg>

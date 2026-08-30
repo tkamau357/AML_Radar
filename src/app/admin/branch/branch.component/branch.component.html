@@ -1,0 +1,17 @@
+<app-dynamic-tables
+  pageTitle="Branch Management"
+  pageSubtitle="Manage all bank branches"
+  TableSubtitle="All branches"
+  addButtonLabel="Add Branch"
+  buttonPermission="BRANCH_CREATE"
+  [showAddButton]="true"
+  [columns]="columns"
+  [data]="branches"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No branches found."
+  [showExcel]="true"
+  [showPdf]="true"
+  (add)="onAdd()"
+></app-dynamic-tables>

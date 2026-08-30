@@ -1,0 +1,118 @@
+.right-panel {
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+  padding: 20px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: flex-end; 
+}
+
+.bg-image {
+  position: absolute;
+  width: 700px; 
+  height: 898px; 
+  top: 42px; 
+  
+  /* background: url('../../../../src/app/') center/cover no-repeat;  */
+  border-radius: 20px; 
+  opacity: 1; 
+  z-index: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+}
+
+.logo-image {
+  width: 171.13px !important;
+  height: 78.66px !important;
+  max-width: none !important;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f8f9fa;
+  padding: 8px;
+}
+
+.text-overlay {
+  position: absolute; 
+  bottom: 50px; 
+  left: 40%; 
+  transform: translateX(-50%); 
+  
+  
+  font-family: 'Inter', sans-serif; 
+  font-style: normal; 
+  font-weight: 500; 
+  font-size: 38px; 
+  line-height: 46px; 
+  
+  color: #FFFFFF; 
+  z-index: 2; 
+}
+
+
+@media (max-width: 992px) {
+  .right-panel {
+    display: none !important;
+  }
+}
+
+/* =================*************global styles for configuration forms***************========================== */
+
+.form-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+
+
+.dialog-title {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.close-button {
+    margin-left: auto; 
+    color: inherit; 
+} 
+
+.form-card {
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 20px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+}
+
+.form-control {
+    width: 100%; 
+    padding: 10px;
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+}
+
+.mat-form-field {
+    width: 100%; 
+}
+
+.button-row {
+    margin-top: 20px; 
+}
+
+.small-button {
+    padding: 4px 8px; 
+    font-size: 0.875rem;
+}
+.button-row {
+    margin-top: 20px; 
+    width: 100%; 
+}
+
+.full-width-button {
+    flex: 1; 
+    margin: 0 5px; 
+    padding: 8px; 
+    min-width: 100px; 
+}

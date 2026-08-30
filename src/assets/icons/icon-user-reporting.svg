@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="reportingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3182CE"/>
+      <stop offset="100%" style="stop-color:#2B6CB0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#reportingGradient)"/>
+  
+  <!-- User icon -->
+  <circle cx="28" cy="24" r="10" fill="#FFFFFF"/>
+  <path d="M12,54 C12,42 18,34 28,34 C38,34 44,42 44,54" 
+        fill="#FFFFFF"/>
+  
+  <!-- Document/Send icon -->
+  <g transform="translate(38, 8)">
+    <rect x="0" y="0" width="16" height="20" rx="2" fill="#FFFFFF"/>
+    <line x1="4" y1="6" x2="12" y2="6" stroke="url(#reportingGradient)" stroke-width="2"/>
+    <line x1="4" y1="10" x2="10" y2="10" stroke="url(#reportingGradient)" stroke-width="2"/>
+    <line x1="4" y1="14" x2="8" y2="14" stroke="url(#reportingGradient)" stroke-width="2"/>
+  </g>
+</svg>

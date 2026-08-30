@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="reportGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C5282"/>
+      <stop offset="100%" style="stop-color:#1A365D"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#reportGradient)"/>
+  
+  <!-- Document -->
+  <rect x="14" y="10" width="36" height="44" rx="2" fill="#FFFFFF"/>
+  
+  <!-- Chart bars -->
+  <rect x="20" y="34" width="6" height="14" fill="#48BB78"/>
+  <rect x="29" y="28" width="6" height="20" fill="#4299E1"/>
+  <rect x="38" y="22" width="6" height="26" fill="#ED8936"/>
+  
+  <!-- Title line -->
+  <rect x="20" y="16" width="24" height="3" rx="1" fill="url(#reportGradient)" opacity="0.5"/>
+</svg>

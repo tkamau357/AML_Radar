@@ -1,0 +1,159 @@
+<div class="dashboard-container">
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>Loading dashboard data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+        <div class="alert alert-danger">
+            <i class="material-icons">error_outline</i>
+            <span>{{ error }}</span>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!loading && !error" class="dashboard-content">
+        
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h2>Welcome back, {{ getFullName() }}!</h2>
+                <p class="text-muted">Here is your Anti-Money Laundering Overview for today.</p>
+            </div>
+            <div class="welcome-date">
+                <div class="badge">
+                    <mat-icon class="icon-small">calendar_today</mat-icon>
+                    {{ currentTime | date:'fullDate' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-primary">
+                    <mat-icon>swap_horiz</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.totalTransactions | number }}</span>
+                    <span class="kpi-label">Total Transactions</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon bg-info">
+                    <mat-icon>fact_check</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.screenedTransactions | number }}</span>
+                    <span class="kpi-label">Screened Transactions</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon bg-warning">
+                    <mat-icon>warning_amber</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.suspiciousTransactions | number }}</span>
+                    <span class="kpi-label">Suspicious Transactions</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon bg-danger">
+                    <mat-icon>notifications_active</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.activeAlerts | number }}</span>
+                    <span class="kpi-label">Active Alerts</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon bg-secondary">
+                    <mat-icon>gavel</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.highRiskAlerts | number }}</span>
+                    <span class="kpi-label">High Risk Alerts</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon bg-success">
+                    <mat-icon>verified_user</mat-icon>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">{{ kpiData.casesUnderInvestigation | number }}</span>
+                    <span class="kpi-label">Cases Under Investigation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Tables -->
+        <div class="recent-activity-grid">
+            
+            <!-- Recent Alerts -->
+            <div class="recent-section">
+                <div class="section-header">
+                    <h3>Recent Alerts</h3>
+                    <a [routerLink]="['/alerts']" class="view-all">View All</a>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let alert of recentAlerts" (click)="viewAlert(alert.id)">
+                            <td class="font-weight-bold">{{ alert.reference }}</td>
+                            <td><span class="badge" [ngClass]="getSeverityClass(alert.severity)">{{ alert.severity }}</span></td>
+                            <td><span class="badge" [ngClass]="getStatusClass(alert.status)">{{ alert.status }}</span></td>
+                            <td class="text-muted">{{ alert.createdAt | date:'short' }}</td>
+                        </tr>
+                        <tr *ngIf="recentAlerts.length === 0">
+                            <td colspan="4" class="text-center text-muted py-4">No recent alerts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Cases -->
+            <div class="recent-section">
+                <div class="section-header">
+                    <h3>Recent Cases</h3>
+                    <a [routerLink]="['/cases']" class="view-all">View All</a>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let caseItem of recentCases" (click)="viewCase(caseItem.id)">
+                            <td class="font-weight-bold">{{ caseItem.reference }}</td>
+                            <td>{{ caseItem.title }}</td>
+                            <td><span class="badge" [ngClass]="getStatusClass(caseItem.status)">{{ caseItem.status }}</span></td>
+                            <td class="text-muted">{{ caseItem.createdAt | date:'short' }}</td>
+                        </tr>
+                        <tr *ngIf="recentCases.length === 0">
+                            <td colspan="4" class="text-center text-muted py-4">No recent cases</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

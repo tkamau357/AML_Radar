@@ -1,0 +1,17 @@
+<app-dynamic-tables
+  pageTitle="Roles"
+  pageSubtitle="Manage system roles and their permissions"
+  TableSubtitle="All roles"
+  addButtonLabel="Add Role"
+  buttonPermission="ROLE_CREATE"
+  [showAddButton]="true"
+  [columns]="columns"
+  [data]="roles"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No roles found."
+  [showExcel]="true"
+  [showPdf]="true"
+  (add)="onAdd()"
+></app-dynamic-tables>

@@ -1,0 +1,301 @@
+// ── Sidebar shell ─────────────────────────────────────────────────────────────
+$sidebar-bg:       #1b2a4a;   // deep navy
+$sidebar-hover:    rgba(255,255,255,0.07);
+$sidebar-active:   rgba(255,255,255,0.12);
+$accent:           #4f8ef7;   // blue accent (active left bar + badge)
+$text-primary:     #e8edf5;
+$text-secondary:   rgba(255,255,255,0.45);
+$sidebar-width:    240px;
+
+.sidebar {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 50;
+  width: $sidebar-width;
+  background: $sidebar-bg;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+
+  &--collapsed {
+    transform: translateX(-100%);
+  }
+}
+
+// ── Brand ─────────────────────────────────────────────────────────────────────
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.sidebar-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+.sidebar-search-wrap {
+  padding: 12px 14px 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-search-icon {
+  position: absolute;
+  left: 10px;
+  color: $text-secondary;
+  pointer-events: none;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 32px 0 32px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px;
+  color: $text-primary;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+
+  &:focus {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.25);
+  }
+}
+
+.sidebar-search-clear {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: $text-secondary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+
+  &:hover { color: $text-primary; }
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+.sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 10px 12px;
+}
+
+.sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Group label
+.sidebar-group-label {
+  margin: 20px 6px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $text-secondary;
+  user-select: none;
+}
+
+// Nav item (level 1)
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+  position: relative;
+  user-select: none;
+
+  &:hover {
+    background: $sidebar-hover;
+    color: #ffffff;
+  }
+
+  &--active,
+  &.nav-item--active {
+    background: $sidebar-active;
+    color: #ffffff;
+
+    // left accent bar
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      border-radius: 0 3px 3px 0;
+      background: $accent;
+    }
+
+    .nav-item-icon {
+      color: $accent;
+    }
+  }
+}
+
+.nav-item-icon {
+  flex-shrink: 0;
+  color: rgba(255,255,255,0.50);
+  transition: color 0.14s;
+}
+
+.nav-item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item-badge {
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: $accent;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.nav-item-chevron {
+  flex-shrink: 0;
+  color: $text-secondary;
+  transition: transform 0.2s;
+}
+
+// Submenu
+.sidebar-submenu {
+  list-style: none;
+  margin: 2px 0 2px 14px;
+  padding: 0;
+  border-left: 1px solid rgba(255,255,255,0.10);
+}
+
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  color: rgba(255,255,255,0.60);
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover {
+    background: $sidebar-hover;
+    color: #ffffff;
+  }
+
+  &--active,
+  &.nav-sub-item--active {
+    color: $accent;
+    font-weight: 600;
+  }
+}
+
+// Empty search result
+.sidebar-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+// ── Footer / Logout ───────────────────────────────────────────────────────────
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────────────────────
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+
+  &::-webkit-scrollbar        { width: 4px; }
+  &::-webkit-scrollbar-track  { background: transparent; }
+  &::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.15); border-radius: 4px; }
+}
+
+// ── Responsive overlay mode (< 1024px) ───────────────────────────────────────
+@media (max-width: 1023px) {
+  .sidebar {
+    box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+  }
+}

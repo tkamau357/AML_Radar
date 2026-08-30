@@ -1,0 +1,660 @@
+/* ============================================
+   GLOBAL STYLES - COMPONENT ANIMATIONS & UTILITIES
+   ============================================ */
+
+/* Animation Classes */
+.component-animation {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   FORM CONTROLS & INPUT STYLING
+   ============================================ */
+
+/* Select Dropdown Fixes - Critical for visibility */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: white;
+  color: #374151; /* text-gray-700 equivalent */
+  
+  option {
+    background-color: white;
+    color: #374151;
+    padding: 8px;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* blue-500 with opacity */
+  }
+}
+
+/* Enhanced select styling */
+select.w-full {
+  width: 100%;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem 0.75rem; /* px-3 py-2 */
+  background-color: white;
+  color: #111827; /* text-gray-900 */
+  
+  &:focus {
+    border-color: #3b82f6; /* blue-500 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  option {
+    background-color: white;
+    color: #111827;
+    padding: 0.5rem;
+    
+    &:hover {
+      background-color: #f3f4f6; /* gray-100 */
+    }
+    
+    &:checked {
+      background-color: #eff6ff; /* blue-50 */
+      color: #1e40af; /* blue-800 */
+    }
+  }
+}
+
+/* Focus states for all form inputs */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6; /* blue-500 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* ============================================
+   COLOR UTILITIES
+   ============================================ */
+
+/* Family Blue Color Scheme */
+.family-blue1 {
+  background-color: #007bff;
+}
+
+.family-blue2 {
+  background-color: #0693e3;
+}
+
+/* Text Colors */
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.text-white {
+  color: white;
+}
+
+/* Background Colors */
+.bg-red-600 {
+  background-color: #dc2626;
+  
+  &:hover {
+    background-color: #b91c1c;
+  }
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}
+
+.bg-white {
+  background-color: white;
+  
+  select {
+    background-color: white;
+    
+    option {
+      background-color: white;
+      color: #1f2937; /* text-gray-800 */
+      
+      &:checked {
+        background-color: #eff6ff; /* blue-50 */
+        color: #1e40af; /* blue-800 */
+      }
+    }
+  }
+}
+
+/* Border Colors */
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+/* ============================================
+   SPACING & LAYOUT UTILITIES
+   ============================================ */
+
+/* Padding Utilities */
+.p-4 {
+  padding: 1.5rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.psl-3 {
+  padding-left: 1rem !important;
+}
+
+/* Margin Utilities */
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+/* Gap Utilities */
+.gap-4 {
+  gap: 1rem;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* ============================================
+   DIMENSION & SIZING UTILITIES
+   ============================================ */
+
+/* Width Utilities */
+.w-full {
+  width: 100%;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.tbl-col-width-per-10 {
+  width: 10%;
+  min-width: 100px;
+}
+
+.tbl-col-width-per-15 {
+  width: 15%;
+  min-width: 150px;
+}
+
+.tbl-col-width-per-20 {
+  width: 20%;
+  min-width: 200px;
+}
+
+/* Height Utilities */
+.h-10 {
+  height: 2.5rem;
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+/* ============================================
+   FLEX & GRID UTILITIES
+   ============================================ */
+
+/* Flex Utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Grid Utilities */
+.grid {
+  display: grid;
+  
+  &.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================
+   BORDER & SHADOW UTILITIES
+   ============================================ */
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   COMPONENT SPECIFIC STYLES
+   ============================================ */
+
+/* Step Indicator */
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #0693e3;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Badge Styling */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  
+  &.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  &.badge-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  &.badge-primary {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+  
+  &.badge-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+}
+
+/* Button Styling */
+button {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.family-blue2 {
+    background-color: #0693e3;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: #0570b9;
+    }
+    
+    &:disabled {
+      background-color: #9ca3af; /* gray-400 */
+    }
+  }
+}
+
+/* Table Styling */
+.column-nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   LAYOUT COMPONENTS
+   ============================================ */
+
+/* Content Layout */
+.content {
+  padding: 20px;
+}
+
+.content-block {
+  margin-bottom: 20px;
+}
+
+.block-header {
+  margin-bottom: 20px;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+/* Material Table Header */
+.materialTableHeader {
+  padding: 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  
+  .header-buttons-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .search-field {
+      padding: 8px 12px 8px 35px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 250px;
+      position: relative;
+      
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+      }
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+    }
+  }
+}
+
+/* Table Components */
+.table-responsive {
+  overflow-x: auto;
+  min-height: 400px;
+}
+
+.mat-table {
+  width: 100%;
+  
+  .mat-header-cell {
+    font-weight: 600;
+    color: #333;
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+  }
+  
+  .mat-cell {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .mat-row {
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+}
+
+.tbl-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+  
+  .no-data-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: #dee2e6;
+  }
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.mat-paginator {
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Dialog Styles */
+.gl-maintenance-dialog {
+  .mat-dialog-container {
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .mat-dialog-title {
+      background: #f8f9fa;
+      padding: 16px 24px;
+      margin: 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .close-button {
+        margin-left: auto;
+      }
+    }
+    
+    .mat-dialog-content {
+      margin: 0;
+      padding: 0;
+      max-height: 70vh;
+    }
+  }
+}
+
+/* ============================================
+   MATERIAL ICONS
+   ============================================ */
+
+.material-icons {
+  font-size: inherit;
+  
+  &.text-sm {
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Content Layout */
+  .content {
+    padding: 10px;
+  }
+
+  /* Material Table Header */
+  .materialTableHeader {
+    .header-buttons-left {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      
+      .search-field {
+        width: 100%;
+      }
+    }
+  }
+  
+  /* Table Responsive */
+  .mat-table {
+    font-size: 0.875rem;
+    
+    .mat-cell, .mat-header-cell {
+      padding: 8px 12px;
+    }
+  }
+  
+  /* Column Widths */
+  .tbl-col-width-per-10,
+  .tbl-col-width-per-15,
+  .tbl-col-width-per-20 {
+    width: auto;
+    min-width: 80px;
+  }
+
+  /* No Data Message */
+  .no-data-message {
+    padding: 40px 20px;
+    
+    .no-data-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+    
+    h3 {
+      font-size: 1.25rem;
+    }
+    
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Grid & Flex Responsive */
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .flex-col {
+    flex-direction: column;
+  }
+
+  /* Padding Responsive */
+  .p-4 {
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & STATES
+   ============================================ */
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Disabled states */
+:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

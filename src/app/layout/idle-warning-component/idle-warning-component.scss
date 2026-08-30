@@ -1,0 +1,70 @@
+// src/app/layout/idle-warning/idle-warning.component.scss
+.idle-warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.idle-warning-modal {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+
+    .idle-warning-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: #d69e2e;
+    }
+
+    h3 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    p {
+        margin: 0 0 24px 0;
+        color: #718096;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .btn {
+        padding: 10px 32px;
+        background: #2A5CAA;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #1a3f7a;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

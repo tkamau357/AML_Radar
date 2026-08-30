@@ -1,0 +1,92 @@
+<!-- src/app/layout/header/header.component.html -->
+<header class="app-header">
+
+  <!-- ── Left: hamburger + logo + title ──────────────────────────────── -->
+  <div class="header-left">
+
+    <button
+      class="hdr-icon-btn"
+      (click)="callSidemenuCollapse()"
+      title="Toggle sidebar"
+      aria-label="Toggle sidebar"
+    >
+      <i-feather name="menu" class="!w-5 !h-5"></i-feather>
+    </button>
+
+    <div class="hdr-brand">
+      <img
+        src="assets/images/centenary-bank-logo.png"
+        alt="Centenary Bank"
+        class="hdr-brand-img"
+      />
+      <span class="hdr-brand-title">AML Radar</span>
+    </div>
+
+  </div>
+
+  <!-- ── Right: fullscreen + profile ────────────────────────────────── -->
+  <div class="header-right">
+
+    <button
+      class="hdr-icon-btn"
+      (click)="callFullscreen()"
+      [title]="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
+    >
+      <i-feather
+        [name]="isFullscreen ? 'minimize' : 'maximize'"
+        class="!w-4.5 !h-4.5"
+      ></i-feather>
+    </button>
+
+    <!-- Profile pill -->
+    <div class="hdr-profile-wrap" (clickOutside)="closeProfileMenu()">
+      <button
+        class="hdr-profile-btn"
+        (click)="isProfileMenuOpen = !isProfileMenuOpen"
+        aria-haspopup="true"
+        [attr.aria-expanded]="isProfileMenuOpen"
+      >
+        <div class="hdr-avatar">
+          <span>{{ firstName ? firstName[0] : '' }}{{ lastName ? lastName[0] : '' }}</span>
+        </div>
+        <div class="hdr-user-info">
+          <span class="hdr-user-name">{{ firstName }} {{ lastName }}</span>
+          <span class="hdr-user-email">{{ email }}</span>
+        </div>
+        <i-feather
+          name="chevron-down"
+          class="hdr-chevron !w-4 !h-4"
+          [class.hdr-chevron--open]="isProfileMenuOpen"
+        ></i-feather>
+      </button>
+
+      <!-- Dropdown -->
+      <div class="hdr-dropdown" *ngIf="isProfileMenuOpen" role="menu">
+        <div class="hdr-dropdown-header">
+          <div class="hdr-avatar hdr-avatar--lg">
+            <span>{{ firstName ? firstName[0] : '' }}{{ lastName ? lastName[0] : '' }}</span>
+          </div>
+          <div class="hdr-dropdown-user">
+            <span class="hdr-dropdown-name">{{ firstName }} {{ lastName }}</span>
+            <span class="hdr-dropdown-email">{{ email }}</span>
+          </div>
+        </div>
+
+        <div class="hdr-dropdown-divider"></div>
+
+        <button class="hdr-dropdown-item" role="menuitem" (click)="toProfile()">
+          <i-feather name="key" class="!w-4 !h-4"></i-feather>
+          <span>Change Password</span>
+        </button>
+
+        <div class="hdr-dropdown-divider"></div>
+
+        <button class="hdr-dropdown-item hdr-dropdown-item--danger" role="menuitem" (click)="logout()">
+          <i-feather name="log-out" class="!w-4 !h-4"></i-feather>
+          <span>Log Out</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</header>

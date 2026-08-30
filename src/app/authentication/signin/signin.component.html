@@ -1,0 +1,118 @@
+<!-- src/app/authentication/signin/signin.component.html -->
+<section class="aml-login-page">
+  
+  <!-- Hexagon Background Layer -->
+  <div class="hex-bg"></div>
+
+  <!-- Main Content Wrapper -->
+  <div class="login-wrapper">
+    
+    <!-- Left Info Panel (Updated with BRD Content) -->
+    <div class="left-panel">
+      <div class="left-content">
+        
+        <!-- Logo -->
+        <div class="logo-container">
+          <img src="/assets/logos/aml-radar-logo-full.svg" alt="AML RADAR Logo"/>
+        </div>
+        
+        <p class="intro-text">
+          Advanced Anti-Money Laundering transaction monitoring and scoring platform 
+          designed specifically for financial institutions in Kenya and the East African Community.
+        </p>
+        
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="icon-circle">
+              <mat-icon>bolt</mat-icon>
+            </div>
+            <div>
+              <h2>Real-Time Detection</h2>
+              <p class="feature-desc">Machine Learning + Behavioral Profiling + Sanctions Screening in under 300ms.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="icon-circle">
+              <mat-icon>verified_user</mat-icon>
+            </div>
+            <div>
+              <h2>Regulatory Compliance</h2>
+              <p class="feature-desc">Native CBK / FATP / goAML integration with branch-level security.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="icon-circle">
+              <mat-icon>phonelink_ring</mat-icon>
+            </div>
+            <div>
+              <h2>M-Pesa Native</h2>
+              <p class="feature-desc">Seamless Mobile Money integration covering M-Pesa and Airtel Money.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Card Panel -->
+    <div class="right-panel">
+      <div class="login-card">
+        
+        <h3 class="card-title">Login</h3>
+
+        <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="login-form">
+
+          <!-- Input: Username/Email -->
+          <div class="input-group">
+            <mat-icon class="input-icon">person</mat-icon>
+            <input 
+              type="text" 
+              formControlName="username" 
+              placeholder="Username/Email" 
+              class="form-input"
+              [class.error-input]="authForm.get('username')?.invalid && authForm.get('username')?.touched"
+            />
+          </div>
+          <div *ngIf="authForm.get('username')?.invalid && authForm.get('username')?.touched" class="validation-msg">
+            Username is required
+          </div>
+
+          <!-- Input: Password -->
+          <div class="input-group">
+            <mat-icon class="input-icon">lock</mat-icon>
+            <input 
+              [attr.type]="!hide ? 'text' : 'password'" 
+              formControlName="pHolder" 
+              placeholder="Password" 
+              class="form-input pr-12"
+              [class.error-input]="authForm.get('pHolder')?.invalid && authForm.get('pHolder')?.touched"
+            />
+            <button type="button" (click)="hide = !hide" class="eye-button">
+              <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+            </button>
+          </div>
+          <div *ngIf="authForm.get('pHolder')?.invalid && authForm.get('pHolder')?.touched" class="validation-msg">
+            Password is required (min 6 characters)
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error" class="error-msg">
+            <mat-icon class="error-icon">error_outline</mat-icon>
+            {{ error }}
+          </div>
+
+          <!-- Login Button -->
+          <button type="submit" class="login-btn" [disabled]="loading">
+            <span *ngIf="loading" class="spinner"></span>
+            <mat-icon *ngIf="!loading" class="btn-icon">login</mat-icon>
+            {{ loading ? "Logging in..." : "Login" }}
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,257 @@
+{
+  "MENUITEMS": {
+    "MAIN": {
+      "TEXT": "Principal"
+    },
+    "DASHBOARD": {
+      "TEXT": "Tableau de bord",
+      "LIST": {
+        "DASHBOARD1": "Tableau 1",
+        "DASHBOARD2": "Tableau 2"
+      }
+    },
+    "PROJECTS": {
+      "TEXT": "Projets",
+      "LIST": {
+        "ALL-PROJECTS": "Tous les projets",
+        "ADD-PROJECT": "Ajouter un projet",
+        "PROJECT-DETAILS": "Détails du projet"
+      }
+    },
+    "EMPLOYEES": {
+      "TEXT": "Employés",
+      "LIST": {
+        "ALL-EMPLOYEE": "Tous les employés",
+        "ADD-EMPLOYEE": "Ajouter un employé",
+        "EDIT-EMPLOYEE": "Modifier l’employé",
+        "PROFILE": "Profil de l’employé"
+      }
+    },
+    "CLIENTS": {
+      "TEXT": "Clients",
+      "LIST": {
+        "ALL-CLIENTS": "Tous les clients",
+        "ADD-CLIENT": "Ajouter un client",
+        "EDIT-CLIENT": "Modifier le client"
+      }
+    },
+    "ACCOUNTS": {
+      "TEXT": "Comptes",
+      "LIST": {
+        "ALL-PAYMENTS": "Tous les paiements",
+        "ADD-PAYMENT": "Ajouter un paiement",
+        "INVOICE": "Facture"
+      }
+    },
+    "EMPLOYEE": {    
+      "DASHBOARD": "Tableau de bord",
+      "ATTENDANCE": "Présence",
+      "MY-LEAVES": "Mes congés",
+      "MYTEAM": "Mon équipe",
+      "MYPROJECTS": "Mes projets",
+      "MYTASKS": "Mes tâches",
+      "SETTINGS": "Paramètres",
+      "CHAT": "Discussion"
+    },
+    "LEAVES": {
+      "TEXT": "Gestion des congés",
+      "LIST": {
+        "LEAVE-REQUESTS": "Toutes les demandes de congés",
+        "LEAVE-BALANCE": "Solde des congés",
+        "LEAVE-TYPES": "Types de congé"
+      }
+    },
+    "HOLIDAYS": {
+      "TEXT": "Jours fériés",
+      "LIST": {
+        "ALL-HOLIDAYS": "Tous les jours fériés",
+        "ADD-HOLIDAY": "Ajouter un jour férié",
+        "EDIT-HOLIDAY": "Modifier un jour férié"
+      }
+    },
+    "ATTENDANCE": {
+      "TEXT": "Présence",
+      "LIST": {
+        "TODAY": "Présence du jour",
+        "EMPLOYEE": "Présence des employés",
+        "SHEET": "Feuille de présence"
+      }
+    },
+    "CLIENT": {
+      "TEXT": "Client",
+      "DASHBOARD": "Tableau de bord",
+      "PROJECTS": {
+        "TEXT": "Projets",
+        "LIST": {
+          "MY-PROJECTS": "Mes projets",
+          "PROJECT-DETAILS": "Détails du projet"
+        }
+      },
+      "SUPPORTS": {
+        "TEXT": "Assistance",
+        "LIST": {
+          "TICKETS": "Tickets",
+          "TICKET-DETAILS": "Détails du ticket"
+        }
+      },
+      "BILLING": "Facturation",
+      "CHAT": "Discussion",
+      "SETTINGS": "Paramètres"
+    },
+    "APPS": {
+      "TEXT": "Applications"
+    },
+    "CALENDAR": {
+      "TEXT": "Calendrier"
+    },
+    "TASK": {
+      "TEXT": "Tâche"
+    },
+    "CONTACTS": {
+      "TEXT": "Contacts"
+    }
+  },
+  "NAV": {
+    "BACK_DASHBOARD": "Retour au tableau de bord"
+  },
+    "CARDS": {
+      "ALL": "Tout",
+      "MATCHED": "Correspondants",
+      "EXCEPTIONS": "Exceptions",
+      "MANUAL": "Manuel",
+      "MANUALVALIDATION": "Validation manuelle",
+      "MANUALVERIFICATION": "Vérification manuelle",
+      "MANUALVERIFIED": "Vérifié manuellement",
+      "SPILLOVER": "Débordement",
+      "REVERSAL": "Annulation",
+      "CHARGES": "Frais",
+      "THIRDPARTYSPILLOVERS": "Débordements de tiers",
+      "AUTO-REVERSAL": "Annulation automatique",
+      "OTHER-TRANSACTIONS": "Autres transactions",
+      "SETTLEMENT-REPORT": "Rapport de règlement",
+      "REFUND-REPORT": "Rapport de remboursement",
+      "TOTALRECORDS": "Nombre total d'enregistrements",
+      "MATCHEDRECORDS": "Enregistrements correspondants",
+      "PENDINGEXCEPTIONS": "Exceptions en attente",
+      "ALLSETTLEMENTS": "Tous les règlements",
+      "PAIDSETTLEMENTS": "Règlements payés",
+      "POSTINGFILE": "Fichier de comptabilisation",
+      "PARTNERSUMMARY": "Résumé des partenaires",
+      "INCOMPLETE": "Incomplet",
+      "HTTUM": "HTTUM",
+      "SUMMARY": "Résumé",
+      "VALIDATED": "Validé",
+      "PENDING": "En attente",
+      "MANAGEMENT": "Gestion",
+      "ROLLBACK": "Rétablir",
+      "RECORDS": "Enregistrements",
+      "OPENINGBALANCE": "Solde d'ouverture",
+      "THIRDPARTYCLOSINGBALANCE": "Solde de clôture de tiers",
+      "GLNUMBER": "Numéro GL",
+      "CLOSINGBALANCE": "Solde de clôture",
+      "RECONDATE": "Date de réconciliation",
+      "BALANCES": "Soldes"
+    },
+    "DIALOGS": {
+      "VERIFY": "Vérifier les",
+      "REJECT": "Rejeter les",
+      "MARK": "Marquer les",
+      "VALIDATE": "Valider les",
+      "UPDATECOMMENT": "Mettre à jour le commentaire",
+      "ADDROLLBACK": "Ajouter une restauration",
+      "TRANSACTIONDETAILS": "Détails de la transaction"
+    },
+    "EXCEL_REPORTS": {
+      "MATCHED": "Générer le fichier Excel des enregistrements appariés",
+      "MATCH": "Générer le fichier Excel des enregistrements de correspondance",
+      "EXCEPTION": "Générer le fichier Excel des enregistrements d’exception",
+      "PENDING": "Générer le fichier Excel des enregistrements en attente",
+      "ALL": "Générer le fichier Excel de tous les enregistrements",
+      "MANUAL": "Générer le fichier Excel des enregistrements manuels",
+      "MANUALVALIDATED": "Générer le fichier Excel des enregistrements validés manuellement",
+      "MANUALVERIFIED": "Générer le fichier Excel des enregistrements vérifiés manuellement",
+      "REVERSAL": "Générer le fichier Excel des enregistrements annulés",
+      "AUTO_REVERSAL": "Générer le fichier Excel des annulations automatiques",
+      "OTHER": "Générer le fichier Excel des autres transactions",
+      "SPILLOVER": "Générer le fichier Excel des reports",
+      "CHARGES": "Générer le fichier Excel des frais",
+      "INCOMPLETE": "Générer des enregistrements incomplets Excel",
+      "POSTING": "Générer le fichier Excel de publication",
+      "SUMMARY": "Générer le fichier Excel des enregistrements récapitulatifs",
+      "PARTNERSUMMARY": "Générer le fichier Excel des enregistrements récapitulatifs des partenaires",
+      "HTTUM": "Générer le fichier Excel des enregistrements HTTUM",
+      "THIRDPARTYSPILLOVERS": "Générer le fichier Excel des enregistrements de débordement tiers",
+      "MATCHED-MPESA": "Générer le fichier Excel Mpesa des enregistrements correspondants",
+      "EXCEPTION-MPESA": "Générer le fichier Excel Mpesa des enregistrements d’exception",
+      "ALL-MPESA": "Générer le fichier Excel Mpesa de tous les enregistrements",
+      "MANUAL-MPESA": "Générer le fichier Excel Mpesa des enregistrements manuels",
+      "MANUALVALIDATED-MPESA": "Générer le fichier Excel Mpesa des enregistrements validés manuellement",
+      "MANUALVERIFIED-MPESA": "Générer le fichier Excel Mpesa des enregistrements vérifiés manuellement",
+      "AUTO_REVERSAL-MPESA": "Générer le fichier Excel Mpesa des annulations automatiques",
+      "OTHER-MPESA": "Générer le fichier Excel Mpesa des autres transactions",
+      "SPILLOVER-MPESA": "Générer le fichier Excel Mpesa des reports",
+      "CHARGES-MPESA": "Générer le fichier Excel Mpesa des frais",
+      "POSTING-MPESA": "Générer le fichier Excel Mpesa de publication",
+      "THIRDPARTYSPILLOVERS-MPESA": "Générer le fichier Excel Mpesa des enregistrements de débordement tiers",
+      "MATCHED-ARCHIVED": "Générer un fichier Excel des enregistrements appariés archivés",
+      "EXCEPTION-ARCHIVED": "Générer un fichier Excel des enregistrements d’exception archivés",
+      "ALL-ARCHIVED": "Générer un fichier Excel de tous les enregistrements archivés",
+      "MANUALVALIDATED-ARCHIVED": "Générer un fichier Excel des enregistrements validés manuellement archivés",
+      "MANUALVERIFIED-ARCHIVED": "Générer un fichier Excel des enregistrements vérifiés manuellement archivés",
+      "AUTO_REVERSAL-ARCHIVED": "Générer un fichier Excel des enregistrements de réversion automatique archivés",
+      "SPILLOVER-ARCHIVED": "Générer un fichier Excel des enregistrements de débordement archivés"
+    },
+    "SUB-TITLES": {
+      "DOWNLOAD-SETTLEMENT": "Télécharger les enregistrements de règlement",
+      "DOWNLOAD-REFUND": "Télécharger le rapport de remboursement",
+      "DOWNLOADALLTRANSACTIONRECORDS": "Télécharger tous les enregistrements de transaction",
+      "DOWNLOADALLMATCHEDRECORDS": "Télécharger tous les enregistrements correspondants",
+      "DOWNLOADRECORDSWITHEXCEPTIONS": "Télécharger les enregistrements avec exceptions",
+      "DOWNLOADSETTLEMENTFILE": "Télécharger le fichier de règlement",
+      "DOWNLOADPOSTINGFILE": "Télécharger le fichier de comptabilisation",
+      "DOWNLOADPAIDSETTLEMENTS": "Télécharger les règlements payés",
+      "DOWNLOADALL": "Tout télécharger",
+      "DOWNLOADMATCHED": "Télécharger les correspondants",
+      "DOWNLOADEXCEPTIONS": "Télécharger les exceptions",
+      "DOWNLOADPENDING": "Télécharger en attente",
+      "DOWNLOADMANUAL": "Télécharger manuel",
+      "DOWNLOADMANUALVALIDATION": "Télécharger la validation manuelle",
+      "DOWNLOADMANUALVERIFICATION": "Télécharger la vérification manuelle",
+      "DOWNLOADMANUALVERIFIED": "Télécharger la vérification manuelle",
+      "DOWNLOADSPILLOVER": "Télécharger les débordements",
+      "DOWNLOADREVERSAL": "Télécharger les annulations",
+      "DOWNLOADCHARGES": "Télécharger les frais",
+      "DOWNLOADAUTOREVERSAL": "Télécharger les annulations automatiques",
+      "DOWNLOADOTHERTRANSACTIONS": "Télécharger autres transactions",
+      "DOWNLOADPARTNERSUMMARY": "Télécharger le résumé des partenaires",
+      "DOWNLOADSUMMARY": "Télécharger le résumé",
+      "DOWNLOADTHIRDPARTYSPILLOVERS": "Télécharger les débordements de tiers",
+      "DOWNLOADHTTUM": "Télécharger les HTTUM",
+      "DOWNLOADINCOMPLETE": "téléchargement incomplet"
+    },
+  "BUTTONS": {
+    "INITIATERECONCILIATION": "Lancer la réconciliation",
+    "INITIATESETTLEMENT": "initier le règlement",
+    "FETCHRECONCILIATION": "Récupérer la réconciliation",
+    "ADD": "Ajouter",
+    "PROCESSSETTLEMENT": "Traiter le règlement",
+    "ADDNEW": "Ajouter nouveau",
+    "CANCEL": "Annuler",
+    "CONTINUE": "Continuer",
+    "VERIFY": "Vérifier",
+    "MARK": "Marquer",
+    "REJECT": "Rejeter",
+    "DELETE": "Supprimer",
+    "VIEW": "Voir",
+    "VALIDATE": "Valider",
+    "UNVALIDATE": "Invalider",
+    "SUBMIT": "Soumettre",
+    "DOWNLOAD": "Télécharger",
+    "SELECTTYPE": "Sélectionner le type",
+    "SELECTTHERECONTYPE": "Sélectionner le type de réconciliation",
+    "SELECTTHECURRENCY": "Electioneer la devise",
+    "VIEWRECON": "Voir la récon",
+    "ROLLBACK": "Rétablir",
+    "GENERATE": "Générer"
+  }
+}

@@ -1,0 +1,111 @@
+<div class="form-page">
+
+  <!-- Header -->
+  <div class="form-page-header">
+    <button class="back-btn" (click)="back()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="form-page-titles">
+      <h2 class="form-page-title">Role Details</h2>
+      <p class="form-page-subtitle">Read-only view of role and assigned permissions</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="state-loading">
+    <div class="spinner-sm"></div>
+    <span>Loading role…</span>
+  </div>
+
+  <div *ngIf="!isLoading && role" class="form-layout">
+
+    <!-- Main column -->
+    <div class="form-main">
+
+      <!-- Details card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">shield</mat-icon>
+          <span class="detail-card-title">{{ role.name }}</span>
+          <span class="system-badge" *ngIf="role.isSystemRole">System Role</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-row">
+            <span class="detail-label">Description</span>
+            <span class="detail-value">{{ role.description || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Created</span>
+            <span class="detail-value">{{ (role.createdAt | date:'dd MMM yyyy, HH:mm') || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ (role.updatedAt | date:'dd MMM yyyy, HH:mm') || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permissions card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">lock_open</mat-icon>
+          <span class="detail-card-title">Permissions</span>
+          <span class="perm-count-badge">{{ permissions.length }}</span>
+        </div>
+
+        <div *ngIf="isLoadingPerms" class="perm-loading">
+          <div class="spinner-sm"></div>
+          <span>Loading permissions…</span>
+        </div>
+
+        <div *ngIf="!isLoadingPerms && permissions.length === 0" class="perm-empty">
+          <mat-icon>info_outline</mat-icon>
+          <span>No permissions assigned to this role.</span>
+        </div>
+
+        <div *ngIf="!isLoadingPerms && groupedPermissions.length > 0" class="perm-list">
+          <div *ngFor="let group of groupedPermissions" class="perm-group">
+            <div class="perm-group-header">
+              <span class="perm-group-label">{{ group.category }}</span>
+              <span class="perm-group-count">{{ group.perms.length }}</span>
+            </div>
+            <div class="perm-items">
+              <div *ngFor="let p of group.perms" class="perm-item-view">
+                <mat-icon class="perm-check-icon">check_circle</mat-icon>
+                <div class="perm-item-info">
+                  <span class="perm-item-name">{{ p.name }}</span>
+                  <code class="perm-item-code">{{ p.code }}</code>
+                </div>
+                <span class="perm-endpoint" *ngIf="p.endpoint">
+                  <code>{{ p.method }} {{ p.endpoint }}</code>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions sidebar -->
+    <div class="form-aside">
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <span class="detail-card-title">Actions</span>
+        </div>
+        <div class="detail-body">
+          <button
+            *ngIf="!role.isSystemRole"
+            class="action-btn action-btn--primary"
+            (click)="editRole()"
+            type="button"
+          >
+            <mat-icon>edit</mat-icon> Edit Role
+          </button>
+          <button class="action-btn action-btn--ghost" (click)="back()" type="button">
+            Back to list
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
