@@ -9,22 +9,21 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
-  branch: {
+  branch?: {
     id: number;
     branchCode: string;
     branchName: string;
   };
-  role: {
+  role?: {
     id: number;
     name: string;
     description?: string;
-    permissions?: string[]; // ✅ Added this
+    permissions?: string[];
   };
   status?: string;
   mustChangePassword?: boolean;
   lastLoginAt?: string;
   createdAt?: string;
-  // Add any other fields from your backend
 }
 
 @Injectable({
