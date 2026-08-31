@@ -1,91 +1,533 @@
 @use 'sass:color';
 
-$brand: #2a5caa; $brand-light: #e8eef8; $surface: #ffffff;
-$border: #e4e8f0; $text-primary: #1e293b; $text-sec: #64748b; $text-muted: #94a3b8;
-$radius: 10px; $radius-sm: 6px;
+$brand: #2a5caa; 
+$brand-light: #e8eef8; 
+$brand-hover: #1a3d7a;
+$surface: #ffffff;
+$border: #e4e8f0; 
+$text-primary: #1e293b; 
+$text-sec: #64748b; 
+$text-muted: #94a3b8;
+$success: #16a34a;
+$radius: 10px; 
+$radius-sm: 6px;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
 
 :host { display: block; font-family: 'Inter', sans-serif; }
 
+// ── Page layout ──────────────────────────────────────────────────────────────
 .form-page { display: flex; flex-direction: column; gap: 20px; }
-.form-page-header { display: flex; align-items: center; gap: 12px; }
+
+.form-page-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+
 .back-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px; border: 1px solid $border; border-radius: 50%;
-  background: $surface; color: $text-sec; cursor: pointer;
-  &:hover { background: $brand-light; color: $brand; }
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  width: 36px; 
+  height: 36px; 
+  border: 1px solid $border;
+  border-radius: 50%; 
+  background: $surface; 
+  color: $text-sec;
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  
+  &:hover { 
+    background: $brand-light; 
+    color: $brand;
+    transform: translateY(-1px);
+  }
 }
-.form-page-title   { font-size: 20px; font-weight: 700; color: $text-primary; margin: 0 0 2px; }
-.form-page-subtitle { font-size: 13px; color: $text-sec; margin: 0; }
 
+.form-page-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-page-title   { 
+  font-size: 20px; 
+  font-weight: 700; 
+  color: $text-primary; 
+  margin: 0; 
+}
+
+.form-page-subtitle { 
+  font-size: 13px; 
+  color: $text-sec; 
+  margin: 0; 
+}
+
+// ── Grid layout ──────────────────────────────────────────────────────────────
 .form-layout {
-  display: grid; grid-template-columns: 1fr 260px; gap: 20px; align-items: start;
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+  
+  @media (max-width: 768px) { 
+    grid-template-columns: 1fr; 
+  }
 }
-.form-main  { display: flex; flex-direction: column; gap: 16px; }
-.form-aside { display: flex; flex-direction: column; gap: 12px; }
 
+.form-main  { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+}
+
+.form-aside { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+}
+
+// ── Loading state ─────────────────────────────────────────────────────────────
 .state-loading {
-  display: flex; align-items: center; gap: 10px; padding: 40px 0;
-  font-size: 13px; color: $text-muted;
-}
-
-// Cards
-.detail-card { background: $surface; border: 1px solid $border; border-radius: $radius; overflow: hidden; }
-.detail-card-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 16px; border-bottom: 1px solid $border; background: #f8fafc;
-}
-.detail-icon  { font-size: 18px; color: $brand; }
-.detail-card-title { font-size: 13px; font-weight: 700; color: $brand; flex: 1; }
-.system-badge {
-  padding: 2px 8px; border-radius: 20px; background: #fef9c3; color: #92400e;
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-}
-.perm-count-badge {
-  padding: 1px 8px; border-radius: 20px; background: $brand; color: #fff;
-  font-size: 11px; font-weight: 600;
-}
-
-.detail-body  { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.detail-row   { display: flex; flex-direction: column; gap: 3px; }
-.detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: $text-muted; }
-.detail-value { font-size: 13px; color: $text-primary; }
-
-// Permissions
-.perm-loading, .perm-empty {
-  display: flex; align-items: center; gap: 8px;
-  padding: 20px 16px; font-size: 13px; color: $text-muted;
-}
-.perm-list  { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
-.perm-group { border: 1px solid $border; border-radius: $radius-sm; overflow: hidden; }
-.perm-group-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 12px; background: #f6f8fd;
-}
-.perm-group-label { font-size: 11px; font-weight: 700; color: $brand; flex: 1; text-transform: uppercase; letter-spacing: .05em; }
-.perm-group-count { font-size: 10px; color: $text-muted; background: $border; padding: 1px 6px; border-radius: 10px; }
-.perm-items  { padding: 4px 8px 8px; display: flex; flex-direction: column; gap: 2px; }
-.perm-item-view {
-  display: flex; align-items: flex-start; gap: 8px; padding: 5px 6px; border-radius: 4px;
-}
-.perm-check-icon { font-size: 15px; color: #16a34a; margin-top: 1px; flex-shrink: 0; }
-.perm-item-info  { display: flex; flex-direction: column; gap: 1px; flex: 1; }
-.perm-item-name  { font-size: 12px; color: $text-primary; font-weight: 500; }
-.perm-item-code  { font-size: 10px; color: $text-muted; font-family: 'Courier New', monospace; }
-.perm-endpoint   { font-size: 10px; color: $text-muted; white-space: nowrap; }
-
-// Actions
-.action-btn {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; height: 36px; border-radius: $radius-sm;
-  font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
-  margin-bottom: 8px;
-  &--primary { border: none; background: $brand; color: #fff; &:hover { filter: brightness(1.1); } }
-  &--ghost   { border: 1px solid $border; background: $surface; color: $text-sec; &:hover { background: $brand-light; color: $brand; } }
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 40px 0;
+  font-size: 13px; 
+  color: $text-muted;
 }
 
 .spinner-sm {
-  width: 18px; height: 18px; border: 2px solid $brand-light;
-  border-top-color: $brand; border-radius: 50%; animation: spin .7s linear infinite;
+  width: 18px; 
+  height: 18px; 
+  border: 2px solid $brand-light;
+  border-top-color: $brand; 
+  border-radius: 50%; 
+  animation: spin .7s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+.detail-card { 
+  background: $surface; 
+  border: 1px solid $border; 
+  border-radius: $radius; 
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+  
+  &--actions {
+    border: 1.5px solid $border;
+  }
+}
+
+.detail-card-header {
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 12px 16px; 
+  border-bottom: 1px solid $border; 
+  background: #f8fafc;
+}
+
+.detail-icon  { 
+  font-size: 18px; 
+  color: $brand; 
+}
+
+.detail-card-title { 
+  font-size: 13px; 
+  font-weight: 700; 
+  color: $brand; 
+  flex: 1; 
+}
+
+.system-badge {
+  padding: 2px 10px; 
+  border-radius: 20px; 
+  background: #fef3c7; 
+  color: #92400e;
+  font-size: 10px; 
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.perm-badge {
+  padding: 1px 10px; 
+  border-radius: 20px; 
+  background: $brand; 
+  color: #fff;
+  font-size: 11px; 
+  font-weight: 600;
+}
+
+.detail-body  { 
+  padding: 16px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 14px; 
+}
+
+.detail-row   { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 3px; 
+}
+
+.detail-label { 
+  font-size: 11px; 
+  font-weight: 600; 
+  text-transform: uppercase; 
+  letter-spacing: .06em; 
+  color: $text-muted; 
+}
+
+.detail-value { 
+  font-size: 13px; 
+  color: $text-primary; 
+}
+
+// ── Permissions (Mirrored from add-roles.component) ─────────────────────────
+.perm-loading, .perm-empty {
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 20px 16px; 
+  font-size: 13px; 
+  color: $text-muted;
+  
+  mat-icon { 
+    font-size: 18px; 
+  }
+}
+
+.perm-list { 
+  padding: 8px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.perm-group { 
+  border: 1px solid $border; 
+  border-radius: $radius-sm; 
+  overflow: hidden;
+  transition: border-color 0.2s;
+  
+  &:hover {
+    border-color: $brand;
+  }
+}
+
+// Group header - Read-only version
+.perm-group-header {
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 8px 12px; 
+  background: #f6f8fd;
+  
+  &--readonly {
+    background: #f6f8fd;
+  }
+}
+
+.perm-group-label { 
+  font-size: 12px; 
+  font-weight: 700; 
+  color: $brand; 
+  flex: 1; 
+  text-transform: uppercase; 
+  letter-spacing: .05em; 
+}
+
+.perm-group-count { 
+  font-size: 10px; 
+  color: $text-muted; 
+  background: $border; 
+  padding: 1px 8px; 
+  border-radius: 10px; 
+  font-weight: 600;
+}
+
+.perm-group-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: $success;
+  font-weight: 600;
+}
+
+.perm-group-check-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: $success;
+}
+
+// Permission items - Read-only version
+.perm-items { 
+  padding: 4px 8px 8px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 2px; 
+}
+
+.perm-item {
+  display: flex; 
+  align-items: flex-start; 
+  gap: 10px; 
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  
+  &--readonly {
+    &:hover { 
+      background: #f8fafc; 
+    }
+  }
+}
+
+.perm-check-icon { 
+  font-size: 16px; 
+  color: $success; 
+  margin-top: 1px; 
+  flex-shrink: 0;
+}
+
+.perm-item-info  { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 1px; 
+  flex: 1;
+  min-width: 0;
+}
+
+.perm-item-name  { 
+  font-size: 12px; 
+  color: $text-primary; 
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.perm-item-code  { 
+  font-size: 10px; 
+  color: $text-muted; 
+  font-family: 'Courier New', monospace;
+  background: #f8fafc;
+  padding: 1px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  max-width: fit-content;
+}
+
+.perm-endpoint   { 
+  font-size: 10px; 
+  color: $text-muted; 
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 8px;
+  
+  code {
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+  }
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+.action-btn {
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 6px;
+  width: 100%; 
+  height: 38px; 
+  border-radius: $radius-sm;
+  font-size: 13px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s ease;
+  margin-bottom: 6px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &--primary { 
+    border: none; 
+    background: $brand; 
+    color: #fff;
+    
+    &:hover { 
+      background: $brand-hover;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($brand, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  &--ghost { 
+    border: 1px solid $border; 
+    background: $surface; 
+    color: $text-sec;
+    
+    &:hover { 
+      background: $brand-light; 
+      color: $brand; 
+      border-color: $brand;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ── Responsive adjustments ──────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .form-page-header {
+    flex-wrap: wrap;
+  }
+  
+  .perm-item {
+    flex-wrap: wrap;
+  }
+  
+  .perm-endpoint {
+    margin-left: 26px;
+    width: 100%;
+  }
+}
+
+.perm-badge {
+  padding: 2px 9px;
+  border-radius: 20px;
+
+  background: $brand;
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.perm-collapse-all {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  height: 28px;
+  padding: 0 8px;
+
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+
+  background: $surface;
+  color: $text-sec;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .14s,
+    color .14s,
+    border-color .14s;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    background: $brand-light;
+    color: $brand;
+    border-color: $brand;
+  }
+}
+
+.perm-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 40px;
+  padding: 8px 10px 8px 12px;
+
+  background: #f6f8fd;
+
+  transition: background .14s;
+
+  &--readonly {
+    background: #f6f8fd;
+  }
+
+  &--collapsed {
+    border-bottom: none;
+  }
+}
+
+.perm-collapse-btn {
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 4px;
+
+  background: transparent;
+  color: $text-sec;
+
+  cursor: pointer;
+
+  transition:
+    background .14s,
+    color .14s;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: rgba(42, 92, 170, .10);
+    color: $brand;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-card-header {
+    flex-wrap: wrap;
+  }
+  
+  .perm-group-header {
+    flex-wrap: wrap;
+  }
+  
+  .perm-group-status {
+    width: 100%;
+    margin-left: 0;
+  }
+}

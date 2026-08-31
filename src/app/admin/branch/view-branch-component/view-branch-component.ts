@@ -47,26 +47,6 @@ export class ViewBranchComponent implements OnInit, OnDestroy {
     );
   }
 
-  changeStatus(status: string): void {
-    if (!this.branch || this.isChanging) return;
-    this.isChanging = true;
-    this.subs.push(
-      this.service.changeBranchStatus(this.branch.id, status).subscribe({
-        next: updated => {
-          this.branch    = updated;
-          this.isChanging = false;
-          this.snack.alertSuccess(
-            `Branch ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`
-          );
-        },
-        error: err => {
-          this.isChanging = false;
-          this.snack.alertError(err?.error?.message || 'Failed to update status');
-        },
-      })
-    );
-  }
-
   editBranch(): void {
     this.router.navigate(['admin/user-management/branches/edit', this.branch?.id]);
   }

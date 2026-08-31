@@ -19,9 +19,6 @@ export class BranchComponent implements OnInit, OnDestroy {
     { label: '#',            field: 'index'                        },
     { label: 'Branch Code',  field: 'branchCode'                   },
     { label: 'Branch Name',  field: 'branchName'                   },
-    { label: 'Type',         field: 'branchType'                   },
-    { label: 'Region',       field: 'region'                       },
-    { label: 'Address',      field: 'address'                      },
     { label: 'Status',       field: 'status',    type: 'badge'     },
     { label: 'Created',      field: 'createdAt', type: 'date'      },
   ];
@@ -30,29 +27,17 @@ export class BranchComponent implements OnInit, OnDestroy {
     {
       label: 'View',
       icon: 'visibility',
-      onClick: (row) => this.viewBranch(row),
+      onClick: (row: BranchResponse) => this.viewBranch(row),
     },
     {
       label: 'Edit',
       icon: 'edit',
-      onClick: (row) => this.editBranch(row),
-    },
-    {
-      label: 'Activate',
-      icon: 'check_circle',
-      show: (row) => row.status?.toUpperCase() !== 'ACTIVE',
-      onClick: (row) => this.changeStatus(row, 'ACTIVE'),
-    },
-    {
-      label: 'Deactivate',
-      icon: 'block',
-      show: (row) => row.status?.toUpperCase() === 'ACTIVE',
-      onClick: (row) => this.changeStatus(row, 'INACTIVE'),
+      onClick: (row: BranchResponse) => this.editBranch(row),
     },
     {
       label: 'Delete',
       icon: 'delete',
-      onClick: (row) => this.deleteBranch(row),
+      onClick: (row: BranchResponse) => this.deleteBranch(row),
     },
   ];
 
@@ -83,11 +68,11 @@ export class BranchComponent implements OnInit, OnDestroy {
   loadBranches(): void {
     this.isLoading = true;
     const sub = this.branchService.getAllBranches().subscribe({
-      next: (branches) => {
+      next: (branches: BranchResponse[]) => {
         this.branches = branches;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
         this.snackbar.alertError(err?.error?.message || 'Failed to load branches');
       },
@@ -107,28 +92,15 @@ export class BranchComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user-management/branches/edit', branch.id]);
   }
 
-  changeStatus(branch: BranchResponse, status: string): void {
-    const sub = this.branchService.changeBranchStatus(branch.id, status).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess(`Branch ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`);
-        this.loadBranches();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to update branch status');
-      },
-    });
-    this.subs.push(sub);
-  }
-
   deleteBranch(branch: BranchResponse): void {
     if (!confirm(`Delete branch "${branch.branchName}"? This cannot be undone.`)) return;
 
-    const sub = this.branchService.deleteBranch(branch.id).subscribe({
+    const sub = this.branchService.deleteBranchByCode(branch.branchCode).subscribe({
       next: () => {
         this.snackbar.alertSuccess('Branch deleted successfully');
         this.loadBranches();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.snackbar.alertError(err?.error?.message || 'Failed to delete branch');
       },
     });

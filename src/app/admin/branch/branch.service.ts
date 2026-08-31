@@ -24,6 +24,13 @@ export interface CreateBranchRequest {
   status?: string;
 }
 
+export interface UploadResponse {
+  success: boolean;
+  message: string;
+  branches: BranchResponse[];
+  errors?: Array<{ row: number; field: string; message: string }>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -63,18 +70,13 @@ export class BranchService {
   }
 
   /** PUT /branches/{id} - Update branch by ID (legacy support) */
-  updateBranch(id: number, branch: Partial<BranchResponse>): Observable<BranchResponse> {
+  updateBranch(id: number, branch: CreateBranchRequest): Observable<BranchResponse> {
     return this.http.put<BranchResponse>(`${this.apiUrl}/${id}`, branch);
   }
 
   /** DELETE /branches/{code} - Delete branch by code */
   deleteBranchByCode(code: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${code}`);
-  }
-
-  /** DELETE /branches/{id} - Delete branch by ID (legacy support) */
-  deleteBranch(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   /** GET /branches/template - Download branch upload template */
@@ -91,10 +93,10 @@ export class BranchService {
     return this.http.post<BranchResponse[]>(`${this.apiUrl}/upload`, formData);
   }
 
-  /** PATCH /branches/{id}/status - Change branch status (legacy) */
-  changeBranchStatus(id: number, status: string): Observable<BranchResponse> {
-    return this.http.patch<BranchResponse>(`${this.apiUrl}/${id}/status`, null, {
-      params: new HttpParams().set('status', status),
-    });
+  /** POST /branches/upload - Upload branches with detailed response */
+  uploadBranchesWithDetails(file: File): Observable<UploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<UploadResponse>(`${this.apiUrl}/upload`, formData);
   }
 }

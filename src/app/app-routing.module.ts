@@ -41,7 +41,7 @@ const routes: Routes = [
   },
 
   // Wildcard
-  { path: "**", component: Page404Component },
+  // { path: "**", component: Page404Component },
 ];
 
 @NgModule({

@@ -14,7 +14,7 @@
       >{{ secondaryButtonLabel }}</button>
     </ng-container>
 
-    <ng-container >
+    <ng-container>
       <button
         *ngIf="showAddButton"
         (click)="onAdd()"
@@ -28,80 +28,10 @@
   </div>
 </div>
 
-<!-- ── Optional widgets slot ────────────────────────────────────────────────── -->
-<ng-content select="[page-widgets]"></ng-content>
-
-<!-- ── Search bar ───────────────────────────────────────────────────────────── -->
-<div class="dt-toolbar" *ngIf="showSearch || showModuleTypeFilter || customFilters.length > 0">
-
-  <!-- Search input -->
-  <div class="dt-search" *ngIf="showSearch">
-    <mat-icon class="dt-search-icon">search</mat-icon>
-    <input
-      type="text"
-      [placeholder]="searchPlaceholder"
-      [(ngModel)]="searchText"
-      (input)="onSearch()"
-      class="dt-search-input"
-    />
-    <button *ngIf="searchText" (click)="clearSearch()" class="dt-search-clear" aria-label="Clear">
-      <mat-icon class="dt-search-clear-icon">close</mat-icon>
-    </button>
-  </div>
-
-  <!-- Module type filter -->
-  <div class="dt-filter-wrap" *ngIf="showModuleTypeFilter">
-    <input
-      type="text"
-      [formControl]="moduleControl"
-      [matAutocomplete]="moduleAuto"
-      (input)="onModuleInput($event)"
-      (focus)="onModuleFocus()"
-      (click)="onModuleFocus()"
-      (keydown)="onModuleKeydown($event)"
-      (blur)="onModuleBlur()"
-      placeholder="Filter by module type..."
-      class="dt-filter-input"
-    />
-    <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
-    <button *ngIf="isSelectedModule()" (click)="clearModuleFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
-      <mat-icon>close</mat-icon>
-    </button>
-    <mat-autocomplete #moduleAuto="matAutocomplete" [displayWith]="displayModuleType" (optionSelected)="onModuleSelected($event)">
-      <mat-option *ngFor="let mod of filteredModuleTypes" [value]="mod">{{ mod.name }}</mat-option>
-    </mat-autocomplete>
-  </div>
-
-  <!-- Custom filter -->
-  @if(customFilters.length > 0) {
-    <div class="dt-filter-wrap">
-      <input
-        type="text"
-        [formControl]="customFilterControl"
-        [matAutocomplete]="customFilterAuto"
-        (input)="onCustomFilterInput($event)"
-        (focus)="onCustomFilterFocus()"
-        (click)="onCustomFilterFocus()"
-        (keydown)="onCustomFilterKeydown($event)"
-        (blur)="onCustomFilterBlur()"
-        [placeholder]="customFilterLabel"
-        class="dt-filter-input"
-      />
-      <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
-      <button *ngIf="isSelectedCustomFilter()" (click)="clearCustomFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-autocomplete #customFilterAuto="matAutocomplete" [displayWith]="displayCustomFilter" (optionSelected)="onCustomFilterSelected($event)">
-        <mat-option *ngFor="let f of filteredCustomFilters" [value]="f">{{ f.label }}</mat-option>
-      </mat-autocomplete>
-    </div>
-  }
-</div>
-
 <!-- ── Table card ────────────────────────────────────────────────────────────── -->
 <div class="dt-card">
 
-  <!-- Card toolbar: subtitle + header actions + export -->
+  <!-- Card toolbar: subtitle + header actions + search/filters -->
   <div class="dt-card-toolbar">
     <div class="dt-card-titles">
       <span class="dt-card-title">{{ pageTitle }}</span>
@@ -109,12 +39,14 @@
     </div>
 
     <div class="dt-card-actions">
-      <!-- Header icon actions -->
+      <!-- Header icon actions (Refresh, etc.) -->
       <ng-container *ngFor="let action of getVisibleHeaderActions()">
         <button
           type="button"
           [disabled]="action.disabled ? action.disabled() : false"
           [matTooltip]="action.tooltip || action.label || ''"
+          [matTooltipClass]="action.className || 'mat-tooltip--action'"
+          matTooltipPosition="above"
           (click)="action.onClick()"
           class="dt-header-action-btn"
           [ngClass]="action.className || ''"
@@ -124,13 +56,87 @@
       </ng-container>
 
       <!-- Export -->
-      <button *ngIf="showExcel" type="button" (click)="exportToExcel()" matTooltip="Export to Excel" class="dt-export-btn">
+      <button *ngIf="showExcel" type="button" (click)="exportToExcel()" 
+        matTooltip="Export table data to Excel (.xlsx)"
+        matTooltipClass="mat-tooltip--light"
+        matTooltipPosition="above"
+        class="dt-export-btn">
         <img src="assets/images/xls.png" alt="Excel" class="dt-export-img" />
       </button>
-      <button *ngIf="showPdf" type="button" (click)="exportToPDF()" matTooltip="Export to PDF" class="dt-export-btn">
+      <button *ngIf="showPdf" type="button" (click)="exportToPDF()" 
+        matTooltip="Export table data to PDF document"
+        matTooltipClass="mat-tooltip--light"
+        matTooltipPosition="above"
+        class="dt-export-btn">
         <img src="assets/images/pdf.png" alt="PDF" class="dt-export-img" />
       </button>
     </div>
+  </div>
+
+  <!-- ── Search + Filters row ───────────────────────────────────────────────── -->
+  <div class="dt-toolbar" *ngIf="showSearch || showModuleTypeFilter || customFilters.length > 0">
+    <!-- Search input -->
+    <div class="dt-search" *ngIf="showSearch">
+      <mat-icon class="dt-search-icon">search</mat-icon>
+      <input
+        type="text"
+        [placeholder]="searchPlaceholder"
+        [(ngModel)]="searchText"
+        (input)="onSearch()"
+        class="dt-search-input"
+      />
+      <button *ngIf="searchText" (click)="clearSearch()" class="dt-search-clear" aria-label="Clear">
+        <mat-icon class="dt-search-clear-icon">close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Module type filter -->
+    <div class="dt-filter-wrap" *ngIf="showModuleTypeFilter">
+      <input
+        type="text"
+        [formControl]="moduleControl"
+        [matAutocomplete]="moduleAuto"
+        (input)="onModuleInput($event)"
+        (focus)="onModuleFocus()"
+        (click)="onModuleFocus()"
+        (keydown)="onModuleKeydown($event)"
+        (blur)="onModuleBlur()"
+        placeholder="Filter by module type..."
+        class="dt-filter-input"
+      />
+      <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
+      <button *ngIf="isSelectedModule()" (click)="clearModuleFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-autocomplete #moduleAuto="matAutocomplete" [displayWith]="displayModuleType" (optionSelected)="onModuleSelected($event)">
+        <mat-option *ngFor="let mod of filteredModuleTypes" [value]="mod">{{ mod.name }}</mat-option>
+      </mat-autocomplete>
+    </div>
+
+    <!-- Custom filter -->
+    @if(customFilters.length > 0) {
+      <div class="dt-filter-wrap">
+        <input
+          type="text"
+          [formControl]="customFilterControl"
+          [matAutocomplete]="customFilterAuto"
+          (input)="onCustomFilterInput($event)"
+          (focus)="onCustomFilterFocus()"
+          (click)="onCustomFilterFocus()"
+          (keydown)="onCustomFilterKeydown($event)"
+          (blur)="onCustomFilterBlur()"
+          [placeholder]="customFilterLabel"
+          class="dt-filter-input"
+        />
+        <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
+        <button *ngIf="isSelectedCustomFilter()" (click)="clearCustomFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-autocomplete #customFilterAuto="matAutocomplete" [displayWith]="displayCustomFilter" (optionSelected)="onCustomFilterSelected($event)">
+          <mat-option *ngFor="let f of filteredCustomFilters" [value]="f">{{ f.label }}</mat-option>
+        </mat-autocomplete>
+      </div>
+    }
   </div>
 
   <!-- ── Table ──────────────────────────────────────────────────────────────── -->
@@ -255,7 +261,14 @@
                     *ngIf="!action.show || action.show(row)"
                     (click)="action.onClick(row); $event.stopPropagation()"
                     [matTooltip]="action.label || getActionLabel(action.icon)"
+                    [matTooltipClass]="getTooltipClass(action.icon)"
+                    matTooltipPosition="above"
                     class="dt-action-btn"
+                    [ngClass]="{
+                      'dt-action-btn--view': action.icon === 'visibility',
+                      'dt-action-btn--edit': action.icon === 'edit',
+                      'dt-action-btn--delete': action.icon === 'delete'
+                    }"
                   >
                     <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="dt-action-label">{{ action.label }}</span>
@@ -319,14 +332,18 @@
           (click)="prevPage()"
           [disabled]="pageIndex === 0"
           aria-label="Previous page"
-        >‹</button>
+        >
+          <mat-icon class="dt-nav-icon">chevron_left</mat-icon>
+        </button>
         <span class="dt-nav-page">{{ pageIndex + 1 }}</span>
         <button
           class="dt-nav-btn"
           (click)="nextPage()"
           [disabled]="pageIndex === totalPages.length - 1"
           aria-label="Next page"
-        >›</button>
+        >
+          <mat-icon class="dt-nav-icon">chevron_right</mat-icon>
+        </button>
       </div>
     </div>
   </div>

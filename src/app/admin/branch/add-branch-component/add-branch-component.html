@@ -13,6 +13,140 @@
     </div>
   </div>
 
+  <!-- ── Bulk Upload Card (Collapsible) ─────────────────────────────────── -->
+      <div class="form-card bulk-upload-card">
+        <div class="form-card-header clickable" (click)="toggleBulkUpload()">
+          <mat-icon class="form-card-icon">cloud_upload</mat-icon>
+          <span class="form-card-title">Bulk Upload Branches</span>
+          <mat-icon class="chevron-icon" [class.chevron-expanded]="bulkUploadExpanded">
+            {{ bulkUploadExpanded ? 'expand_less' : 'expand_more' }}
+          </mat-icon>
+        </div>
+        
+        <div class="bulk-upload-body" [class.bulk-upload-body--expanded]="bulkUploadExpanded">
+          <div class="form-card-body">
+            <!-- Download template section -->
+            <div class="bulk-section">
+              <div class="bulk-section-header">
+                <mat-icon class="bulk-section-icon">file_download</mat-icon>
+                <span class="bulk-section-title">Download Template</span>
+              </div>
+              <p class="bulk-section-desc">
+                Download the Excel template to prepare your branch data for bulk upload.
+                The template contains the required columns for branch creation.
+              </p>
+              <button 
+                type="button" 
+                class="action-btn action-btn--outline" 
+                (click)="downloadTemplate()"
+                [disabled]="isDownloading">
+                <mat-icon *ngIf="!isDownloading">download</mat-icon>
+                <div *ngIf="isDownloading" class="spinner-sm spinner-sm--primary"></div>
+                {{ isDownloading ? 'Downloading...' : 'Download Template' }}
+              </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="bulk-divider"></div>
+
+            <!-- Upload section -->
+            <div class="bulk-section">
+              <div class="bulk-section-header">
+                <mat-icon class="bulk-section-icon">file_upload</mat-icon>
+                <span class="bulk-section-title">Upload Branches</span>
+              </div>
+              <p class="bulk-section-desc">
+                Upload the filled Excel template to create multiple branches at once.
+                All branches in the file will be validated and created.
+              </p>
+              
+              <!-- File upload area -->
+              <div 
+                class="upload-drop-zone"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)"
+                [class.upload-drop-zone--dragover]="isDragOver">
+                <input 
+                  type="file" 
+                  #fileInput 
+                  accept=".xlsx,.xls"
+                  (change)="onFileSelected($event)"
+                  class="upload-file-input"
+                />
+                <div class="upload-drop-content">
+                  <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                  <p class="upload-text">
+                    <span class="upload-link">Click to browse</span> or drag and drop
+                  </p>
+                  <p class="upload-hint">Supported: .xlsx, .xls (Max 5MB)</p>
+                </div>
+              </div>
+
+              <!-- Selected file info -->
+              <div *ngIf="selectedFile" class="upload-file-info">
+                <div class="upload-file-details">
+                  <mat-icon>description</mat-icon>
+                  <span class="upload-file-name">{{ selectedFile.name }}</span>
+                  <span class="upload-file-size">({{ formatFileSize(selectedFile.size) }})</span>
+                </div>
+                <div class="upload-file-actions">
+                  <button 
+                    type="button" 
+                    class="btn-icon" 
+                    (click)="clearSelectedFile()"
+                    title="Remove file">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload button -->
+              <button 
+                type="button" 
+                class="action-btn action-btn--primary" 
+                (click)="uploadBulkBranches()"
+                [disabled]="!selectedFile || isUploading">
+                <mat-icon *ngIf="!isUploading">upload</mat-icon>
+                <div *ngIf="isUploading" class="spinner-sm spinner-sm--white"></div>
+                {{ isUploading ? 'Uploading...' : 'Upload Branches' }}
+              </button>
+
+              <!-- Upload progress -->
+              <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="upload-progress">
+                <div class="upload-progress-bar" [style.width.%]="uploadProgress">
+                  <span class="upload-progress-text">{{ uploadProgress }}%</span>
+                </div>
+              </div>
+
+              <!-- Upload results -->
+              <div *ngIf="uploadResult" class="upload-result" [class.upload-result--success]="uploadResult.success" [class.upload-result--error]="!uploadResult.success">
+                <mat-icon class="upload-result-icon">
+                  {{ uploadResult.success ? 'check_circle' : 'error' }}
+                </mat-icon>
+                <div class="upload-result-content">
+                  <p class="upload-result-message">{{ uploadResult.message }}</p>
+                  <p *ngIf="uploadResult.branchesCreated" class="upload-result-detail">
+                    {{ uploadResult.branchesCreated }} branch(es) created successfully
+                  </p>
+                  <div *ngIf="uploadResult.errors && uploadResult.errors.length > 0" class="upload-result-errors">
+                    <p class="upload-result-error-title">Errors:</p>
+                    <ul>
+                      <li *ngFor="let error of uploadResult.errors">
+                        Row {{ error.row }}: {{ error.message }}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <button type="button" class="btn-icon" (click)="clearUploadResult()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
   <form [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
 
     <!-- ── Main column ─────────────────────────────────────────────────── -->
@@ -149,6 +283,10 @@
           <div class="info-item">
             <mat-icon class="info-icon">info_outline</mat-icon>
             <span>Users are linked to branches via their branch code.</span>
+          </div>
+          <div class="info-item">
+            <mat-icon class="info-icon">info_outline</mat-icon>
+            <span>Use bulk upload to create multiple branches at once.</span>
           </div>
         </div>
       </div>

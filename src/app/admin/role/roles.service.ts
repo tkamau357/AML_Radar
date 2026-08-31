@@ -41,6 +41,11 @@ export class RolesService {
   }
 
   /** GET /roles/{id}/permissions - Get permissions for a specific role */
+  getAllPermissions(): Observable<PermissionResponse[]> {
+    return this.http.get<PermissionResponse[]>(`${this.apiUrl}/permissions`);
+  }
+
+  /** GET /roles/{id}/permissions - Get permissions for a specific role */
   getRolePermissions(roleId: number): Observable<PermissionResponse[]> {
     return this.http.get<PermissionResponse[]>(`${this.apiUrl}/${roleId}/permissions`);
   }

@@ -16,17 +16,14 @@ export class UsersComponent implements OnInit, OnDestroy {
   isLoading = false;
 
   columns = [
-    { label: '#',            field: 'index'                                              },
-    { label: 'First Name',   field: 'firstName'                                          },
-    { label: 'Last Name',    field: 'lastName'                                           },
-    { label: 'Email',        field: 'email'                                              },
-    { label: 'Phone',        field: 'phoneNumber'                                        },
-    { label: 'Branch',       field: 'branchName',
-      formatter: (row: UserResponse) => row.branch?.branchName ?? '—'                    },
-    { label: 'Role',         field: 'roleName',
-      formatter: (row: UserResponse) => row.role?.name ?? '—'                            },
-    { label: 'Status',       field: 'status',       type: 'badge'                        },
-    { label: 'Last Login',   field: 'lastLoginAt',  type: 'date'                        },
+    { label: '#',            field: 'index' },
+    { label: 'First Name',   field: 'firstName' },
+    { label: 'Last Name',    field: 'lastName' },
+    { label: 'Email',        field: 'email' },
+    { label: 'Branch',       field: 'branchName' },
+    { label: 'Role',         field: 'roleName' },
+    { label: 'Status',       field: 'status', type: 'badge' },
+    { label: 'Last Login',   field: 'lastLoginAt', type: 'date' },
   ];
 
   actions: TableAction<UserResponse>[] = [
@@ -80,7 +77,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach((s) => s.unsubscribe());
+    // this.subs.forEach((s) => s.unsubscribe());
   }
 
   loadUsers(): void {
