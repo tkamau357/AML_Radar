@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
 
 export interface BranchResponse {
   id: number;
@@ -32,9 +33,15 @@ export class BranchService {
 
   constructor(private http: HttpClient) {}
 
-  /** GET /branches - Get all branches */
-  getAllBranches(): Observable<BranchResponse[]> {
-    return this.http.get<BranchResponse[]>(this.apiUrl);
+  /** GET /branches - Get all branches (paginated) */
+  getAllBranches(params: PaginationParams = {}): Observable<PagedResponse<BranchResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<PagedResponse<BranchResponse>>(this.apiUrl, { params: httpParams });
+  }
+
+  /** GET /branches/list - Get all branches (list for dropdowns) */
+  getBranchesList(): Observable<BranchResponse[]> {
+    return this.http.get<BranchResponse[]>(`${this.apiUrl}/list`);
   }
 
   /** GET /branches/active - Get all active branches */

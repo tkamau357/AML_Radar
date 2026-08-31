@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
 
 export interface RoleResponse {
   id: number;
   name: string;
   description?: string;
   isSystemRole?: boolean;
-  permissions?: string[]; // ✅ Added this (or any array if it's a list of objects)
+  permissions?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -30,9 +31,15 @@ export class RolesService {
 
   constructor(private http: HttpClient) { }
 
-  /** GET /roles - Get all roles */
-  getAllRoles(): Observable<RoleResponse[]> {
-    return this.http.get<RoleResponse[]>(`${this.apiUrl}`);
+  /** GET /roles - Get all roles (paginated) */
+  getAllRoles(params: PaginationParams = {}): Observable<PagedResponse<RoleResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<PagedResponse<RoleResponse>>(this.apiUrl, { params: httpParams });
+  }
+
+  /** GET /roles/list - Get all roles (list for dropdowns) */
+  getRolesList(): Observable<RoleResponse[]> {
+    return this.http.get<RoleResponse[]>(`${this.apiUrl}/list`);
   }
 
   /** GET /roles/{id} - Get role by ID */

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
@@ -14,6 +14,11 @@ import { TableAction, HeaderAction } from '../../../shared/components/dynamic-ta
 export class BranchComponent implements OnInit, OnDestroy {
   branches: BranchResponse[] = [];
   isLoading = false;
+
+  // Pagination
+  totalElements = 0;
+  pageIndex = 0;
+  pageSize = 20;
 
   columns = [
     { label: '#',            field: 'index'                        },
@@ -70,6 +75,7 @@ export class BranchComponent implements OnInit, OnDestroy {
     private branchService: BranchService,
     private snackbar: SnackbarService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -82,17 +88,27 @@ export class BranchComponent implements OnInit, OnDestroy {
 
   loadBranches(): void {
     this.isLoading = true;
-    const sub = this.branchService.getAllBranches().subscribe({
-      next: (branches) => {
-        this.branches = branches;
+    this.cdr.detectChanges();
+    const sub = this.branchService.getAllBranches({ page: this.pageIndex, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.branches = response.content;
+        this.totalElements = response.totalElements;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load branches');
       },
     });
     this.subs.push(sub);
+  }
+
+  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
+    this.pageIndex = event.pageNumber;
+    this.pageSize = event.pageSize;
+    this.loadBranches();
   }
 
   onAdd(): void {

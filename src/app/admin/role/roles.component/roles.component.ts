@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse } from '../roles.service';
@@ -14,6 +14,11 @@ import { TableAction, HeaderAction } from '../../../shared/components/dynamic-ta
 export class RolesComponent implements OnInit, OnDestroy {
   roles: RoleResponse[] = [];
   isLoading = false;
+
+  // Pagination
+  totalElements = 0;
+  pageIndex = 0;
+  pageSize = 20;
 
   columns = [
     { label: '#',          field: 'index',       type: 'index'  },
@@ -57,6 +62,7 @@ export class RolesComponent implements OnInit, OnDestroy {
     private rolesService: RolesService,
     private snackbar: SnackbarService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -69,17 +75,27 @@ export class RolesComponent implements OnInit, OnDestroy {
 
   loadRoles(): void {
     this.isLoading = true;
-    const sub = this.rolesService.getAllRoles().subscribe({
-      next: (roles) => {
-        this.roles = roles;
+    this.cdr.detectChanges();
+    const sub = this.rolesService.getAllRoles({ page: this.pageIndex, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.roles = response.content;
+        this.totalElements = response.totalElements;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load roles');
       },
     });
     this.subs.push(sub);
+  }
+
+  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
+    this.pageIndex = event.pageNumber;
+    this.pageSize = event.pageSize;
+    this.loadRoles();
   }
 
   onAdd(): void {

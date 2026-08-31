@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
 
 export interface UserResponse {
   id: number;
@@ -35,9 +36,15 @@ export class UsersService {
 
   constructor(private http: HttpClient) { }
 
-  /** GET /users - Get all users */
-  getAllUsers(): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(`${this.apiUrl}`);
+  /** GET /users - Get all users (paginated) */
+  getAllUsers(params: PaginationParams = {}): Observable<PagedResponse<UserResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<PagedResponse<UserResponse>>(this.apiUrl, { params: httpParams });
+  }
+
+  /** GET /users/list - Get all users (list for dropdowns) */
+  getUsersList(): Observable<UserResponse[]> {
+    return this.http.get<UserResponse[]>(`${this.apiUrl}/list`);
   }
 
   /** GET /users/{id} - Get user by ID */
@@ -45,9 +52,10 @@ export class UsersService {
     return this.http.get<UserResponse>(`${this.apiUrl}/${id}`);
   }
 
-  /** GET /users/branch/{branchCode} - Get users by branch */
-  getUsersByBranch(branchCode: string): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(`${this.apiUrl}/branch/${branchCode}`);
+  /** GET /users/branch/{branchCode} - Get users by branch (paginated) */
+  getUsersByBranch(branchCode: string, params: PaginationParams = {}): Observable<PagedResponse<UserResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<PagedResponse<UserResponse>>(`${this.apiUrl}/branch/${branchCode}`, { params: httpParams });
   }
 
   /** POST /users - Create new user */

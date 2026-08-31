@@ -55,8 +55,8 @@ export class AddUsersComponent implements OnInit, OnDestroy {
     const check = () => { if (++done === 2) this.isLoadingRefs = false; };
 
     this.subs.push(
-      this.rolesSvc.getAllRoles().subscribe({ next: r => { this.roles = r; check(); }, error: () => check() }),
-      this.branches$.getAllBranches().subscribe({ next: b => { this.branches = b; check(); }, error: () => check() }),
+      this.rolesSvc.getRolesList().subscribe({ next: r => { this.roles = r; check(); }, error: () => check() }),
+      this.branches$.getBranchesList().subscribe({ next: b => { this.branches = b; check(); }, error: () => check() }),
     );
   }
 
