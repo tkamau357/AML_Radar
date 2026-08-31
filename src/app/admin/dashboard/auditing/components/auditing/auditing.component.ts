@@ -99,13 +99,9 @@ export class AuditingComponent implements OnInit {
       .getAllByDate(dateStr, this.currentPage, this.pageSize, sortBy, direction)
       .subscribe({
         next: (res: any) => {
-          // Support both paged-response envelope and plain array
-          if (res?.result?.data) {
-            this.auditData  = this._normalise(res.result.data);
-            this.totalRows  = res.result.totalItems ?? res.result.totalElements ?? this.auditData.length;
-            this.currentPage = res.result.currentPage ?? this.currentPage;
-            this.page       = this.currentPage;
-          } else if (res?.content) {
+          // Service already extracts result from ApiResponse
+          // res is now the Page object directly
+          if (res?.content) {
             // Spring Page envelope
             this.auditData  = this._normalise(res.content);
             this.totalRows  = res.totalElements ?? this.auditData.length;

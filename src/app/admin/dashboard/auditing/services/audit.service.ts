@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { environment } from "../../../../../environments/environment";
 import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { ApiResponse } from "../../../../shared/data/api-response";
 
 @Injectable({
   providedIn: "root",
@@ -36,7 +38,8 @@ export class AuditService {
     if (startDate) params = params.set("startDate", startDate);
     if (endDate)   params = params.set("endDate", endDate);
 
-    return this._http.get<any>(this.url, { params });
+    return this._http.get<ApiResponse<any>>(this.url, { params })
+      .pipe(map(res => res.result));
   }
 
   /**
@@ -64,7 +67,8 @@ export class AuditService {
       .set("size",      size.toString())
       .set("sort",      sort);
 
-    return this._http.get<any>(this.url, { params });
+    return this._http.get<ApiResponse<any>>(this.url, { params })
+      .pipe(map(res => res.result));
   }
 
   /**
@@ -82,10 +86,10 @@ export class AuditService {
       .set("size", size.toString())
       .set("sort", sort);
 
-    return this._http.get<any>(
+    return this._http.get<ApiResponse<any>>(
       `${this.url}/user/${encodeURIComponent(email)}`,
       { params }
-    );
+    ).pipe(map(res => res.result));
   }
 
   /**
@@ -104,9 +108,9 @@ export class AuditService {
       .set("size", size.toString())
       .set("sort", sort);
 
-    return this._http.get<any>(
+    return this._http.get<ApiResponse<any>>(
       `${this.url}/entity/${encodeURIComponent(entityType)}/${encodeURIComponent(entityId)}`,
       { params }
-    );
+    ).pipe(map(res => res.result));
   }
 }

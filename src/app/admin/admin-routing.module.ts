@@ -24,6 +24,11 @@ const routes: Routes = [
     loadChildren: () =>
       import("./branch/branch.module").then((m) => m.BranchModule),
   },
+  {
+    path: "audit",
+    loadChildren: () =>
+      import("./audit/audit.module").then((m) => m.AuditModule),
+  },
 ];
 
 @NgModule({
