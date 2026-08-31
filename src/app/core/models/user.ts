@@ -5,7 +5,6 @@ export interface User {
   lastName?: string;
   email: string;
   username?: string;
-  phoneNumber?: string;
   roles: Role[];
   permissions: Permission[];
   branches: string[];
@@ -42,6 +41,5 @@ export interface UserProfile {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber: string;
   username: string;
 }

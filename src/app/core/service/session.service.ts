@@ -9,10 +9,13 @@ import { AuthService } from './auth.service';
 })
 export class SessionService implements OnDestroy {
     private readonly SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+    private readonly THROTTLE_MS = 5000; // Only reset timer every 5 seconds
     private inactivityTimer: any = null;
     private warningSubject = new BehaviorSubject<boolean>(false);
     public warning$ = this.warningSubject.asObservable();
     private isMonitoring = false;
+    private lastActivityTime = 0;
+    private boundOnUserActivity = this.onUserActivity.bind(this);
 
     constructor(
         private authService: AuthService,
@@ -51,27 +54,32 @@ export class SessionService implements OnDestroy {
     }
 
     private setupUserActivityListeners(): void {
-        const events = ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'];
+        // Only track meaningful user interactions - removed 'mousemove' and 'scroll'
+        // as they fire too frequently and cause performance issues
+        const events = ['click', 'keydown', 'touchstart'];
         events.forEach(event => {
-            document.addEventListener(event, this.onUserActivity.bind(this));
+            document.addEventListener(event, this.boundOnUserActivity);
         });
     }
 
     private removeUserActivityListeners(): void {
-        const events = ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'];
+        const events = ['click', 'keydown', 'touchstart'];
         events.forEach(event => {
-            document.removeEventListener(event, this.onUserActivity.bind(this));
+            document.removeEventListener(event, this.boundOnUserActivity);
         });
     }
 
     private onUserActivity(): void {
+        // Throttle: only process activity every THROTTLE_MS to prevent performance issues
+        const now = Date.now();
+        if (now - this.lastActivityTime < this.THROTTLE_MS) return;
+        this.lastActivityTime = now;
+
         if (this.warningSubject.value) {
             // User clicked during warning - extend session
             this.warningSubject.next(false);
-            this.resetTimer();
-        } else {
-            this.resetTimer();
         }
+        this.resetTimer();
     }
 
     ngOnDestroy(): void {

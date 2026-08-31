@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { AuditService } from "../../services/audit.service";
 import { AuditData } from "../../data/audit-data";
 import { DatePipe } from "@angular/common";
@@ -59,6 +59,7 @@ export class AuditingComponent implements OnInit {
     private _datePipe: DatePipe,
     public  dialog: MatDialog,
     private snackbar: SnackbarService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -80,10 +81,12 @@ export class AuditingComponent implements OnInit {
     if (this.dateForm.invalid) return;
 
     this.loading = true;
+    this.cdr.detectChanges();
 
     const dateStr = this._datePipe.transform(this.dateForm.value.date, "yyyy/MM/dd");
     if (!dateStr) {
       this.loading = false;
+      this.cdr.detectChanges();
       this.snackbar.alertError("Invalid date selected");
       return;
     }
@@ -96,7 +99,6 @@ export class AuditingComponent implements OnInit {
       .getAllByDate(dateStr, this.currentPage, this.pageSize, sortBy, direction)
       .subscribe({
         next: (res: any) => {
-          this.loading = false;
           // Support both paged-response envelope and plain array
           if (res?.result?.data) {
             this.auditData  = this._normalise(res.result.data);
@@ -115,12 +117,16 @@ export class AuditingComponent implements OnInit {
             this.totalRows  = 0;
           }
 
+          this.loading = false;
+          this.cdr.detectChanges();
+
           if (this.auditData.length === 0) {
             this.snackbar.alertInfo("No records found for the selected date");
           }
         },
         error: (err: any) => {
           this.loading = false;
+          this.cdr.detectChanges();
           this.snackbar.alertError(err?.error?.message || "Failed to fetch audit data");
         },
       });

@@ -9,7 +9,6 @@ export interface UserResponse {
   email: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string;
   branch?: {
     id: number;
     branchCode: string;

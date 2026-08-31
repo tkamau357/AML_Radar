@@ -25,7 +25,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     { label: 'First Name',   field: 'firstName'                                          },
     { label: 'Last Name',    field: 'lastName'                                           },
     { label: 'Email',        field: 'email'                                              },
-    { label: 'Phone',        field: 'phoneNumber'                                        },
     { label: 'Branch',       field: 'branchName',
       formatter: (row: UserResponse) => row.branch?.branchName ?? '—'                    },
     { label: 'Role',         field: 'roleName',
