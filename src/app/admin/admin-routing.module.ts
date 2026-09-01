@@ -10,6 +10,11 @@ const routes: Routes = [
       ),
   },
   {
+    path: "sanctions",
+    loadChildren: () =>
+      import("./sanctions/sanctions.module").then((m) => m.SanctionsModule),
+  },
+  {
     path: "user-management/roles",
     loadChildren: () =>
       import("./role/roles.module").then((m) => m.RolesModule),
@@ -20,7 +25,7 @@ const routes: Routes = [
       import("./user/users.module").then((m) => m.UsersModule),
   },
   {
-    path: "user-management/branches",
+    path: "configurations/branches",
     loadChildren: () =>
       import("./branch/branch.module").then((m) => m.BranchModule),
   },

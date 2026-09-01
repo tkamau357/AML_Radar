@@ -1,3 +1,4 @@
+// view-branch-component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -13,66 +14,54 @@ import { SnackbarService } from '../../../shared/services/snackbar.service';
 export class ViewBranchComponent implements OnInit, OnDestroy {
 
   branch: BranchResponse | null = null;
-  isLoading  = false;
-  isChanging = false;
+  isLoading = false;
 
   private subs: Subscription[] = [];
 
   constructor(
-    private route:   ActivatedRoute,
-    private router:  Router,
+    private route: ActivatedRoute,
+    private router: Router,
     private service: BranchService,
-    private snack:   SnackbarService,
+    private snack: SnackbarService,
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) { this.router.navigate(['admin/user-management/branches']); return; }
-    this.loadBranch(id);
+    const code = this.route.snapshot.paramMap.get('code');
+    if (!code) {
+      this.router.navigate(['admin/configurations/branches']);
+      return;
+    }
+    this.loadBranch(code);
   }
 
-  ngOnDestroy(): void { this.subs.forEach(s => s.unsubscribe()); }
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
 
-  private loadBranch(id: number): void {
+  private loadBranch(code: string): void {
     this.isLoading = true;
-    this.subs.push(
-      this.service.getBranchById(id).subscribe({
-        next: b  => { this.branch = b; this.isLoading = false; },
-        error: err => {
-          this.isLoading = false;
-          this.snack.alertError(err?.error?.message || 'Failed to load branch');
-          this.router.navigate(['admin/user-management/branches']);
-        },
-      })
-    );
-  }
-
-  changeStatus(status: string): void {
-    if (!this.branch || this.isChanging) return;
-    this.isChanging = true;
-    this.subs.push(
-      this.service.changeBranchStatus(this.branch.id, status).subscribe({
-        next: updated => {
-          this.branch    = updated;
-          this.isChanging = false;
-          this.snack.alertSuccess(
-            `Branch ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`
-          );
-        },
-        error: err => {
-          this.isChanging = false;
-          this.snack.alertError(err?.error?.message || 'Failed to update status');
-        },
-      })
-    );
+    const sub = this.service.getBranchByCode(code).subscribe({
+      next: b => {
+        this.branch = b;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.isLoading = false;
+        this.snack.alertError(err?.error?.message || 'Failed to load branch');
+        this.router.navigate(['admin/configurations/branches']);
+      },
+    });
+    this.subs.push(sub);
   }
 
   editBranch(): void {
-    this.router.navigate(['admin/user-management/branches/edit', this.branch?.id]);
+    if (this.branch?.branchCode) {
+      this.router.navigate(['admin/configurations/branches/edit', this.branch.branchCode]);
+    }
   }
 
   back(): void {
-    this.router.navigate(['admin/user-management/branches']);
+    this.router.navigate(['admin/configurations/branches']);
   }
 
   get isActive(): boolean {

@@ -73,8 +73,55 @@ $radius-sm:    6px;
 
 // ── Permissions
 .perm-badge {
-  margin-left: auto; padding: 1px 8px; border-radius: 20px;
-  background: $brand; color: #fff; font-size: 11px; font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+
+  background: $brand;
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+.perm-collapse-all {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  height: 28px;
+  padding: 0 8px;
+
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+
+  background: $surface;
+  color: $text-sec;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .14s,
+    color .14s,
+    border-color .14s;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    background: $brand-light;
+    color: $brand;
+    border-color: $brand;
+  }
 }
 .perm-loading, .perm-empty {
   display: flex; align-items: center; gap: 8px;
@@ -86,9 +133,57 @@ $radius-sm:    6px;
 .perm-group { border: 1px solid $border; border-radius: $radius-sm; overflow: hidden; }
 
 .perm-group-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; background: #f6f8fd; cursor: pointer;
-  &:hover { background: $brand-light; }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 40px;
+  padding: 8px 10px 8px 12px;
+
+  background: #f6f8fd;
+
+  transition: background .14s;
+
+  &:hover {
+    background: $brand-light;
+  }
+
+  &--collapsed {
+    border-bottom: none;
+  }
+}
+.perm-collapse-btn {
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 4px;
+
+  background: transparent;
+  color: $text-sec;
+
+  cursor: pointer;
+
+  transition:
+    background .14s,
+    color .14s;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: rgba(42, 92, 170, .10);
+    color: $brand;
+  }
 }
 .perm-group-label { font-size: 12px; font-weight: 700; color: $brand; flex: 1; text-transform: uppercase; letter-spacing: .05em; }
 .perm-group-count { font-size: 10px; color: $text-muted; background: $border; padding: 1px 6px; border-radius: 10px; }
@@ -128,3 +223,24 @@ $radius-sm:    6px;
   &--white { border-color: rgba(255,255,255,.4); border-top-color: #fff; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.form-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 16px;
+  border-bottom: 1px solid $border;
+  background: #f8fafc;
+}
+
+.form-card-icon {
+  font-size: 18px;
+  color: $brand;
+}
+
+.form-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: $brand;
+}

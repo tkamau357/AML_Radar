@@ -1,9 +1,12 @@
+// roles.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse } from '../roles.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-roles',
@@ -32,13 +35,11 @@ export class RolesComponent implements OnInit, OnDestroy {
     {
       label: 'Edit',
       icon: 'edit',
-      show: (row) => !row.isSystemRole,
       onClick: (row) => this.editRole(row),
     },
     {
       label: 'Delete',
       icon: 'delete',
-      show: (row) => !row.isSystemRole,
       onClick: (row) => this.deleteRole(row),
     },
   ];
@@ -57,6 +58,7 @@ export class RolesComponent implements OnInit, OnDestroy {
     private rolesService: RolesService,
     private snackbar: SnackbarService,
     private router: Router,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -95,17 +97,41 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   deleteRole(role: RoleResponse): void {
-    if (!confirm(`Delete role "${role.name}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog,
+      {
+        width: '460px',
+        maxWidth: 'calc(100vw - 32px)',
+        data: {
+          title: 'Delete Role',
+          message: `Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`,
+          confirmText: 'Delete Role',
+          cancelText: 'Cancel',
+        },
+      }
+    );
 
-    const sub = this.rolesService.deleteRole(role.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Role deleted successfully');
-        this.loadRoles();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete role');
-      },
-    });
+    const sub = dialogRef.afterClosed().subscribe(
+      confirmed => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.isLoading = true;
+        const deleteSub = this.rolesService
+          .deleteRole(role.id)
+          .subscribe({
+            next: () => {
+              this.snackbar.alertSuccess('Role deleted successfully');
+              this.loadRoles();
+            },
+            error: err => {
+              this.isLoading = false;
+              this.snackbar.alertError(err?.error?.message ||'Failed to delete role');
+            },
+          });
+        this.subs.push(deleteSub);
+      }
+    );
     this.subs.push(sub);
   }
 }

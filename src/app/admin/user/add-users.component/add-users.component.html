@@ -5,8 +5,10 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div>
-      <h2 class="form-page-title">Create User</h2>
-      <p class="form-page-subtitle">Add a new system user and assign their role and branch</p>
+      <h2 class="form-page-title">{{ isEditMode ? 'Edit User' : 'Create User' }}</h2>
+      <p class="form-page-subtitle">
+        {{ isEditMode ? 'Update user information and account details' : 'Add a new system user and assign their role and branch' }}
+      </p>
     </div>
   </div>
 
@@ -47,11 +49,7 @@
             <input type="email" formControlName="email" class="field-input"
               [class.field-input--error]="err('email')" placeholder="john.doe@bank.co.ke" />
             <span class="field-error" *ngIf="err('email')">Valid email is required</span>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Phone Number</label>
-            <input type="tel" formControlName="phoneNumber" class="field-input" placeholder="+254 7xx xxx xxx" />
+            <span class="field-hint" *ngIf="isEditMode">Email cannot be changed after creation</span>
           </div>
         </div>
       </div>
@@ -88,7 +86,7 @@
             </div>
           </div>
 
-          <div class="field-group">
+          <div class="field-group" *ngIf="!isEditMode">
             <label class="field-label">Password <span class="required">*</span></label>
             <div class="field-password-wrap">
               <input
@@ -106,6 +104,22 @@
             <span class="field-hint">User will be prompted to change this on first login</span>
           </div>
 
+          <!-- <div class="field-group" *ngIf="isEditMode">
+            <label class="field-label">Password</label>
+            <div class="field-password-wrap">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                class="field-input"
+                placeholder="Leave blank to keep current password"
+              />
+              <button type="button" class="field-password-toggle" (click)="showPassword = !showPassword">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-hint">Leave blank to keep the current password</span>
+          </div> -->
+
         </div>
       </div>
     </div>
@@ -120,8 +134,8 @@
           <button type="submit" class="action-btn action-btn--primary"
             [disabled]="form.invalid || isSubmitting">
             <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
-            <mat-icon *ngIf="!isSubmitting">person_add</mat-icon>
-            {{ isSubmitting ? 'Creating…' : 'Create User' }}
+            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'person_add' }}</mat-icon>
+            {{ isSubmitting ? (isEditMode ? 'Updating…' : 'Creating…') : (isEditMode ? 'Update User' : 'Create User') }}
           </button>
           <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">Cancel</button>
         </div>

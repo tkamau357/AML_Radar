@@ -1,1 +1,95 @@
-<p>view-branch-component works!</p>
+<!-- view-branch-component.html -->
+<div class="form-page">
+
+  <!-- Header -->
+  <div class="form-page-header">
+    <button class="back-btn" (click)="back()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="form-page-titles">
+      <h2 class="form-page-title">Branch Details</h2>
+      <p class="form-page-subtitle">Read-only view of branch information</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="state-loading">
+    <div class="spinner-sm"></div>
+    <span>Loading branch…</span>
+  </div>
+
+  <div *ngIf="!isLoading && branch" class="form-layout">
+
+    <!-- Main column -->
+    <div class="form-main">
+
+      <!-- Details card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">account_balance</mat-icon>
+          <span class="detail-card-title">{{ branch.branchName }}</span>
+          <span class="status-badge" [class.status-badge--active]="isActive" [class.status-badge--inactive]="!isActive">
+            {{ branch.status || 'ACTIVE' }}
+          </span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-row">
+            <span class="detail-label">Branch Code</span>
+            <span class="detail-value">{{ branch.branchCode }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Branch Name</span>
+            <span class="detail-value">{{ branch.branchName }}</span>
+          </div>
+          <!-- Remove branchType as it doesn't exist in the response -->
+          <div class="detail-row" *ngIf="branch.description">
+            <span class="detail-label">Description</span>
+            <span class="detail-value">{{ branch.description }}</span>
+          </div>
+          <div class="detail-row" *ngIf="branch.region">
+            <span class="detail-label">Region / County</span>
+            <span class="detail-value">{{ branch.region }}</span>
+          </div>
+          <div class="detail-row" *ngIf="branch.address">
+            <span class="detail-label">Address</span>
+            <span class="detail-value">{{ branch.address }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value">
+              <span class="status-badge" [class.status-badge--active]="isActive" [class.status-badge--inactive]="!isActive">
+                {{ branch.status || 'ACTIVE' }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Created</span>
+            <span class="detail-value">{{ (branch.createdAt | date:'dd MMM yyyy, HH:mm') || '—' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="branch.updatedAt">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ (branch.updatedAt | date:'dd MMM yyyy, HH:mm') || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions sidebar -->
+    <div class="form-aside">
+      <div class="detail-card detail-card--actions">
+        <div class="detail-card-header">
+          <span class="detail-card-title">Actions</span>
+        </div>
+        <div class="detail-body">
+          <button class="action-btn action-btn--primary" (click)="editBranch()" type="button">
+            <mat-icon>edit</mat-icon> Edit Branch
+          </button>
+          <button class="action-btn action-btn--ghost" (click)="back()" type="button">
+            <mat-icon>arrow_back</mat-icon> Back to list
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
