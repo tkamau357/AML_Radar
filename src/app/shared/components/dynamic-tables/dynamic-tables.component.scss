@@ -152,13 +152,13 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   height: 40px;
   border: 1.5px solid $border;
   border-radius: $radius-sm;
-  background: #fafbfd;
+  background: $surface;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
   &:focus-within {
     border-color: $brand;
     box-shadow: 0 0 0 3px rgba($brand, 0.08);
-    background: #f3f7ff;
+    background: #fbfdff;
   }
 }
 
@@ -168,7 +168,7 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   padding: 0 36px 0 14px;
   border: none;
   border-radius: $radius-sm;
-  background: #fafbfd;
+  background: transparent;
   font-size: 13px;
   color: $text-primary;
   outline: none;
@@ -791,10 +791,13 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   min-width: 80px;
   max-height: 220px;
   overflow: hidden;
+  background-color: $surface !important;
 }
 
 ::ng-deep .dt-select-panel .mat-option,
-::ng-deep .mat-autocomplete-panel .mat-option {
+::ng-deep .dt-select-panel .mat-mdc-option,
+::ng-deep .mat-autocomplete-panel .mat-option,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option {
   min-height: 36px;
   height: 36px;
   line-height: 36px;
@@ -802,25 +805,37 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   font-size: 13px;
   font-weight: 500;
   color: $text-primary;
+  background: $surface !important;
+  background-color: $surface !important;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 ::ng-deep .dt-select-panel .mat-option:hover:not(.mat-option-disabled),
+::ng-deep .dt-select-panel .mat-mdc-option:hover:not(.mat-mdc-option-disabled),
 ::ng-deep .mat-autocomplete-panel .mat-option:hover:not(.mat-option-disabled),
+::ng-deep .mat-autocomplete-panel .mat-mdc-option:hover:not(.mat-mdc-option-disabled),
 ::ng-deep .dt-select-panel .mat-option.mat-active,
-::ng-deep .mat-autocomplete-panel .mat-option.mat-active {
+::ng-deep .dt-select-panel .mat-mdc-option.mat-active,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-active,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-active {
   background: $brand-light !important;
+  background-color: $brand-light !important;
 }
 
 ::ng-deep .dt-select-panel .mat-option.mat-selected,
-::ng-deep .mat-autocomplete-panel .mat-option.mat-selected {
+::ng-deep .dt-select-panel .mat-mdc-option.mat-selected,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-selected,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-selected {
   background: $brand-light !important;
+  background-color: $brand-light !important;
   color: $brand;
   font-weight: 600;
 }
 
 ::ng-deep .dt-select-panel .mat-option.mat-selected::after,
-::ng-deep .mat-autocomplete-panel .mat-option.mat-selected::after {
+::ng-deep .dt-select-panel .mat-mdc-option.mat-selected::after,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-selected::after,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-selected::after {
   content: '✓';
   float: right;
   color: $brand;

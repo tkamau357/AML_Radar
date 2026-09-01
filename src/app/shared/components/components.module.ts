@@ -13,11 +13,14 @@ import { DataIngestionTrendsComponent } from "./data-ingestion-trends/data-inges
 import { RealtimeNotificationToastComponent } from "./realtime-notification-toast/realtime-notification-toast.component";
 import { DynamicTablesComponent } from "./dynamic-tables/dynamic-tables.component";
 import { ConfirmDialog } from "./confirm-dialog/confirm-dialog";
+import { DeleteConfirmationDialog } from "./delete-confirmation-dialog/delete-confirmation-dialog";
+
 @NgModule({
   declarations: [
     BaseComponent,
     SpinnerComponent,
     ConfirmDialog,
+    DeleteConfirmationDialog,
     DynamicTablesComponent,
     DataIngestionTrendsComponent,
     RealtimeNotificationToastComponent,
@@ -39,6 +42,7 @@ import { ConfirmDialog } from "./confirm-dialog/confirm-dialog";
     DynamicTablesComponent,
     CardComponent,
     ConfirmDialog,
+    DeleteConfirmationDialog,
     DataIngestionTrendsComponent,
   ],
 })
