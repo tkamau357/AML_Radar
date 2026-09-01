@@ -1,0 +1,135 @@
+<!-- view-sanctions-entries-component.html -->
+<div class="form-page">
+
+  <!-- Header -->
+  <div class="form-page-header">
+    <button class="back-btn" (click)="back()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="form-page-titles">
+      <h2 class="form-page-title">Sanction Entry Details</h2>
+      <p class="form-page-subtitle">Read-only view of sanction list entry</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="state-loading">
+    <div class="spinner-sm"></div>
+    <span>Loading entry…</span>
+  </div>
+
+  <div *ngIf="!isLoading && entry" class="form-layout">
+
+    <!-- Main column -->
+    <div class="form-main">
+
+      <!-- Details card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">gavel</mat-icon>
+          <span class="detail-card-title">{{ entry.fullName }}</span>
+          <span class="status-badge" [class.status-badge--active]="entry.active" [class.status-badge--inactive]="!entry.active">
+            {{ entry.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-row">
+            <span class="detail-label">Source List</span>
+            <span class="detail-value">{{ entry.sourceDisplayName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Source Entry ID</span>
+            <span class="detail-value">{{ entry.sourceEntryId || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Entity Type</span>
+            <span class="detail-value">
+              <span class="entity-badge">{{ entry.entityType | titlecase }}</span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Program</span>
+            <span class="detail-value">{{ entry.program || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Listed Date</span>
+            <span class="detail-value">{{ (entry.listedDate | date:'dd MMM yyyy') || '—' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="entry.createdAt">
+            <span class="detail-label">Created</span>
+            <span class="detail-value">{{ entry.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="entry.updatedAt">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ entry.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">person</mat-icon>
+          <span class="detail-card-title">Personal Information</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-row">
+            <span class="detail-label">Aliases</span>
+            <span class="detail-value">
+              <span *ngFor="let alias of entry.aliases; let last = last">
+                {{ alias }}<span *ngIf="!last">, </span>
+              </span>
+              <span *ngIf="!entry.aliases?.length">—</span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Date of Birth</span>
+            <span class="detail-value">{{ (entry.dateOfBirth | date:'dd MMM yyyy') || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Place of Birth</span>
+            <span class="detail-value">{{ entry.placeOfBirth || '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Nationality</span>
+            <span class="detail-value">{{ entry.nationality || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remarks card -->
+      <div class="detail-card" *ngIf="entry.remarks">
+        <div class="detail-card-header">
+          <mat-icon class="detail-icon">comment</mat-icon>
+          <span class="detail-card-title">Remarks</span>
+        </div>
+        <div class="detail-body">
+          <p class="remarks-text">{{ entry.remarks }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions sidebar -->
+    <div class="form-aside">
+      <div class="detail-card detail-card--actions">
+        <div class="detail-card-header">
+          <span class="detail-card-title">Actions</span>
+        </div>
+        <div class="detail-body">
+          <button class="action-btn action-btn--primary" (click)="editEntry()" type="button">
+            <mat-icon>edit</mat-icon> Edit Entry
+          </button>
+          <button *ngIf="entry.active" class="action-btn action-btn--warning" (click)="deactivateEntry()" type="button">
+            <mat-icon>block</mat-icon> Deactivate
+          </button>
+          <button class="action-btn action-btn--danger" (click)="deleteEntry()" type="button">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+          <button class="action-btn action-btn--ghost" (click)="back()" type="button">
+            <mat-icon>arrow_back</mat-icon> Back to list
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

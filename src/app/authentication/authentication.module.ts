@@ -22,11 +22,6 @@ import { MatCardModule } from "@angular/material/card";
   declarations: [
     Page500Component,
     Page401Component,
-    // Remove these - they're in AppModule:
-    // Page404Component,
-    // SigninComponent,
-    // OtpComponent,
-    // Page403Component,
   ],
   imports: [
     CommonModule,

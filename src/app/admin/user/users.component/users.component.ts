@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UsersService, UserResponse } from '../users.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-users',
@@ -14,23 +16,16 @@ import { TableAction, HeaderAction } from '../../../shared/components/dynamic-ta
 export class UsersComponent implements OnInit, OnDestroy {
   users: UserResponse[] = [];
   isLoading = false;
-  
-  // Pagination
-  totalElements = 0;
-  pageIndex = 0;
-  pageSize = 20;
 
   columns = [
-    { label: '#',            field: 'index'                                              },
-    { label: 'First Name',   field: 'firstName'                                          },
-    { label: 'Last Name',    field: 'lastName'                                           },
-    { label: 'Email',        field: 'email'                                              },
-    { label: 'Branch',       field: 'branchName',
-      formatter: (row: UserResponse) => row.branch?.branchName ?? '—'                    },
-    { label: 'Role',         field: 'roleName',
-      formatter: (row: UserResponse) => row.role?.name ?? '—'                            },
-    { label: 'Status',       field: 'status',       type: 'badge'                        },
-    { label: 'Last Login',   field: 'lastLoginAt',  type: 'date'                        },
+    { label: '#',            field: 'index' },
+    { label: 'First Name',   field: 'firstName' },
+    { label: 'Last Name',    field: 'lastName' },
+    { label: 'Email',        field: 'email' },
+    { label: 'Branch',       field: 'branch.branchName' },
+    { label: 'Role',         field: 'role.name' },
+    { label: 'Status',       field: 'status', type: 'badge' },
+    { label: 'Last Login',   field: 'lastLoginAt', type: 'date' },
   ];
 
   actions: TableAction<UserResponse>[] = [
@@ -77,7 +72,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     private usersService: UsersService,
     private snackbar: SnackbarService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -90,27 +85,17 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   loadUsers(): void {
     this.isLoading = true;
-    this.cdr.detectChanges();
-    const sub = this.usersService.getAllUsers({ page: this.pageIndex, size: this.pageSize }).subscribe({
-      next: (response) => {
-        this.users = response.content;
-        this.totalElements = response.totalElements;
+    const sub = this.usersService.getAllUsers().subscribe({
+      next: (users) => {
+        this.users = users;
         this.isLoading = false;
-        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
-        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load users');
       },
     });
     this.subs.push(sub);
-  }
-
-  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
-    this.pageIndex = event.pageNumber;
-    this.pageSize = event.pageSize;
-    this.loadUsers();
   }
 
   onAdd(): void {
@@ -126,29 +111,69 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   changeStatus(user: UserResponse, status: string): void {
-    const sub = this.usersService.changeUserStatus(user.id, status).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess(`User ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`);
-        this.loadUsers();
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: status === 'ACTIVE' ? 'Activate User' : 'Deactivate User',
+        message: status === 'ACTIVE' 
+          ? `Are you sure you want to activate "${user.firstName} ${user.lastName}"?`
+          : `Are you sure you want to deactivate "${user.firstName} ${user.lastName}"? The user will not be able to log in.`,
+        confirmText: status === 'ACTIVE' ? 'Activate' : 'Deactivate',
+        cancelText: 'Cancel',
       },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to update user status');
-      },
+    });
+
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isLoading = true;
+      const statusSub = this.usersService.changeUserStatus(user.id, status).subscribe({
+        next: (updated) => {
+          this.snackbar.alertSuccess(`User ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`);
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.snackbar.alertError(err?.error?.message || 'Failed to update user status');
+        },
+      });
+      this.subs.push(statusSub);
     });
     this.subs.push(sub);
   }
 
   deleteUser(user: UserResponse): void {
-    if (!confirm(`Delete user "${user.firstName} ${user.lastName}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Delete User',
+        message: `Are you sure you want to delete the user "${user.firstName} ${user.lastName}"? This action cannot be undone.`,
+        confirmText: 'Delete User',
+        cancelText: 'Cancel',
+      },
+    });
 
-    const sub = this.usersService.deleteUser(user.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('User deleted successfully');
-        this.loadUsers();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete user');
-      },
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isLoading = true;
+      const deleteSub = this.usersService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('User deleted successfully');
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.snackbar.alertError(err?.error?.message || 'Failed to delete user');
+        },
+      });
+      this.subs.push(deleteSub);
     });
     this.subs.push(sub);
   }

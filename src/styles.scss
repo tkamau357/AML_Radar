@@ -34,25 +34,156 @@ body, html {
   background: #a8a8a8;
 }
 
-// Snackbar base styles
-.mat-mdc-snack-bar-container {
+// ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
+// Custom tooltip container
+.mat-tooltip {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.4 !important;
+  padding: 8px 14px !important;
+  border-radius: 8px !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  max-width: 280px !important;
+  text-align: center !important;
+  animation: tooltipFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transform-origin: center bottom !important;
+}
 
+// Tooltip with arrow
+.mat-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #1e293b;
+  display: none; // Hidden by default, shown when arrow is needed
+}
+
+// Tooltip variations for different contexts
+.mat-tooltip.mat-tooltip--light {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e4e8f0 !important;
+}
+
+.mat-tooltip.mat-tooltip--brand {
+  background: #2a5caa !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(42, 92, 170, 0.3), 0 2px 4px rgba(42, 92, 170, 0.1) !important;
+}
+
+.mat-tooltip.mat-tooltip--danger {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 4px rgba(220, 38, 38, 0.1) !important;
+}
+
+.mat-tooltip.mat-tooltip--success {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3), 0 2px 4px rgba(22, 163, 74, 0.1) !important;
+}
+
+.mat-tooltip.mat-tooltip--warning {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3), 0 2px 4px rgba(217, 119, 6, 0.1) !important;
+}
+
+// Tooltip with icon support
+.mat-tooltip.mat-tooltip--with-icon {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 16px !important;
+}
+
+.mat-tooltip.mat-tooltip--with-icon .mat-tooltip-icon {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+
+// Tooltip with title and description
+.mat-tooltip.mat-tooltip--multiline {
+  max-width: 320px !important;
+  padding: 12px 16px !important;
+  text-align: left !important;
+}
+
+.mat-tooltip.mat-tooltip--multiline .tooltip-title {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+.mat-tooltip.mat-tooltip--multiline .tooltip-description {
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  opacity: 0.85 !important;
+  display: block !important;
+}
+
+// Tooltip animations
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Tooltip position adjustments
+.cdk-overlay-connected-position-bounding-box {
+  .cdk-overlay-pane {
+    .mat-tooltip {
+      margin: 6px 0 !important;
+    }
+  }
+}
+
+// Tooltip for action buttons (custom styling)
+.mat-tooltip.mat-tooltip--action {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+// ── Snackbar base styles ──────────────────────────────────────────────────────
+.mat-mdc-snack-bar-container {
   &.snackbar-success,
   &.snackbar-danger,
   &.snackbar-info {
-    // Reduce height
-    // max-height: 36px !important;
-    
     .mdc-snackbar__surface {
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
       padding: 2px 8px !important;
     }
 
-     .mdc-snackbar__label{
+    .mdc-snackbar__label {
       padding: 8px 16px !important;
     }
 
-    .mdc-button{
+    .mdc-button {
       padding: 0 !important;
     }
   }
@@ -94,7 +225,7 @@ body, html {
     }
     
     .mat-mdc-button {
-      color: #c62828  !important;
+      color: #c62828 !important;
     }
     .mdc-button {
       color: #c62828 !important;
@@ -105,6 +236,7 @@ body, html {
     background-color: #e3f2fd !important;
     border: .5px solid #e3f2fd !important;
     border-radius: 0.5rem !important;
+    
     .mdc-snackbar__surface {
       background-color: transparent !important;
     }
@@ -115,7 +247,7 @@ body, html {
     }
     
     .mat-mdc-button {
-      color:   var(--dark-blue) !important;
+      color: var(--dark-blue) !important;
     }
     .mdc-button {
       color: var(--dark-blue) !important;
@@ -138,5 +270,374 @@ body, html {
     padding: 0;
     background: transparent;
     box-shadow: none;
+  }
+}
+
+// ── Fix Material Select Dropdown Transparency ──────────────────────────────
+.mat-select-panel {
+  background: #ffffff !important;
+  border: 1.5px solid #e4e8f0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  background-color: #ffffff !important;
+  padding: 6px 0 !important;
+  min-width: 80px !important;
+  
+  &::before,
+  &::after {
+    display: none !important;
+  }
+  
+  .mat-option {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 16px !important;
+    background: #ffffff !important;
+    transition: background 0.15s ease !important;
+    
+    &:hover {
+      background: #e8eef8 !important;
+    }
+    
+    &.mat-active {
+      background: #e8eef8 !important;
+    }
+    
+    &.mat-selected {
+      background: #e8eef8 !important;
+      color: #2a5caa !important;
+      font-weight: 600 !important;
+      
+      &::after {
+        content: '✓';
+        float: right;
+        color: #2a5caa;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Ensure the overlay container has solid background
+.cdk-overlay-pane {
+  .mat-select-panel {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
+}
+
+// Fix for the dropdown trigger
+.mat-select-trigger {
+  background: #ffffff !important;
+}
+
+// ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
+
+// Base tooltip with glass-morphism effect
+.mat-tooltip {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.5 !important;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+  background: rgba(30, 41, 59, 0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  max-width: 300px !important;
+  text-align: left !important;
+  animation: tooltipFadeIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transform-origin: center bottom !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  position: relative !important;
+  transition: transform 0.2s ease, opacity 0.2s ease !important;
+}
+
+// Tooltip with arrow
+.mat-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid rgba(30, 41, 59, 0.92);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+// Arrow position variants (using data attribute)
+.mat-tooltip[data-arrow-position="top"]::before {
+  bottom: auto;
+  top: -7px;
+  border-top: none;
+  border-bottom: 7px solid rgba(30, 41, 59, 0.92);
+}
+
+.mat-tooltip[data-arrow-position="left"]::before {
+  bottom: auto;
+  top: 50%;
+  left: -7px;
+  transform: translateY(-50%);
+  border-left: none;
+  border-right: 7px solid rgba(30, 41, 59, 0.92);
+}
+
+.mat-tooltip[data-arrow-position="right"]::before {
+  bottom: auto;
+  top: 50%;
+  left: auto;
+  right: -7px;
+  transform: translateY(-50%);
+  border-left: 7px solid rgba(30, 41, 59, 0.92);
+  border-right: none;
+}
+
+// ── Tooltip Variants ─────────────────────────────────────────────────────────
+
+// Light variant - for actions with less emphasis
+.mat-tooltip.mat-tooltip--light {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #1e293b !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(228, 232, 240, 0.6) !important;
+  
+  &::before {
+    border-top-color: rgba(255, 255, 255, 0.95);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+  }
+}
+
+// Brand variant - primary actions
+.mat-tooltip.mat-tooltip--brand {
+  background: linear-gradient(135deg, #2a5caa 0%, #1a3d7a 100%) !important;
+  backdrop-filter: none !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 12px 40px rgba(42, 92, 170, 0.35),
+    0 2px 8px rgba(42, 92, 170, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  
+  &::before {
+    border-top-color: #2a5caa;
+  }
+}
+
+// Danger variant - destructive actions
+.mat-tooltip.mat-tooltip--danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  backdrop-filter: none !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 12px 40px rgba(220, 38, 38, 0.35),
+    0 2px 8px rgba(220, 38, 38, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  
+  &::before {
+    border-top-color: #dc2626;
+  }
+}
+
+// Success variant - positive actions
+.mat-tooltip.mat-tooltip--success {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+  backdrop-filter: none !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 12px 40px rgba(22, 163, 74, 0.35),
+    0 2px 8px rgba(22, 163, 74, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  
+  &::before {
+    border-top-color: #16a34a;
+  }
+}
+
+// Warning variant - cautionary actions
+.mat-tooltip.mat-tooltip--warning {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  backdrop-filter: none !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 12px 40px rgba(217, 119, 6, 0.35),
+    0 2px 8px rgba(217, 119, 6, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  
+  &::before {
+    border-top-color: #d97706;
+  }
+}
+
+// ── Tooltip with Icon ────────────────────────────────────────────────────────
+
+.mat-tooltip.mat-tooltip--with-icon {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  padding: 12px 16px !important;
+}
+
+.mat-tooltip.mat-tooltip--with-icon .mat-tooltip-icon {
+  font-size: 18px !important;
+  line-height: 1.4 !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+  opacity: 0.9 !important;
+}
+
+.mat-tooltip.mat-tooltip--with-icon .mat-tooltip-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+// ── Multiline Tooltip ────────────────────────────────────────────────────────
+
+.mat-tooltip.mat-tooltip--multiline {
+  max-width: 340px !important;
+  padding: 14px 18px !important;
+  text-align: left !important;
+}
+
+.mat-tooltip.mat-tooltip--multiline .tooltip-title {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+  color: inherit !important;
+  letter-spacing: -0.01em !important;
+}
+
+.mat-tooltip.mat-tooltip--multiline .tooltip-description {
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  opacity: 0.85 !important;
+  display: block !important;
+  line-height: 1.5 !important;
+}
+
+// ── Rich Tooltip (with keyboard shortcut) ──────────────────────────────────
+
+.mat-tooltip.mat-tooltip--rich {
+  padding: 12px 16px !important;
+}
+
+.mat-tooltip.mat-tooltip--rich .tooltip-shortcut {
+  display: inline-block !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  margin-left: 8px !important;
+  font-family: 'Inter', monospace !important;
+}
+
+.mat-tooltip.mat-tooltip--light .tooltip-shortcut {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #64748b !important;
+}
+
+// ── Action Button Tooltip ────────────────────────────────────────────────────
+
+.mat-tooltip.mat-tooltip--action {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  background: rgba(30, 41, 59, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  text-align: center !important;
+  min-width: 60px !important;
+  
+  &::before {
+    border-top-color: rgba(30, 41, 59, 0.9);
+  }
+}
+
+.mat-tooltip.mat-tooltip--action.mat-tooltip--light {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(228, 232, 240, 0.6) !important;
+  
+  &::before {
+    border-top-color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+// ── Animation ────────────────────────────────────────────────────────────────
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ── Tooltip positioning adjustments ─────────────────────────────────────────
+
+.cdk-overlay-connected-position-bounding-box {
+  .cdk-overlay-pane {
+    .mat-tooltip {
+      margin: 8px 0 !important;
+    }
+  }
+}
+
+// ── Tooltip hover effect ────────────────────────────────────────────────────
+
+.mat-tooltip:hover {
+  transform: scale(1.02) !important;
+  transition: transform 0.2s ease !important;
+}
+
+// ── Responsive tooltips ─────────────────────────────────────────────────────
+
+@media (max-width: 640px) {
+  .mat-tooltip {
+    font-size: 11px !important;
+    padding: 8px 12px !important;
+    max-width: 240px !important;
+    border-radius: 8px !important;
+  }
+  
+  .mat-tooltip.mat-tooltip--multiline {
+    max-width: 260px !important;
+    padding: 10px 14px !important;
+  }
+  
+  .mat-tooltip.mat-tooltip--action {
+    font-size: 10px !important;
+    padding: 4px 10px !important;
+    min-width: 50px !important;
   }
 }

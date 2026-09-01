@@ -1,4 +1,3 @@
-// src/app/app-routing.module.ts
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { Page404Component } from "./authentication/page404/page404.component";

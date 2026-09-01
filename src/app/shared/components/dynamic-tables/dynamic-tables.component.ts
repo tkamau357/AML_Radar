@@ -1116,6 +1116,26 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     this.selectionChange.emit(this.selection.selected);
   }
 
+  /**
+ * Get the appropriate tooltip class based on action icon
+ */
+  getTooltipClass(icon: string): string {
+    const map: Record<string, string> = {
+      'visibility': 'mat-tooltip--action',
+      'edit': 'mat-tooltip--brand',
+      'delete': 'mat-tooltip--danger',
+      'lock': 'mat-tooltip--warning',
+      'lock_open': 'mat-tooltip--success',
+      'block': 'mat-tooltip--danger',
+      'check_circle': 'mat-tooltip--success',
+      'download': 'mat-tooltip--action',
+      'vpn_key': 'mat-tooltip--brand',
+      'logout': 'mat-tooltip--danger'
+    };
+    
+    return map[icon] || 'mat-tooltip--action';
+  }
+
   private reconcileSelectionWithVisibleRows(): void {
     const rows = (this.serverSideSearch || this.isServerPaginated) ? this.data : this.pagedData;
     if (!Array.isArray(rows)) {

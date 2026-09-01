@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+// roles.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse } from '../roles.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-roles',
@@ -14,11 +17,6 @@ import { TableAction, HeaderAction } from '../../../shared/components/dynamic-ta
 export class RolesComponent implements OnInit, OnDestroy {
   roles: RoleResponse[] = [];
   isLoading = false;
-
-  // Pagination
-  totalElements = 0;
-  pageIndex = 0;
-  pageSize = 20;
 
   columns = [
     { label: '#',          field: 'index',       type: 'index'  },
@@ -37,13 +35,11 @@ export class RolesComponent implements OnInit, OnDestroy {
     {
       label: 'Edit',
       icon: 'edit',
-      show: (row) => !row.isSystemRole,
       onClick: (row) => this.editRole(row),
     },
     {
       label: 'Delete',
       icon: 'delete',
-      show: (row) => !row.isSystemRole,
       onClick: (row) => this.deleteRole(row),
     },
   ];
@@ -62,7 +58,7 @@ export class RolesComponent implements OnInit, OnDestroy {
     private rolesService: RolesService,
     private snackbar: SnackbarService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -75,27 +71,17 @@ export class RolesComponent implements OnInit, OnDestroy {
 
   loadRoles(): void {
     this.isLoading = true;
-    this.cdr.detectChanges();
-    const sub = this.rolesService.getAllRoles({ page: this.pageIndex, size: this.pageSize }).subscribe({
-      next: (response) => {
-        this.roles = response.content;
-        this.totalElements = response.totalElements;
+    const sub = this.rolesService.getAllRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
         this.isLoading = false;
-        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
-        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load roles');
       },
     });
     this.subs.push(sub);
-  }
-
-  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
-    this.pageIndex = event.pageNumber;
-    this.pageSize = event.pageSize;
-    this.loadRoles();
   }
 
   onAdd(): void {
@@ -111,17 +97,41 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   deleteRole(role: RoleResponse): void {
-    if (!confirm(`Delete role "${role.name}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog,
+      {
+        width: '460px',
+        maxWidth: 'calc(100vw - 32px)',
+        data: {
+          title: 'Delete Role',
+          message: `Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`,
+          confirmText: 'Delete Role',
+          cancelText: 'Cancel',
+        },
+      }
+    );
 
-    const sub = this.rolesService.deleteRole(role.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Role deleted successfully');
-        this.loadRoles();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete role');
-      },
-    });
+    const sub = dialogRef.afterClosed().subscribe(
+      confirmed => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.isLoading = true;
+        const deleteSub = this.rolesService
+          .deleteRole(role.id)
+          .subscribe({
+            next: () => {
+              this.snackbar.alertSuccess('Role deleted successfully');
+              this.loadRoles();
+            },
+            error: err => {
+              this.isLoading = false;
+              this.snackbar.alertError(err?.error?.message ||'Failed to delete role');
+            },
+          });
+        this.subs.push(deleteSub);
+      }
+    );
     this.subs.push(sub);
   }
 }

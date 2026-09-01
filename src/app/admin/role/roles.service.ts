@@ -1,10 +1,28 @@
+// roles.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
-import { ApiResponse } from '../../shared/data/api-response';
+
+export interface ApiResponse<T> {
+  id?: string;
+  message: string;
+  result: T;
+  pageable?: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+  };
+  totalElements?: number;
+  totalPages?: number;
+  timestamp?: string;
+}
 
 export interface RoleResponse {
   id: number;
@@ -17,6 +35,7 @@ export interface RoleResponse {
 }
 
 export interface PermissionResponse {
+  id?: number;
   name: string;
   code: string;
   endpoint: string;
@@ -34,76 +53,59 @@ export class RolesService {
   constructor(private http: HttpClient) { }
 
   /** GET /roles - Get all roles (paginated) */
-  getAllRoles(params: PaginationParams = {}): Observable<PagedResponse<RoleResponse>> {
-    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
-    return this.http.get<ApiResponse<PagedResponse<RoleResponse>>>(this.apiUrl, { params: httpParams })
-      .pipe(map(res => res.result));
+  getAllRoles(): Observable<RoleResponse[]> {
+    return this.http.get<ApiResponse<{ content: RoleResponse[] }>>(`${this.apiUrl}`).pipe(
+      map(response => response.result?.content || [])
+    );
   }
 
   /** GET /roles/list - Get all roles (list for dropdowns) */
-  getRolesList(): Observable<RoleResponse[]> {
-    return this.http.get<ApiResponse<RoleResponse[]>>(`${this.apiUrl}/list`)
-      .pipe(map(res => res.result));
+  getAllRolesList(): Observable<RoleResponse[]> {
+    return this.http.get<ApiResponse<RoleResponse[]>>(`${this.apiUrl}/list`).pipe(
+      map(response => response.result || [])
+    );
   }
 
   /** GET /roles/{id} - Get role by ID */
   getRoleById(id: number): Observable<RoleResponse> {
-    return this.http.get<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}`)
-      .pipe(map(res => res.result));
+    return this.http.get<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}`).pipe(
+      map(response => response.result)
+    );
   }
 
   /** GET /roles/permissions - Get all available permissions */
   getAllPermissions(): Observable<PermissionResponse[]> {
-    return this.http.get<ApiResponse<PermissionResponse[]>>(`${this.apiUrl}/permissions`)
-      .pipe(map(res => res.result));
+    return this.http.get<ApiResponse<PermissionResponse[]>>(`${this.apiUrl}/permissions`).pipe(
+      map(response => response.result || [])
+    );
   }
 
-  /** POST /roles - Create a new role */
-  createRole(role: any): Observable<RoleResponse> {
-    return this.http.post<ApiResponse<RoleResponse>>(`${this.apiUrl}`, role)
-      .pipe(map(res => res.result));
+  /** GET /roles/{id}/permissions - Get permissions for a specific role */
+  getRolePermissions(roleId: number): Observable<PermissionResponse[]> {
+    return this.http.get<ApiResponse<PermissionResponse[]>>(`${this.apiUrl}/${roleId}/permissions`).pipe(
+      map(response => response.result || [])
+    );
   }
 
-  /** PUT /roles/{id} - Update a role */
-  updateRole(id: number, role: any): Observable<RoleResponse> {
-    return this.http.put<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}`, role)
-      .pipe(map(res => res.result));
-  }
+  // roles.service.ts
+/** POST /roles - Create a new role */
+createRole(role: { name: string; description?: string; permissions: string[] }): Observable<RoleResponse> {
+  return this.http.post<ApiResponse<RoleResponse>>(`${this.apiUrl}`, role).pipe(
+    map(response => response.result)
+  );
+}
+
+/** PUT /roles/{id} - Update a role */
+updateRole(id: number, role: { name: string; description?: string; permissions: string[] }): Observable<RoleResponse> {
+  return this.http.put<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}`, role).pipe(
+    map(response => response.result)
+  );
+}
 
   /** DELETE /roles/{id} - Delete a role */
   deleteRole(id: number): Observable<void> {
-    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`)
-      .pipe(map(() => void 0));
-  }
-
-  /** POST /roles/{id}/permissions - Assign permissions to role */
-  assignPermissions(id: number, permissionCodes: string[]): Observable<RoleResponse> {
-    return this.http.post<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}/permissions`, { permissionCodes })
-      .pipe(map(res => res.result));
-  }
-
-  /** DELETE /roles/{id}/permissions - Revoke permissions from role */
-  revokePermissions(id: number, permissionCodes: string[]): Observable<RoleResponse> {
-    return this.http.delete<ApiResponse<RoleResponse>>(`${this.apiUrl}/${id}/permissions`, { body: { permissionCodes } })
-      .pipe(map(res => res.result));
-  }
-
-  /** Get permissions for a specific role by fetching the role and extracting permissions */
-  getRolePermissions(roleId: number): Observable<PermissionResponse[]> {
-    return this.getRoleById(roleId).pipe(
-      map(role => {
-        // Transform role.permissions (string array) to PermissionResponse array
-        if (role.permissions) {
-          return role.permissions.map(code => ({
-            name: code,
-            code: code,
-            endpoint: '',
-            method: '',
-            branchScoped: false
-          }));
-        }
-        return [];
-      })
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
+      map(response => {})
     );
   }
 }

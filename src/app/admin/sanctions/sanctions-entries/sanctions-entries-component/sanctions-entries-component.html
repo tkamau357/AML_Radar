@@ -1,0 +1,17 @@
+<app-dynamic-tables
+  pageTitle="Sanction Entries"
+  pageSubtitle="Manage all sanction list entries"
+  TableSubtitle="All entries"
+  addButtonLabel="Add Entry"
+  buttonPermission="SANCTION_CREATE"
+  [showAddButton]="true"
+  [columns]="columns"
+  [data]="entries"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No sanction entries found."
+  [showExcel]="true"
+  [showPdf]="true"
+  (add)="onAdd()"
+></app-dynamic-tables>

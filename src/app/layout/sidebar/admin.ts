@@ -16,6 +16,47 @@ export const admin: RouteInfo[] = [
     submenu: [],
   },
 
+  // ── Configuration group ───────────────────────────────────────────────
+  {
+    path: "",
+    title: "Configuration",
+    moduleName: "",
+    iconType: "",
+    icon: "",
+    class: "",
+    groupTitle: true,
+    badge: "",
+    badgeClass: "",
+    permissions: [],
+    submenu: [],
+  },
+  {
+    path: "/admin/configurations/branches",
+    title: "Branch Management",
+    moduleName: "branches",
+    iconType: "feather",
+    icon: "git-branch",
+    class: "",
+    groupTitle: false,
+    badge: "",
+    badgeClass: "",
+    permissions: ["BRANCH_LIST"],
+    submenu: [],
+  },
+  {
+    path: "/admin/sanctions",
+    title: "Entries Management",
+    moduleName: "branches",
+    iconType: "feather",
+    icon: "inbox",
+    class: "",
+    groupTitle: false,
+    badge: "",
+    badgeClass: "",
+    permissions: ["SANCTIONS_LIST_VIEW"],
+    submenu: [],
+  },
+
   // ── Administration group ─────────────────────────────────────────────
   {
     path: "",
@@ -32,7 +73,7 @@ export const admin: RouteInfo[] = [
   },
   {
     path: "/admin/user-management/users",
-    title: "Users",
+    title: "Users Management",
     moduleName: "users",
     iconType: "feather",
     icon: "users",
@@ -45,7 +86,7 @@ export const admin: RouteInfo[] = [
   },
   {
     path: "/admin/user-management/roles",
-    title: "Roles",
+    title: "Roles & Permissions",
     moduleName: "roles",
     iconType: "feather",
     icon: "shield",
@@ -54,21 +95,6 @@ export const admin: RouteInfo[] = [
     badge: "",
     badgeClass: "",
     permissions: ["ROLE_LIST"],
-    submenu: [],
-  },
-
-  // ── Compliance group ──────────────────────────────────────────────────
-  {
-    path: "",
-    title: "Compliance",
-    moduleName: "",
-    iconType: "",
-    icon: "",
-    class: "",
-    groupTitle: true,
-    badge: "",
-    badgeClass: "",
-    permissions: [],
     submenu: [],
   },
   {
@@ -85,31 +111,18 @@ export const admin: RouteInfo[] = [
     submenu: [],
   },
 
-  // ── Configuration group ───────────────────────────────────────────────
-  {
-    path: "",
-    title: "Configuration",
-    moduleName: "",
-    iconType: "",
-    icon: "",
-    class: "",
-    groupTitle: true,
-    badge: "",
-    badgeClass: "",
-    permissions: [],
-    submenu: [],
-  },
-  {
-    path: "/admin/user-management/branches",
-    title: "Branch Management",
-    moduleName: "branches",
-    iconType: "feather",
-    icon: "git-branch",
-    class: "",
-    groupTitle: false,
-    badge: "",
-    badgeClass: "",
-    permissions: ["BRANCH_LIST"],
-    submenu: [],
-  },
+  // ── Compliance group ──────────────────────────────────────────────────
+  // {
+  //   path: "",
+  //   title: "Compliance",
+  //   moduleName: "",
+  //   iconType: "",
+  //   icon: "",
+  //   class: "",
+  //   groupTitle: true,
+  //   badge: "",
+  //   badgeClass: "",
+  //   permissions: [],
+  //   submenu: [],
+  // },
 ];

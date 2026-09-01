@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+// branch.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-branch',
@@ -24,9 +27,6 @@ export class BranchComponent implements OnInit, OnDestroy {
     { label: '#',            field: 'index'                        },
     { label: 'Branch Code',  field: 'branchCode'                   },
     { label: 'Branch Name',  field: 'branchName'                   },
-    { label: 'Type',         field: 'branchType'                   },
-    { label: 'Region',       field: 'region'                       },
-    { label: 'Address',      field: 'address'                      },
     { label: 'Status',       field: 'status',    type: 'badge'     },
     { label: 'Created',      field: 'createdAt', type: 'date'      },
   ];
@@ -35,29 +35,17 @@ export class BranchComponent implements OnInit, OnDestroy {
     {
       label: 'View',
       icon: 'visibility',
-      onClick: (row) => this.viewBranch(row),
+      onClick: (row: BranchResponse) => this.viewBranch(row),
     },
     {
       label: 'Edit',
       icon: 'edit',
-      onClick: (row) => this.editBranch(row),
-    },
-    {
-      label: 'Activate',
-      icon: 'check_circle',
-      show: (row) => row.status?.toUpperCase() !== 'ACTIVE',
-      onClick: (row) => this.changeStatus(row, 'ACTIVE'),
-    },
-    {
-      label: 'Deactivate',
-      icon: 'block',
-      show: (row) => row.status?.toUpperCase() === 'ACTIVE',
-      onClick: (row) => this.changeStatus(row, 'INACTIVE'),
+      onClick: (row: BranchResponse) => this.editBranch(row),
     },
     {
       label: 'Delete',
       icon: 'delete',
-      onClick: (row) => this.deleteBranch(row),
+      onClick: (row: BranchResponse) => this.deleteBranch(row),
     },
   ];
 
@@ -75,7 +63,7 @@ export class BranchComponent implements OnInit, OnDestroy {
     private branchService: BranchService,
     private snackbar: SnackbarService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -88,15 +76,13 @@ export class BranchComponent implements OnInit, OnDestroy {
 
   loadBranches(): void {
     this.isLoading = true;
-    this.cdr.detectChanges();
-    const sub = this.branchService.getAllBranches({ page: this.pageIndex, size: this.pageSize }).subscribe({
-      next: (response) => {
-        this.branches = response.content;
-        this.totalElements = response.totalElements;
+    const sub = this.branchService.getAllBranches().subscribe({
+      next: (branches: BranchResponse[]) => {
+        this.branches = branches;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
         this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load branches');
@@ -112,41 +98,46 @@ export class BranchComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
-    this.router.navigate(['/admin/user-management/branches/add']);
+    this.router.navigate(['/admin/configurations/branches/add']);
   }
 
   viewBranch(branch: BranchResponse): void {
-    this.router.navigate(['/admin/user-management/branches/view', branch.id]);
+    this.router.navigate(['/admin/configurations/branches/view', branch.branchCode]);
   }
 
   editBranch(branch: BranchResponse): void {
-    this.router.navigate(['/admin/user-management/branches/edit', branch.id]);
-  }
-
-  changeStatus(branch: BranchResponse, status: string): void {
-    const sub = this.branchService.changeBranchStatus(branch.id, status).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess(`Branch ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`);
-        this.loadBranches();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to update branch status');
-      },
-    });
-    this.subs.push(sub);
+    this.router.navigate(['/admin/configurations/branches/edit', branch.branchCode]);
   }
 
   deleteBranch(branch: BranchResponse): void {
-    if (!confirm(`Delete branch "${branch.branchName}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Delete Branch',
+        message: `Are you sure you want to delete the branch "${branch.branchName}"? This action cannot be undone.`,
+        confirmText: 'Delete Branch',
+        cancelText: 'Cancel',
+      },
+    });
 
-    const sub = this.branchService.deleteBranch(branch.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Branch deleted successfully');
-        this.loadBranches();
-      },
-      error: (err) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete branch');
-      },
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isLoading = true;
+      const deleteSub = this.branchService.deleteBranchByCode(branch.branchCode).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Branch deleted successfully');
+          this.loadBranches();
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          this.snackbar.alertError(err?.error?.message || 'Failed to delete branch');
+        },
+      });
+      this.subs.push(deleteSub);
     });
     this.subs.push(sub);
   }

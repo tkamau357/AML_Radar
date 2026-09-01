@@ -1,50 +1,99 @@
-// import { Injectable } from "@angular/core";
-// import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from "@angular/common/http";
-// import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, throwError } from "rxjs";
-// import { AuthService } from "../service/auth.service";
-// import { TokenStorageService } from "../service/token-storage.service";
+// src/app/core/interceptors/jwt.interceptor.ts
+import { Injectable } from "@angular/core";
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from "@angular/common/http";
+import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, throwError } from "rxjs";
+import { AuthService } from "../service/auth.service";
+import { TokenStorageService } from "../service/token-storage.service";
 
-// @Injectable()
-// export class JwtInterceptor implements HttpInterceptor {
-//   private isRefreshing = false;
-//   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+@Injectable()
+export class JwtInterceptor implements HttpInterceptor {
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-//   constructor(private tokenStorage: TokenStorageService, private authService: AuthService, private inactivityService: Inactivity) { }
+  constructor(
+    private tokenStorage: TokenStorageService, 
+    private authService: AuthService
+  ) { }
 
-//   intercept(
-//     request: HttpRequest<any>,
-//     next: HttpHandler
-//   ): Observable<HttpEvent<any>> {
+  intercept(
+    request: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
 
-//     const token = this.tokenStorage.getTokenDetails();
+    // Skip adding token for auth endpoints
+    if (this.isAuthEndpoint(request.url)) {
+      return next.handle(request);
+    }
 
-//     //Cookies
-//     const userId = this.tokenStorage.getUser()?.id;
-//     let cloneReq = request.clone({
-//       withCredentials: true,
-//       setHeaders: userId ? { 'X-User-Id': String(userId) } : {}
-//     });
-   
-//     return next.handle(cloneReq).pipe(
-//       catchError((error: HttpErrorResponse) => {
-//         // Handle 401 → logout, but never intercept the refresh endpoint itself:
-//         // if the refresh call returns 401, refreshTokenSilently()'s own error handler
-//         // owns the logout — intercepting it here would cause a double-logout race.
-//         const isRefreshCall = request.url.includes('/authentication/refresh');
-//         if (!isRefreshCall && (error.status === 401 || (error.error && (error.error as any).statusCode === 401))) {
-//           console.warn('[JwtInterceptor] 401 on non-refresh request — triggering logout', { url: request.url });
-//           return this.handle401Error(cloneReq, next);
-//         }
-//         return throwError(() => error);
-//       })
-//     );
-//   }
+    // Get the JWT token
+    const token = this.tokenStorage.getToken();
 
-//   private handle401Error(
-//     request: HttpRequest<any>,
-//     next: HttpHandler
-//   ): Observable<HttpEvent<any>> {
-//     this.inactivityService.performLogout('401 Unauthorized');
-//     return throwError(() => new Error("Logged out due to Inactivity"));
-//   }
-// }
+    // Clone request and add Authorization header if token exists
+    let authRequest = request;
+    if (token) {
+      authRequest = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        },
+        withCredentials: true
+      });
+    }
+
+    return next.handle(authRequest).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !this.isAuthEndpoint(request.url)) {
+          return this.handle401Error(authRequest, next);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private isAuthEndpoint(url: string): boolean {
+    return url.includes('/auth/login') ||
+      url.includes('/auth/verify-otp') ||
+      url.includes('/auth/resend-otp') ||
+      url.includes('/auth/refresh');
+  }
+
+  private handle401Error(
+    request: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
+
+      return this.authService.refreshToken().pipe(
+        switchMap((response) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(response.accessToken || '');
+          
+          // Retry the request with new token
+          return next.handle(request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${response.accessToken}`
+            }
+          }));
+        }),
+        catchError((err) => {
+          this.isRefreshing = false;
+          this.authService.logout();
+          return throwError(() => err);
+        })
+      );
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1),
+        switchMap((token) => {
+          return next.handle(request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token || ''}`
+            }
+          }));
+        })
+      );
+    }
+  }
+}

@@ -1,18 +1,36 @@
+// branch.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
-import { ApiResponse } from '../../shared/data/api-response';
+
+export interface ApiResponse<T> {
+  id?: string;
+  message: string;
+  result: T;
+  pageable?: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+  };
+  totalElements?: number;
+  totalPages?: number;
+  timestamp?: string;
+}
 
 export interface BranchResponse {
   id: number;
   branchCode: string;
   branchName: string;
-  branchType?: string;
-  region?: string;
+  description?: string;
   address?: string;
+  region?: string;
   status?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -21,10 +39,17 @@ export interface BranchResponse {
 export interface CreateBranchRequest {
   branchCode: string;
   branchName: string;
-  branchType?: string;
-  region?: string;
+  description?: string;
   address?: string;
-  status?: string;
+  region?: string;
+  // Note: status might not be in the request DTO based on CreateBranchRequest.java
+}
+
+export interface UploadResponse {
+  success: boolean;
+  message: string;
+  branches: BranchResponse[];
+  errors?: Array<{ row: number; field: string; message: string }>;
 }
 
 @Injectable({
@@ -36,64 +61,52 @@ export class BranchService {
   constructor(private http: HttpClient) {}
 
   /** GET /branches - Get all branches (paginated) */
-  getAllBranches(params: PaginationParams = {}): Observable<PagedResponse<BranchResponse>> {
-    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
-    return this.http.get<ApiResponse<PagedResponse<BranchResponse>>>(this.apiUrl, { params: httpParams })
-      .pipe(map(res => res.result));
+  getAllBranches(): Observable<BranchResponse[]> {
+    return this.http.get<ApiResponse<{ content: BranchResponse[] }>>(this.apiUrl).pipe(
+      map(response => response.result?.content || [])
+    );
   }
 
   /** GET /branches/list - Get all branches (list for dropdowns) */
-  getBranchesList(): Observable<BranchResponse[]> {
-    return this.http.get<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/list`)
-      .pipe(map(res => res.result));
+  getAllBranchesList(): Observable<BranchResponse[]> {
+    return this.http.get<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/list`).pipe(
+      map(response => response.result || [])
+    );
   }
 
   /** GET /branches/active - Get all active branches */
   getActiveBranches(): Observable<BranchResponse[]> {
-    return this.http.get<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/active`)
-      .pipe(map(res => res.result));
+    return this.http.get<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/active`).pipe(
+      map(response => response.result || [])
+    );
   }
 
   /** GET /branches/{code} - Get branch by code */
   getBranchByCode(code: string): Observable<BranchResponse> {
-    return this.http.get<ApiResponse<BranchResponse>>(`${this.apiUrl}/${code}`)
-      .pipe(map(res => res.result));
-  }
-
-  /** GET /branches/{id} - Get branch by ID (legacy support) */
-  getBranchById(id: number): Observable<BranchResponse> {
-    return this.http.get<ApiResponse<BranchResponse>>(`${this.apiUrl}/${id}`)
-      .pipe(map(res => res.result));
+    return this.http.get<ApiResponse<BranchResponse>>(`${this.apiUrl}/${code}`).pipe(
+      map(response => response.result)
+    );
   }
 
   /** POST /branches - Create new branch */
   createBranch(branch: CreateBranchRequest): Observable<BranchResponse> {
-    return this.http.post<ApiResponse<BranchResponse>>(this.apiUrl, branch)
-      .pipe(map(res => res.result));
+    return this.http.post<ApiResponse<BranchResponse>>(this.apiUrl, branch).pipe(
+      map(response => response.result)
+    );
   }
 
   /** PUT /branches/{code} - Update branch by code */
   updateBranchByCode(code: string, branch: CreateBranchRequest): Observable<BranchResponse> {
-    return this.http.put<ApiResponse<BranchResponse>>(`${this.apiUrl}/${code}`, branch)
-      .pipe(map(res => res.result));
-  }
-
-  /** PUT /branches/{id} - Update branch by ID (legacy support) */
-  updateBranch(id: number, branch: Partial<BranchResponse>): Observable<BranchResponse> {
-    return this.http.put<ApiResponse<BranchResponse>>(`${this.apiUrl}/${id}`, branch)
-      .pipe(map(res => res.result));
+    return this.http.put<ApiResponse<BranchResponse>>(`${this.apiUrl}/${code}`, branch).pipe(
+      map(response => response.result)
+    );
   }
 
   /** DELETE /branches/{code} - Delete branch by code */
   deleteBranchByCode(code: string): Observable<void> {
-    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${code}`)
-      .pipe(map(() => void 0));
-  }
-
-  /** DELETE /branches/{id} - Delete branch by ID (legacy support) */
-  deleteBranch(id: number): Observable<void> {
-    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`)
-      .pipe(map(() => void 0));
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${code}`).pipe(
+      map(() => {})
+    );
   }
 
   /** GET /branches/template - Download branch upload template */
@@ -107,14 +120,8 @@ export class BranchService {
   uploadBranches(file: File): Observable<BranchResponse[]> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/upload`, formData)
-      .pipe(map(res => res.result));
-  }
-
-  /** PATCH /branches/{id}/status - Change branch status (legacy) */
-  changeBranchStatus(id: number, status: string): Observable<BranchResponse> {
-    return this.http.patch<ApiResponse<BranchResponse>>(`${this.apiUrl}/${id}/status`, null, {
-      params: new HttpParams().set('status', status),
-    }).pipe(map(res => res.result));
+    return this.http.post<ApiResponse<BranchResponse[]>>(`${this.apiUrl}/upload`, formData).pipe(
+      map(response => response.result || [])
+    );
   }
 }

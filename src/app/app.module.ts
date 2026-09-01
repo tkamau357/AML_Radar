@@ -67,6 +67,7 @@ import { OtpComponent } from './authentication/otp/otp.component';
 import { Page404Component } from './authentication/page404/page404.component';
 import { Page403Component } from './authentication/page403/page403.component';
 import { IdleWarningComponent } from './layout/idle-warning-component/idle-warning-component';import { FullLayout } from './layout/full-layout/full-layout';
+import { JwtInterceptor } from './core/interceptor/jwt.interceptor';
 
 // Register locales
 registerLocaleData(localeFr);
@@ -132,6 +133,11 @@ registerLocaleData(localeEn);
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: ErrorHandler, useClass: GlobalErrorHandlerService },
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    },
         BnNgIdleService,
     ],
     bootstrap: [AppComponent],
