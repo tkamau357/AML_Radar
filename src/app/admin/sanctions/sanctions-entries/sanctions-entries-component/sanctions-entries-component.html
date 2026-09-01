@@ -13,5 +13,8 @@
   noRecordsMessage="No sanction entries found."
   [showExcel]="true"
   [showPdf]="true"
+  [customFilters]="sourceFilterOptions"
+  customFilterLabel="Filter by Source"
+  (customFilterChange)="onSourceFilterChange($event)"
   (add)="onAdd()"
 ></app-dynamic-tables>

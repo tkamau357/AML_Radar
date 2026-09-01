@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
@@ -35,6 +35,7 @@ export class AddUsersComponent implements OnInit, OnDestroy {
     private snack: SnackbarService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -80,9 +81,11 @@ export class AddUsersComponent implements OnInit, OnDestroy {
         this.roles = roles;
         this.branches = branches;
         this.isLoadingRefs = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoadingRefs = false;
+        this.cdr.detectChanges();
         this.snack.alertError('Failed to load reference data');
       },
     });
@@ -114,8 +117,10 @@ export class AddUsersComponent implements OnInit, OnDestroy {
         });
         // Disable email on edit (primary key)
         this.form.get('email')?.disable();
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load user');
         this.router.navigate(['/admin/user-management/users']);
       },
@@ -141,11 +146,13 @@ export class AddUsersComponent implements OnInit, OnDestroy {
       const sub = this.users.updateUser(this.editId, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.cdr.detectChanges();
           this.snack.alertSuccess('User updated successfully');
           this.router.navigate(['/admin/user-management/users']);
         },
         error: err => {
           this.isSubmitting = false;
+          this.cdr.detectChanges();
           this.snack.alertError(err?.error?.message || 'Failed to update user');
         },
       });
@@ -164,11 +171,13 @@ export class AddUsersComponent implements OnInit, OnDestroy {
       const sub = this.users.createUser(payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.cdr.detectChanges();
           this.snack.alertSuccess('User created successfully');
           this.router.navigate(['/admin/user-management/users']);
         },
         error: err => {
           this.isSubmitting = false;
+          this.cdr.detectChanges();
           this.snack.alertError(err?.error?.message || 'Failed to create user');
         },
       });

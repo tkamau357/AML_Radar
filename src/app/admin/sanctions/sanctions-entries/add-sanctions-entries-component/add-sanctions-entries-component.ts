@@ -1,10 +1,33 @@
 // add-sanctions-entries-component.ts
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { SanctionListSourceInfo, SanctionsService, SanctionEntryResponse, ManualEntryRequest } from '../../sanctions.service';
+
+interface BulkEntry {
+  id: number;
+  source: string;
+  sourceDisplayName: string;
+  entityType: string;
+  fullName: string;
+  aliases: string[];
+  dateOfBirth?: string;
+  placeOfBirth?: string;
+  nationality?: string;
+  idNumber?: string;
+  pinNumber?: string;
+  passportNumber?: string;
+  address?: string;
+  program?: string;
+  listedDate?: string;
+  remarks?: string;
+  gazetteNotice?: string;
+  caseReference?: string;
+  status?: 'pending' | 'success' | 'error';
+  errorMessage?: string;
+}
 
 @Component({
   selector: 'app-add-sanctions-entries-components',
@@ -20,6 +43,8 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isEditMode = false;
   editId: number | null = null;
+  isEditingBulkEntry = false;
+  editingBulkEntryId: number | null = null;
 
   sources: SanctionListSourceInfo[] = [];
   entityTypes = ['INDIVIDUAL', 'ORGANIZATION', 'VESSEL', 'AIRCRAFT', 'UNKNOWN'];
@@ -40,6 +65,11 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
     errors?: Array<{ row: number; field: string; message: string }>;
   } | null = null;
 
+  // Bulk entry table
+  showBulkTable = false;
+  bulkEntries: BulkEntry[] = [];
+  private entryCounter = 0;
+
   private subs: Subscription[] = [];
 
   constructor(
@@ -48,12 +78,12 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
     private snack: SnackbarService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
       source: ['', Validators.required],
-      sourceEntryId: [''],
       entityType: ['', Validators.required],
       fullName: ['', Validators.required],
       aliases: [''],
@@ -95,8 +125,10 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
         if (sources.length > 0 && !this.isEditMode) {
           this.bulkSource = sources[0].source;
         }
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load sources');
       },
     });
@@ -121,10 +153,12 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
         });
         // Disable source on edit (cannot change source)
         this.form.get('source')?.disable();
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load entry');
-        this.router.navigate(['admin/sanctions/entries']);
+        this.router.navigate(['admin/sanctions']);
       },
     });
     this.subs.push(s);
@@ -132,6 +166,17 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
 
   submit(): void {
     if (this.form.invalid || this.isSubmitting) return;
+    
+    // If in bulk mode, add to table instead of submitting
+    if (this.showBulkTable) {
+      if (this.isEditingBulkEntry && this.editingBulkEntryId !== null) {
+        this.updateBulkEntry();
+      } else {
+        this.addToBulkTable();
+      }
+      return;
+    }
+
     this.isSubmitting = true;
 
     const raw = this.form.getRawValue();
@@ -155,23 +200,243 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
       caseReference: raw.caseReference?.trim() || undefined,
     };
 
-    // Only create - no update functionality
     const sub = this.service.addEntry(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
         this.snack.alertSuccess('Entry created successfully');
-        this.router.navigate(['admin/sanctions/entries']);
+        this.router.navigate(['admin/sanctions']);
       },
       error: (err: any) => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to create entry');
       },
     });
     this.subs.push(sub);
   }
 
+  // Add current form data to bulk table
+  addToBulkTable(): void {
+    if (this.form.invalid) {
+      this.snack.alertError('Please fill in all required fields');
+      return;
+    }
+
+    const raw = this.form.getRawValue();
+    const sourceDisplayName = this.sources.find(s => s.source === raw.source)?.displayName || raw.source;
+
+    const entry: BulkEntry = {
+      id: ++this.entryCounter,
+      source: raw.source,
+      sourceDisplayName: sourceDisplayName,
+      entityType: raw.entityType,
+      fullName: raw.fullName.trim(),
+      aliases: raw.aliases ? raw.aliases.split(';').map((s: string) => s.trim()).filter(Boolean) : [],
+      dateOfBirth: raw.dateOfBirth || undefined,
+      placeOfBirth: raw.placeOfBirth?.trim() || undefined,
+      nationality: raw.nationality?.trim() || undefined,
+      idNumber: raw.idNumber?.trim() || undefined,
+      pinNumber: raw.pinNumber?.trim() || undefined,
+      passportNumber: raw.passportNumber?.trim() || undefined,
+      address: raw.address?.trim() || undefined,
+      program: raw.program?.trim() || undefined,
+      listedDate: raw.listedDate || undefined,
+      remarks: raw.remarks?.trim() || undefined,
+      gazetteNotice: raw.gazetteNotice?.trim() || undefined,
+      caseReference: raw.caseReference?.trim() || undefined,
+      status: 'pending'
+    };
+
+    this.bulkEntries.push(entry);
+    this.snack.alertSuccess('Entry added to bulk list');
+
+    // Reset form but keep source
+    const source = this.form.get('source')?.value;
+    this.form.reset({ source });
+    this.cdr.detectChanges();
+  }
+
+  // Edit bulk entry - load data into form
+  editBulkEntry(entry: BulkEntry): void {
+    this.isEditingBulkEntry = true;
+    this.editingBulkEntryId = entry.id;
+
+    this.form.patchValue({
+      source: entry.source,
+      entityType: entry.entityType,
+      fullName: entry.fullName,
+      aliases: entry.aliases?.join('; ') || '',
+      dateOfBirth: entry.dateOfBirth || '',
+      placeOfBirth: entry.placeOfBirth || '',
+      nationality: entry.nationality || '',
+      idNumber: entry.idNumber || '',
+      pinNumber: entry.pinNumber || '',
+      passportNumber: entry.passportNumber || '',
+      address: entry.address || '',
+      program: entry.program || '',
+      listedDate: entry.listedDate || '',
+      remarks: entry.remarks || '',
+      gazetteNotice: entry.gazetteNotice || '',
+      caseReference: entry.caseReference || '',
+    });
+
+    // Scroll to form
+    document.querySelector('.form-page')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.snack.alertInfo('Editing entry - update fields and click "Update Entry"');
+    this.cdr.detectChanges();
+  }
+
+  // Update bulk entry
+  updateBulkEntry(): void {
+    if (this.form.invalid) {
+      this.snack.alertError('Please fill in all required fields');
+      return;
+    }
+
+    if (this.editingBulkEntryId === null) return;
+
+    const raw = this.form.getRawValue();
+    const index = this.bulkEntries.findIndex(e => e.id === this.editingBulkEntryId);
+    
+    if (index === -1) {
+      this.snack.alertError('Entry not found');
+      return;
+    }
+
+    const sourceDisplayName = this.sources.find(s => s.source === raw.source)?.displayName || raw.source;
+
+    this.bulkEntries[index] = {
+      ...this.bulkEntries[index],
+      source: raw.source,
+      sourceDisplayName: sourceDisplayName,
+      entityType: raw.entityType,
+      fullName: raw.fullName.trim(),
+      aliases: raw.aliases ? raw.aliases.split(';').map((s: string) => s.trim()).filter(Boolean) : [],
+      dateOfBirth: raw.dateOfBirth || undefined,
+      placeOfBirth: raw.placeOfBirth?.trim() || undefined,
+      nationality: raw.nationality?.trim() || undefined,
+      idNumber: raw.idNumber?.trim() || undefined,
+      pinNumber: raw.pinNumber?.trim() || undefined,
+      passportNumber: raw.passportNumber?.trim() || undefined,
+      address: raw.address?.trim() || undefined,
+      program: raw.program?.trim() || undefined,
+      listedDate: raw.listedDate || undefined,
+      remarks: raw.remarks?.trim() || undefined,
+      gazetteNotice: raw.gazetteNotice?.trim() || undefined,
+      caseReference: raw.caseReference?.trim() || undefined,
+      status: 'pending'
+    };
+
+    this.isEditingBulkEntry = false;
+    this.editingBulkEntryId = null;
+
+    // Reset form but keep source
+    const source = this.form.get('source')?.value;
+    this.form.reset({ source });
+    
+    this.snack.alertSuccess('Entry updated successfully');
+    this.cdr.detectChanges();
+  }
+
+  // Cancel editing
+  cancelEditBulkEntry(): void {
+    this.isEditingBulkEntry = false;
+    this.editingBulkEntryId = null;
+    const source = this.form.get('source')?.value;
+    this.form.reset({ source });
+    this.cdr.detectChanges();
+  }
+
+  // Submit all bulk entries
+  submitBulkEntries(): void {
+    if (this.bulkEntries.length === 0) {
+      this.snack.alertError('No entries to submit');
+      return;
+    }
+
+    // Group entries by source
+    const entriesBySource = new Map<string, BulkEntry[]>();
+    this.bulkEntries.forEach(entry => {
+      if (!entriesBySource.has(entry.source)) {
+        entriesBySource.set(entry.source, []);
+      }
+      entriesBySource.get(entry.source)!.push(entry);
+    });
+
+    this.isSubmitting = true;
+
+    // Process each source group
+    const requests = Array.from(entriesBySource.entries()).map(([source, entries]) => {
+      const request = {
+        source: source,
+        entries: entries.map(e => ({
+          source: e.source,
+          entityType: e.entityType,
+          fullName: e.fullName,
+          aliases: e.aliases,
+          dateOfBirth: e.dateOfBirth,
+          placeOfBirth: e.placeOfBirth,
+          nationality: e.nationality,
+          idNumber: e.idNumber,
+          pinNumber: e.pinNumber,
+          passportNumber: e.passportNumber,
+          address: e.address,
+          program: e.program,
+          listedDate: e.listedDate,
+          remarks: e.remarks,
+          gazetteNotice: e.gazetteNotice,
+          caseReference: e.caseReference,
+        })),
+        replaceExisting: this.replaceExisting
+      };
+      return this.service.bulkUpload(request).toPromise();
+    });
+
+    Promise.all(requests)
+      .then(() => {
+        this.isSubmitting = false;
+        this.snack.alertSuccess(`Successfully uploaded ${this.bulkEntries.length} entries`);
+        this.bulkEntries = [];
+        this.showBulkTable = false;
+        this.isEditingBulkEntry = false;
+        this.editingBulkEntryId = null;
+        this.cdr.detectChanges();
+        this.router.navigate(['admin/sanctions']);
+      })
+      .catch((err) => {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+        this.snack.alertError(err?.error?.message || 'Failed to upload entries');
+      });
+  }
+
+  // Remove entry from bulk table
+  removeBulkEntry(id: number): void {
+    if (this.isEditingBulkEntry && this.editingBulkEntryId === id) {
+      this.cancelEditBulkEntry();
+    }
+    this.bulkEntries = this.bulkEntries.filter(e => e.id !== id);
+    if (this.bulkEntries.length === 0) {
+      this.showBulkTable = false;
+    }
+    this.cdr.detectChanges();
+  }
+
+  // Toggle bulk entry mode
+  toggleBulkMode(): void {
+    if (this.isEditingBulkEntry) {
+      this.cancelEditBulkEntry();
+    }
+    this.showBulkTable = !this.showBulkTable;
+    if (!this.showBulkTable) {
+      this.bulkEntries = [];
+      this.entryCounter = 0;
+    }
+  }
+
   cancel(): void {
-    this.router.navigate(['admin/sanctions/entries']);
+    this.router.navigate(['admin/sanctions']);
   }
 
   err(field: string): boolean {
@@ -196,6 +461,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
       this.service.downloadTemplate(this.bulkSource).subscribe({
         next: (blob: Blob) => {
           this.isDownloading = false;
+          this.cdr.detectChanges();
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
@@ -208,6 +474,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
         },
         error: (err: any) => {
           this.isDownloading = false;
+          this.cdr.detectChanges();
           this.snack.alertError(err?.error?.message || 'Failed to download template');
         },
       })
@@ -306,8 +573,8 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
           clearInterval(progressInterval);
           this.uploadProgress = 100;
           this.isUploading = false;
+          this.cdr.detectChanges();
 
-          // Try to extract count from message
           const countMatch = message.match(/(\d+)\s*entries?/i);
           const count = countMatch ? parseInt(countMatch[1]) : undefined;
 
@@ -321,13 +588,14 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
           this.clearSelectedFile();
 
           setTimeout(() => {
-            this.router.navigate(['admin/sanctions/entries']);
+            this.router.navigate(['admin/sanctions']);
           }, 2000);
         },
         error: (err: any) => {
           clearInterval(progressInterval);
           this.uploadProgress = 0;
           this.isUploading = false;
+          this.cdr.detectChanges();
 
           const errorMessage = err?.error?.message || 'Failed to upload entries';
 

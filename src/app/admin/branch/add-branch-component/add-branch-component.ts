@@ -1,5 +1,5 @@
 // add-branch-component.ts
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -46,6 +46,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     private snack: SnackbarService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -111,6 +112,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     const sub = call$.subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
         this.snack.alertSuccess(
           this.isEditMode ? 'Branch updated successfully' : 'Branch created successfully'
         );
@@ -118,6 +120,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Operation failed');
       },
     });
@@ -144,6 +147,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     const sub = this.service.downloadTemplate().subscribe({
       next: (blob: Blob) => {
         this.isDownloading = false;
+        this.cdr.detectChanges();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -156,6 +160,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isDownloading = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to download template');
       },
     });
@@ -252,6 +257,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
         clearInterval(progressInterval);
         this.uploadProgress = 100;
         this.isUploading = false;
+        this.cdr.detectChanges();
 
         this.uploadResult = {
           success: true,
@@ -276,6 +282,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
         clearInterval(progressInterval);
         this.uploadProgress = 0;
         this.isUploading = false;
+        this.cdr.detectChanges();
 
         const errorMessage = err?.error?.message || 'Failed to upload branches';
 

@@ -245,7 +245,7 @@ export class SanctionsService {
   }
 
   // ==================== ENTRY BROWSING ====================
-  getEntries(source: string, page: number = 0, size: number = 20): Observable<PageResponse<SanctionEntryResponse>> {
+  getEntries(source: string, page: number = 0, size: number = 10): Observable<PageResponse<SanctionEntryResponse>> {
     const params = new HttpParams()
       .set('source', source)
       .set('page', page.toString())
