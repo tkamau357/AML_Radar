@@ -1,5 +1,4 @@
-// branch.component.ts
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
@@ -17,6 +16,11 @@ import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm
 export class BranchComponent implements OnInit, OnDestroy {
   branches: BranchResponse[] = [];
   isLoading = false;
+
+  // Pagination
+  totalElements = 0;
+  pageIndex = 0;
+  pageSize = 20;
 
   columns = [
     { label: '#',            field: 'index'                        },
@@ -72,9 +76,10 @@ export class BranchComponent implements OnInit, OnDestroy {
 
   loadBranches(): void {
     this.isLoading = true;
-    const sub = this.branchService.getAllBranches().subscribe({
-      next: (branches: BranchResponse[]) => {
-        this.branches = branches;
+    const sub = this.branchService.getAllBranches({ page: this.pageIndex, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.branches = response?.content || [];
+        this.totalElements = response?.totalElements || 0;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -85,6 +90,12 @@ export class BranchComponent implements OnInit, OnDestroy {
       },
     });
     this.subs.push(sub);
+  }
+
+  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
+    this.pageIndex = event.pageNumber;
+    this.pageSize = event.pageSize;
+    this.loadBranches();
   }
 
   onAdd(): void {

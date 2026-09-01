@@ -13,5 +13,9 @@
   noRecordsMessage="No roles found."
   [showExcel]="true"
   [showPdf]="true"
+  [totalDataCount]="totalElements"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  (paginationChange)="onPaginationChange($event)"
   (add)="onAdd()"
 ></app-dynamic-tables>

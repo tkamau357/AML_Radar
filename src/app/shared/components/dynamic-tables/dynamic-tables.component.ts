@@ -276,6 +276,17 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     if (changes['data']) {
       this.syncDisplayData();
     }
+
+    // Force change detection when loading state or data changes
+    // This ensures the view updates correctly when parent components update these values
+    if (changes['isLoading'] || changes['data']) {
+      // Use markForCheck + detectChanges to ensure Angular picks up the changes
+      this.cdr.markForCheck();
+      // Defer detectChanges to next microtask to ensure data is fully processed
+      Promise.resolve().then(() => {
+        this.cdr.detectChanges();
+      });
+    }
   }
 
   setPageSize() {

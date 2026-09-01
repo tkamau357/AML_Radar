@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { AuditService } from "../../services/audit.service";
 import { 
   AuditData, 
@@ -114,60 +114,14 @@ export class AuditingComponent implements OnInit, OnDestroy {
 
   // ── Filter Collapsible Methods ───────────────────────────────────────
 
-  /**
-   * Toggle filter panel collapse state
-   */
-  toggleFilter(): void {
-    this.filterCollapsed = !this.filterCollapsed;
-    localStorage.setItem(this.FILTER_STATE_KEY, String(this.filterCollapsed));
-  }
+    this.loading = true;
+    this.cdr.detectChanges();
 
-  /**
-   * Check if any filters are active (excluding default values)
-   */
-  hasActiveFilters(): boolean {
-    return !!(this.filterEmail && this.filterEmail !== this.currentUserEmail) ||
-           !!this.filterAction ||
-           !!this.filterEntityType;
-  }
-
-  /**
-   * Get count of active filters
-   */
-  getActiveFilterCount(): number {
-    let count = 0;
-    if (this.filterEmail && this.filterEmail !== this.currentUserEmail) count++;
-    if (this.filterAction) count++;
-    if (this.filterEntityType) count++;
-    return count;
-  }
-
-  /**
-   * Get a summary of active filters for display when collapsed
-   */
-  getFilterSummary(): string {
-    const parts: string[] = [];
-    if (this.filterEmail && this.filterEmail !== this.currentUserEmail) {
-      parts.push(`User: ${this.filterEmail}`);
-    }
-    if (this.filterAction) {
-      const actionLabel = this.allActions.find(a => a.value === this.filterAction)?.label || this.filterAction;
-      parts.push(`Action: ${actionLabel}`);
-    }
-    if (this.filterEntityType) {
-      parts.push(`Entity: ${this.filterEntityType}`);
-    }
-    return parts.length > 0 ? parts.join(' • ') : 'No active filters';
-  }
-
-  // ── Fetch Methods ─────────────────────────────────────────────────────
-
-  /**
-   * Fetch audit logs for the current user using /user/{email} endpoint
-   */
-  fetchUserAudit(): void {
-    if (!this.currentUserEmail) {
-      this.snackbar.alertError("User email not found");
+    const dateStr = this._datePipe.transform(this.dateForm.value.date, "yyyy/MM/dd");
+    if (!dateStr) {
+      this.loading = false;
+      this.cdr.detectChanges();
+      this.snackbar.alertError("Invalid date selected");
       return;
     }
 
@@ -221,10 +175,26 @@ export class AuditingComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (res: any) => {
+          // Service already extracts result from ApiResponse
+          // res is now the Page object directly
+          if (res?.content) {
+            // Spring Page envelope
+            this.auditData  = this._normalise(res.content);
+            this.totalRows  = res.totalElements ?? this.auditData.length;
+          } else if (Array.isArray(res)) {
+            this.auditData  = this._normalise(res);
+            this.totalRows  = res.length;
+          } else {
+            this.auditData  = [];
+            this.totalRows  = 0;
+          }
+
           this.loading = false;
-          this.processResponse(res);
           this.cdr.detectChanges();
-          this.snackbar.alertInfo(res.message);
+
+          if (this.auditData.length === 0) {
+            this.snackbar.alertInfo("No records found for the selected date");
+          }
         },
         error: (err: any) => {
           this.loading = false;

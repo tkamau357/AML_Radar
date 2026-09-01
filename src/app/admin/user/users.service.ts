@@ -3,25 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-
-export interface ApiResponse<T> {
-  id?: string;
-  message: string;
-  result: T;
-  pageable?: {
-    offset: number;
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
-  };
-  totalElements?: number;
-  totalPages?: number;
-  timestamp?: string;
-}
+import { ApiResponse } from '../../shared/data/api-response';
+import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
 
 export interface UserResponse {
   id: number;
@@ -73,10 +56,10 @@ export class UsersService {
   constructor(private http: HttpClient) { }
 
   /** GET /users - Get all users (paginated) */
-  getAllUsers(): Observable<UserResponse[]> {
-    return this.http.get<ApiResponse<{ content: UserResponse[] }>>(`${this.apiUrl}`).pipe(
-      map(response => response.result?.content || [])
-    );
+  getAllUsers(params: PaginationParams = {}): Observable<PagedResponse<UserResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<ApiResponse<PagedResponse<UserResponse>>>(this.apiUrl, { params: httpParams })
+      .pipe(map(res => res.result));
   }
 
   /** GET /users/list - Get all users (list for dropdowns) */
