@@ -33,7 +33,6 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     { label: 'Source',       field: 'sourceDisplayName'            },
     { label: 'Entity Type',  field: 'entityType',    type: 'badge' },
     { label: 'Listed Date',  field: 'listedDate',    type: 'date'  },
-    { label: 'Status',       field: 'active',        type: 'badge' },
   ];
 
   actions: TableAction<SanctionEntryResponse>[] = [

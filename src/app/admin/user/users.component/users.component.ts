@@ -26,8 +26,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     { label: 'First Name',   field: 'firstName' },
     { label: 'Last Name',    field: 'lastName' },
     { label: 'Email',        field: 'email' },
-    { label: 'Branch',       field: 'branch.branchName' },
-    { label: 'Role',         field: 'role.name' },
+    { label: 'Branch',       field: 'branchName' },
+    { label: 'Role',         field: 'roleName' },
     { label: 'Status',       field: 'status', type: 'badge' },
     { label: 'Last Login',   field: 'lastLoginAt', type: 'date' },
   ];
@@ -92,8 +92,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const sub = this.usersService.getAllUsers({ page: this.pageIndex, size: this.pageSize }).subscribe({
       next: (response) => {
-        this.users = response?.content || [];
+        const rawData = response?.content || [];
         this.totalElements = response?.totalElements || 0;
+
+        this.users = rawData.map((item: any) => ({
+          ...item,
+          roleName: item.role?.name ?? "N/A",
+          branchName: item.branch?.branchName ?? "N/A",
+        }));
         this.isLoading = false;
         this.cdr.detectChanges();
       },
