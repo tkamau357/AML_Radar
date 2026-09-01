@@ -1,17 +1,31 @@
+// sanctions.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
-// ==================== REQUEST MODELS ====================
-
-export interface ScreeningRequest {
-  name: string;
-  source?: string;
-  threshold?: number;
-  limit?: number;
+// ==================== API RESPONSE WRAPPER ====================
+export interface ApiResponse<T> {
+  id?: string;
+  message: string;
+  result: T;
+  pageable?: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+  };
+  totalElements?: number;
+  totalPages?: number;
+  timestamp?: string;
 }
 
+// ==================== REQUEST MODELS ====================
 export interface ManualEntryRequest {
   source: string;
   sourceEntryId?: string;
@@ -39,24 +53,6 @@ export interface BulkUploadRequest {
 }
 
 // ==================== RESPONSE MODELS ====================
-
-export interface MatchResult {
-  entryId: number;
-  fullName: string;
-  source: string;
-  similarity: number;
-  matchType: string;
-  referenceNumber?: string;
-  reason?: string;
-}
-
-export interface ScreeningResponse {
-  searchName: string;
-  matches: MatchResult[];
-  matchCount: number;
-  processingTimeMs: number;
-}
-
 export interface SanctionEntryResponse {
   id: number;
   source: string;
@@ -68,51 +64,24 @@ export interface SanctionEntryResponse {
   dateOfBirth?: string;
   placeOfBirth?: string;
   nationality?: string;
-  idNumber?: string;
-  pinNumber?: string;
-  passportNumber?: string;
-  address?: string;
   program?: string;
   listedDate?: string;
   remarks?: string;
-  gazetteNotice?: string;
-  caseReference?: string;
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface SanctionListResponse {
+  id: number;
   source: string;
   displayName: string;
+  description: string;
+  sourceUrl: string;
+  enabled: boolean;
+  lastSyncAt: string;
   entryCount: number;
-  active: boolean;
-  lastSyncedAt?: string;
-  isAutoSync: boolean;
-}
-
-// ==================== COMPARISON MODELS ====================
-
-export interface MethodResult {
-  method: string;
-  durationMs: number;
-  matchCount: number;
-  topMatches: MatchResult[];
-}
-
-export interface IndexStats {
-  entryCount: number;
-  wordCount: number;
-  avgWordsPerEntry: number;
-  memoryUsageBytes: number;
-}
-
-export interface ScreeningComparison {
-  searchedName: string;
-  fast: MethodResult;
-  legacy: MethodResult;
-  speedup: string;
-  indexStats: IndexStats;
+  lastSyncStatus: string;
 }
 
 export interface SanctionListSourceInfo {
@@ -120,6 +89,75 @@ export interface SanctionListSourceInfo {
   displayName: string;
   description: string;
   autoSyncAvailable: boolean;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
+
+// ==================== COMPARISON MODELS ====================
+export interface MatchResult {
+  entryId: number;
+  fullName: string;
+  matchedOn: string;
+  score: number;
+  source: string;
+  sourceDisplayName: string;
+  entityType: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  program?: string;
+  listedDate?: string;
+  aliases?: string[];
+}
+
+export interface ScreeningResponse {
+  screeningId: string;
+  searchedName: string;
+  matchCount: number;
+  status: string;
+  matches: MatchResult[];
+  sourcesSearched: string[];
+  thresholdUsed: number;
+  durationMs: number;
+  timestamp: string;
+}
+
+export interface ScreeningRequest {
+  name: string;
+  sources?: string[];
+  matchThreshold?: number;
+  maxResults?: number;
+  country?: string;
+  dateOfBirth?: string;
+  entityType?: string;
+  hitThreshold?: number;
+  potentialThreshold?: number;
 }
 
 @Injectable({
@@ -131,81 +169,72 @@ export class SanctionsService {
   constructor(private http: HttpClient) {}
 
   // ==================== SCREENING ====================
-
   screen(request: ScreeningRequest): Observable<ScreeningResponse> {
-    return this.http.post<ScreeningResponse>(`${this.apiUrl}/screen`, request);
-  }
-
-  screenLegacy(request: ScreeningRequest): Observable<ScreeningResponse> {
-    return this.http.post<ScreeningResponse>(`${this.apiUrl}/screen/legacy`, request);
-  }
-
-  screenBatch(requests: ScreeningRequest[]): Observable<ScreeningResponse[]> {
-    return this.http.post<ScreeningResponse[]>(`${this.apiUrl}/screen/batch`, requests);
-  }
-
-  compareScreening(name: string): Observable<ScreeningComparison> {
-    return this.http.get<ScreeningComparison>(`${this.apiUrl}/screen/compare`, {
-      params: new HttpParams().set('name', name)
-    });
+    return this.http.post<ApiResponse<ScreeningResponse>>(`${this.apiUrl}/screen`, request).pipe(
+      map(response => response.result)
+    );
   }
 
   // ==================== LIST MANAGEMENT ====================
-
   getLists(): Observable<SanctionListResponse[]> {
-    return this.http.get<SanctionListResponse[]>(`${this.apiUrl}/lists`);
+    return this.http.get<ApiResponse<SanctionListResponse[]>>(`${this.apiUrl}/lists`).pipe(
+      map(response => response.result || [])
+    );
+  }
+
+  getSources(): Observable<SanctionListSourceInfo[]> {
+    return this.http.get<ApiResponse<SanctionListSourceInfo[]>>(`${this.apiUrl}/lists/sources`).pipe(
+      map(response => response.result || [])
+    );
   }
 
   getList(source: string): Observable<SanctionListResponse> {
-    return this.http.get<SanctionListResponse>(`${this.apiUrl}/lists/${source}`);
+    return this.http.get<ApiResponse<SanctionListResponse>>(`${this.apiUrl}/lists/detail`, {
+      params: new HttpParams().set('source', source)
+    }).pipe(
+      map(response => response.result)
+    );
   }
 
   syncList(source: string): Observable<string> {
-    return this.http.post(`${this.apiUrl}/lists/${source}/sync`, null, {
-      responseType: 'text'
-    });
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/lists/sync`, null, {
+      params: new HttpParams().set('source', source)
+    }).pipe(
+      map(response => response.result || 'Sync started')
+    );
   }
 
   syncAll(): Observable<string> {
-    return this.http.post(`${this.apiUrl}/lists/sync-all`, null, {
-      responseType: 'text'
-    });
-  }
-
-  // ==================== SOURCES INFO ====================
-
-  getSources(): Observable<SanctionListSourceInfo[]> {
-    return this.http.get<SanctionListSourceInfo[]>(`${this.apiUrl}/sources`);
-  }
-
-  getKenyaSources(): Observable<SanctionListSourceInfo[]> {
-    return this.http.get<SanctionListSourceInfo[]>(`${this.apiUrl}/sources/kenya`);
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/lists/sync-all`, null).pipe(
+      map(response => response.result || 'Sync started')
+    );
   }
 
   // ==================== ENTRY MANAGEMENT ====================
-
   addEntry(request: ManualEntryRequest): Observable<SanctionEntryResponse> {
-    return this.http.post<SanctionEntryResponse>(`${this.apiUrl}/entries`, request);
-  }
-
-  updateEntry(id: number, request: ManualEntryRequest): Observable<SanctionEntryResponse> {
-    return this.http.put<SanctionEntryResponse>(`${this.apiUrl}/entries/${id}`, request);
+    return this.http.post<ApiResponse<SanctionEntryResponse>>(`${this.apiUrl}/entries`, request).pipe(
+      map(response => response.result)
+    );
   }
 
   bulkUpload(request: BulkUploadRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/entries/bulk`, request, {
-      responseType: 'text'
-    });
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/entries/bulk`, request).pipe(
+      map(response => response.result || 'Upload completed')
+    );
   }
 
   uploadExcel(source: string, file: File, replaceExisting: boolean = false): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    const params = new HttpParams().set('replaceExisting', replaceExisting.toString());
-    return this.http.post(`${this.apiUrl}/entries/upload`, formData, {
-      params,
-      responseType: 'text'
-    });
+    const params = new HttpParams()
+      .set('source', source)
+      .set('replaceExisting', replaceExisting.toString());
+    
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/entries/upload`, formData, {
+      params
+    }).pipe(
+      map(response => response.result || 'Upload completed')
+    );
   }
 
   downloadTemplate(source: string): Observable<Blob> {
@@ -216,49 +245,38 @@ export class SanctionsService {
   }
 
   // ==================== ENTRY BROWSING ====================
-
-  getEntries(source: string, page: number = 0, size: number = 20): Observable<any> {
+  getEntries(source: string, page: number = 0, size: number = 20): Observable<PageResponse<SanctionEntryResponse>> {
     const params = new HttpParams()
       .set('source', source)
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.http.get<any>(`${this.apiUrl}/entries`, { params });
+    
+    return this.http.get<ApiResponse<PageResponse<SanctionEntryResponse>>>(`${this.apiUrl}/entries`, { params }).pipe(
+      map(response => response.result)
+    );
   }
 
   getEntry(id: number): Observable<SanctionEntryResponse> {
-    return this.http.get<SanctionEntryResponse>(`${this.apiUrl}/entries/detail`, {
+    return this.http.get<ApiResponse<SanctionEntryResponse>>(`${this.apiUrl}/entries/detail`, {
       params: new HttpParams().set('id', id.toString())
-    });
+    }).pipe(
+      map(response => response.result)
+    );
   }
 
   deleteEntry(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/entries`, {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/entries`, {
       params: new HttpParams().set('id', id.toString())
-    });
+    }).pipe(
+      map(() => {})
+    );
   }
 
   deactivateEntry(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/entries/deactivate`, null, {
+    return this.http.patch<ApiResponse<void>>(`${this.apiUrl}/entries/deactivate`, null, {
       params: new HttpParams().set('id', id.toString())
-    });
-  }
-
-  // ==================== BENCHMARK & INDEX ====================
-
-  benchmark(name: string, iterations: number = 100): Observable<any> {
-    const params = new HttpParams()
-      .set('name', name)
-      .set('iterations', iterations.toString());
-    return this.http.get<any>(`${this.apiUrl}/benchmark`, { params });
-  }
-
-  getIndexStats(): Observable<IndexStats> {
-    return this.http.get<IndexStats>(`${this.apiUrl}/index/stats`);
-  }
-
-  rebuildIndex(): Observable<string> {
-    return this.http.post(`${this.apiUrl}/index/rebuild`, null, {
-      responseType: 'text'
-    });
+    }).pipe(
+      map(() => {})
+    );
   }
 }

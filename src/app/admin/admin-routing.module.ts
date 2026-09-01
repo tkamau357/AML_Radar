@@ -25,7 +25,7 @@ const routes: Routes = [
       import("./user/users.module").then((m) => m.UsersModule),
   },
   {
-    path: "user-management/branches",
+    path: "configurations/branches",
     loadChildren: () =>
       import("./branch/branch.module").then((m) => m.BranchModule),
   },

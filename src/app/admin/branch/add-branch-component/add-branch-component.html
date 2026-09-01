@@ -159,7 +159,6 @@
           <span class="form-card-title">Branch Identity</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="branchCode">
@@ -200,53 +199,38 @@
 
           <div class="field-row">
             <div class="field-group">
-              <label class="field-label" for="branchType">Branch Type</label>
-              <select id="branchType" formControlName="branchType" class="field-input field-select">
-                <option *ngFor="let t of branchTypes" [value]="t">{{ t | titlecase }}</option>
-              </select>
+              <label class="field-label" for="region">Region / County</label>
+              <input
+                id="region"
+                type="text"
+                formControlName="region"
+                class="field-input"
+                placeholder="e.g. Nairobi"
+              />
             </div>
 
             <div class="field-group">
-              <label class="field-label" for="branchStatus">Status</label>
-              <select id="branchStatus" formControlName="status" class="field-input field-select">
-                <option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
-              </select>
+              <label class="field-label" for="address">Physical Address</label>
+              <textarea
+                id="address"
+                formControlName="address"
+                class="field-input field-textarea"
+                rows="3"
+                placeholder="e.g. 2nd Floor, Finance House, Loita Street"
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="description">Description</label>
+              <input
+                id="description"
+                type="text"
+                formControlName="description"
+                class="field-input"
+                placeholder="e.g. Nairobi"
+              />
             </div>
           </div>
-
-        </div>
-      </div>
-
-      <!-- Location card -->
-      <div class="form-card">
-        <div class="form-card-header">
-          <mat-icon class="form-card-icon">location_on</mat-icon>
-          <span class="form-card-title">Location Details</span>
-        </div>
-        <div class="form-card-body">
-
-          <div class="field-group">
-            <label class="field-label" for="region">Region / County</label>
-            <input
-              id="region"
-              type="text"
-              formControlName="region"
-              class="field-input"
-              placeholder="e.g. Nairobi"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label" for="address">Physical Address</label>
-            <textarea
-              id="address"
-              formControlName="address"
-              class="field-input field-textarea"
-              rows="3"
-              placeholder="e.g. 2nd Floor, Finance House, Loita Street"
-            ></textarea>
-          </div>
-
         </div>
       </div>
     </div>
@@ -261,8 +245,7 @@
           <button
             type="submit"
             class="action-btn action-btn--primary"
-            [disabled]="form.invalid || isSubmitting"
-          >
+            [disabled]="form.invalid || isSubmitting">
             <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
             <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add_business' }}</mat-icon>
             {{ isSubmitting ? 'Saving…' : (isEditMode ? 'Save Changes' : 'Create Branch') }}
@@ -291,6 +274,5 @@
         </div>
       </div>
     </div>
-
   </form>
 </div>

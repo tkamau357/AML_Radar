@@ -1,3 +1,4 @@
+<!-- view-sanctions-entries-component.html -->
 <div class="form-page">
 
   <!-- Header -->
@@ -47,8 +48,20 @@
             </span>
           </div>
           <div class="detail-row">
+            <span class="detail-label">Program</span>
+            <span class="detail-value">{{ entry.program || '—' }}</span>
+          </div>
+          <div class="detail-row">
             <span class="detail-label">Listed Date</span>
             <span class="detail-value">{{ (entry.listedDate | date:'dd MMM yyyy') || '—' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="entry.createdAt">
+            <span class="detail-label">Created</span>
+            <span class="detail-value">{{ entry.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="entry.updatedAt">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ entry.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
           </div>
         </div>
       </div>
@@ -80,10 +93,6 @@
           <div class="detail-row">
             <span class="detail-label">Nationality</span>
             <span class="detail-value">{{ entry.nationality || '—' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Program</span>
-            <span class="detail-value">{{ entry.program || '—' }}</span>
           </div>
         </div>
       </div>
