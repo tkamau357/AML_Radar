@@ -1,5 +1,4 @@
-// branch.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
@@ -64,6 +63,7 @@ export class BranchComponent implements OnInit, OnDestroy {
     private snackbar: SnackbarService,
     private router: Router,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -76,9 +76,10 @@ export class BranchComponent implements OnInit, OnDestroy {
 
   loadBranches(): void {
     this.isLoading = true;
-    const sub = this.branchService.getAllBranches().subscribe({
-      next: (branches: BranchResponse[]) => {
-        this.branches = branches;
+    const sub = this.branchService.getAllBranches({ page: this.pageIndex, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.branches = response?.content || [];
+        this.totalElements = response?.totalElements || 0;
         this.isLoading = false;
         this.cdr.detectChanges();
       },

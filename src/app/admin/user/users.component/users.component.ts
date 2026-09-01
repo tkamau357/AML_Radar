@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UsersService, UserResponse } from '../users.service';
@@ -16,6 +16,10 @@ import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm
 export class UsersComponent implements OnInit, OnDestroy {
   users: UserResponse[] = [];
   isLoading = false;
+
+  totalElements = 0;
+  pageIndex = 0;
+  pageSize = 20;
 
   columns = [
     { label: '#',            field: 'index' },
@@ -73,6 +77,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     private snackbar: SnackbarService,
     private router: Router,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -85,13 +90,16 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   loadUsers(): void {
     this.isLoading = true;
-    const sub = this.usersService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users = users;
+    const sub = this.usersService.getAllUsers({ page: this.pageIndex, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.users = response?.content || [];
+        this.totalElements = response?.totalElements || 0;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load users');
       },
     });
@@ -176,5 +184,11 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.subs.push(deleteSub);
     });
     this.subs.push(sub);
+  }
+
+  onPaginationChange(event: { pageNumber: number; pageSize: number }): void {
+    this.pageIndex = event.pageNumber;
+    this.pageSize = event.pageSize;
+    this.loadUsers();
   }
 }

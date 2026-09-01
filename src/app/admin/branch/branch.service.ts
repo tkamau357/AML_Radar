@@ -1,28 +1,10 @@
-// branch.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-
-export interface ApiResponse<T> {
-  id?: string;
-  message: string;
-  result: T;
-  pageable?: {
-    offset: number;
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
-  };
-  totalElements?: number;
-  totalPages?: number;
-  timestamp?: string;
-}
+import { ApiResponse } from '../../shared/data/api-response';
+import { PagedResponse, PaginationParams, buildPaginationParams } from '../../shared/data/paginated-response';
 
 export interface BranchResponse {
   id: number;
@@ -61,10 +43,10 @@ export class BranchService {
   constructor(private http: HttpClient) {}
 
   /** GET /branches - Get all branches (paginated) */
-  getAllBranches(): Observable<BranchResponse[]> {
-    return this.http.get<ApiResponse<{ content: BranchResponse[] }>>(this.apiUrl).pipe(
-      map(response => response.result?.content || [])
-    );
+  getAllBranches(params: PaginationParams = {}): Observable<PagedResponse<BranchResponse>> {
+    const httpParams = new HttpParams({ fromObject: buildPaginationParams(params) });
+    return this.http.get<ApiResponse<PagedResponse<BranchResponse>>>(this.apiUrl, { params: httpParams })
+      .pipe(map(res => res.result));
   }
 
   /** GET /branches/list - Get all branches (list for dropdowns) */
