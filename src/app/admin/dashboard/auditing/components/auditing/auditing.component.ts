@@ -112,8 +112,6 @@ export class AuditingComponent implements OnInit, OnDestroy {
     this.page = 0;
   }
 
-  // ── Filter Collapsible Methods ───────────────────────────────────────
-
   /**
    * Toggle filter panel collapse state
    */
