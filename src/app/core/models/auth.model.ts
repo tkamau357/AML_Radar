@@ -14,6 +14,7 @@ export interface LoginResponse {
   message: string;
   hasAcceptedTerms?: boolean;
   otpExpirySeconds?: number;
+  skipOtp?: boolean;  // true when user must change password
 }
 
 // ==================== OTP ====================

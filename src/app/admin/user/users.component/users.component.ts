@@ -44,6 +44,11 @@ export class UsersComponent implements OnInit, OnDestroy {
       onClick: (row) => this.editUser(row),
     },
     {
+      label: 'Reset Password',
+      icon: 'vpn_key',
+      onClick: (row) => this.forceResetPassword(row),
+    },
+    {
       label: 'Activate',
       icon: 'check_circle',
       show: (row) => row.status?.toUpperCase() !== 'ACTIVE',
@@ -182,6 +187,39 @@ export class UsersComponent implements OnInit, OnDestroy {
         },
       });
       this.subs.push(deleteSub);
+    });
+    this.subs.push(sub);
+  }
+
+  forceResetPassword(user: UserResponse): void {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Reset User Password',
+        message: `Are you sure you want to reset the password for "${user.firstName} ${user.lastName}"? A new temporary password will be generated and sent to their email (${user.email}).`,
+        confirmText: 'Reset Password',
+        cancelText: 'Cancel',
+      },
+    });
+
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isLoading = true;
+      const resetSub = this.usersService.forceResetPassword(user.id).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Password reset successfully. New credentials sent to user\'s email.');
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.snackbar.alertError(err?.error?.message || 'Failed to reset password');
+        },
+      });
+      this.subs.push(resetSub);
     });
     this.subs.push(sub);
   }

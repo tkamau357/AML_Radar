@@ -13,13 +13,14 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocomplete } from '@angular/material/autocomplete';
-import { Subject, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SelectionModel } from '@angular/cdk/collections';
 import { PermissionsReference } from '../../../data/types/permissions-reference';
+import { LoadingService } from '../../../core/service/loading.service';
 
 export interface ModuleTypeOption {
   id: number | null;
@@ -79,6 +80,25 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     'text-[#2A5CAA] text-sm px-4 py-2 rounded-md border border-[#2A5CAA] transition-all duration-200 hover:bg-[#2A5CAA]/10';
   @Output() secondaryButtonClick = new EventEmitter<void>();
   @Input() isLoading = false;
+  
+  /**
+   * Optional: Subscribe to a loading observable instead of using isLoading input.
+   * When provided, this takes precedence over the isLoading input.
+   * Use with LoadingService.loading$ for centralized loading state.
+   */
+  @Input() loading$?: Observable<boolean>;
+  
+  /**
+   * Whether to use the global LoadingService automatically.
+   * When true, subscribes to LoadingService.loading$ instead of using isLoading input.
+   * Default: false (for backward compatibility)
+   */
+  @Input() useGlobalLoading = false;
+  
+  // Internal loading state (resolved from isLoading, loading$, or global service)
+  internalLoading = false;
+  private loadingSub?: Subscription;
+  
   @Input() noRecordsMessage = 'No records available at the moment.';
   @Input() addButtonClass =
     'text-white text-sm px-4 py-2 rounded-md transition-all duration-200 hover:brightness-110 active:brightness-95';
@@ -202,6 +222,7 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService,
   ) {
     this.moduleControl.setValue(this.allOption, { emitEvent: false });
     this.filteredModuleTypes = [this.allOption];
@@ -213,6 +234,9 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   ngOnInit(): void {
     this.setPageSize();
     window.addEventListener('resize', () => this.setPageSize());
+
+    // Setup loading state subscription
+    this.setupLoadingSubscription();
 
       this.valueChangesSub = this.moduleControl.valueChanges.pipe(
         debounceTime(350),
@@ -237,9 +261,55 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     this.syncDisplayData();
   }
 
+  /**
+   * Setup loading state subscription based on configuration.
+   * Priority: loading$ input > useGlobalLoading > isLoading input
+   */
+  private setupLoadingSubscription(): void {
+    // Unsubscribe from any existing subscription
+    this.loadingSub?.unsubscribe();
+
+    // Determine which loading source to use
+    let source$: Observable<boolean> | undefined;
+    
+    if (this.loading$) {
+      // Custom loading observable provided
+      source$ = this.loading$;
+    } else if (this.useGlobalLoading) {
+      // Use global loading service
+      source$ = this.loadingService.loading$;
+    }
+
+    if (source$) {
+      this.loadingSub = source$.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(loading => {
+        this.internalLoading = loading;
+        this.cdr.markForCheck();
+      });
+    } else {
+      // Fallback to input-based loading
+      this.internalLoading = this.isLoading;
+    }
+  }
+
+  /**
+   * Get the effective loading state.
+   * Used by the template to show/hide loading indicator.
+   */
+  get effectiveLoading(): boolean {
+    // If using observable-based loading, use internal state
+    if (this.loading$ || this.useGlobalLoading) {
+      return this.internalLoading;
+    }
+    // Otherwise use the input
+    return this.isLoading;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.loadingSub?.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -280,12 +350,16 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     // Force change detection when loading state or data changes
     // This ensures the view updates correctly when parent components update these values
     if (changes['isLoading'] || changes['data']) {
-      // Use markForCheck + detectChanges to ensure Angular picks up the changes
+      // Sync internal loading state if not using observable
+      if (!this.loading$ && !this.useGlobalLoading && changes['isLoading']) {
+        this.internalLoading = this.isLoading;
+      }
       this.cdr.markForCheck();
-      // Defer detectChanges to next microtask to ensure data is fully processed
-      Promise.resolve().then(() => {
-        this.cdr.detectChanges();
-      });
+    }
+
+    // Re-setup loading subscription if loading$ or useGlobalLoading changes
+    if (changes['loading$'] || changes['useGlobalLoading']) {
+      this.setupLoadingSubscription();
     }
   }
 

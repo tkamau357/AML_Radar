@@ -44,7 +44,6 @@ export class AddUsersComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       roleId: [null, [Validators.required]],
       branchCode: [null, [Validators.required]],
-      password: ['', [Validators.minLength(8)]],
     });
 
     // Load reference data first
@@ -56,9 +55,6 @@ export class AddUsersComponent implements OnInit, OnDestroy {
       this.editId = Number(idParam);
       if (!isNaN(this.editId)) {
         this.isEditMode = true;
-        // Password is optional on edit
-        this.form.get('password')?.clearValidators();
-        this.form.get('password')?.updateValueAndValidity();
         // Load user data after refs are loaded
         this.loadUser(this.editId);
       }
@@ -151,20 +147,19 @@ export class AddUsersComponent implements OnInit, OnDestroy {
       });
       this.subs.push(sub);
     } else {
-      // CREATE
+      // CREATE - password will be auto-generated and emailed
       const payload: CreateUserRequest = {
         firstName: v.firstName.trim(),
         lastName: v.lastName.trim(),
         email: v.email.trim().toLowerCase(),
         roleId: v.roleId,
         branchCode: v.branchCode,
-        password: v.password,
       };
 
       const sub = this.users.createUser(payload).subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.snack.alertSuccess('User created successfully');
+          this.snack.alertSuccess('User created successfully. Login credentials have been sent to their email.');
           this.router.navigate(['/admin/user-management/users']);
         },
         error: err => {

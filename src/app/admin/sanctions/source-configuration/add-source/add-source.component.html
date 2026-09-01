@@ -1,0 +1,582 @@
+<div class="form-page">
+  <!-- Page header -->
+  <div class="form-page-header">
+    <button class="back-btn" (click)="cancel()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="form-page-title">
+        {{ isViewMode ? 'View Source' : (isEditMode ? 'Edit Source' : 'Add Source') }}
+      </h2>
+      <p class="form-page-subtitle">
+        {{ isViewMode ? 'Source configuration details' : (isEditMode ? 'Update source configuration' : 'Configure a new sanction list source') }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="form-loading">
+    <div class="spinner"></div>
+    <span>Loading source configuration...</span>
+  </div>
+
+  <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
+    <!-- Main column -->
+    <div class="form-main">
+      <!-- Basic Info Card -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">source</mat-icon>
+          <span class="form-card-title">Source Information</span>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="source">
+                Source Type <span class="required">*</span>
+              </label>
+              <select
+                id="source"
+                formControlName="source"
+                class="field-input"
+                [class.field-input--error]="err('source')">
+                <option value="">Select source type...</option>
+                <option *ngFor="let s of availableSources" [value]="s">{{ s }}</option>
+              </select>
+              <span class="field-error" *ngIf="err('source')">Source type is required</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="displayName">
+                Display Name <span class="required">*</span>
+              </label>
+              <input
+                id="displayName"
+                type="text"
+                formControlName="displayName"
+                class="field-input"
+                [class.field-input--error]="err('displayName')"
+                placeholder="e.g. OFAC SDN List"
+              />
+              <span class="field-error" *ngIf="err('displayName')">Display name is required</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group field-group--full">
+              <label class="field-label" for="description">Description</label>
+              <textarea
+                id="description"
+                formControlName="description"
+                class="field-input field-textarea"
+                rows="2"
+                placeholder="Brief description of this source..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Enabled</label>
+              <div class="toggle-wrap">
+                <input type="checkbox" formControlName="enabled" id="enabled" class="toggle-input" />
+                <label for="enabled" class="toggle-label">
+                  <span class="toggle-text">{{ form.get('enabled')?.value ? 'Active' : 'Inactive' }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acquisition Config Card -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">download</mat-icon>
+          <span class="form-card-title">Data Acquisition</span>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="acquisitionMode">
+                Acquisition Mode <span class="required">*</span>
+              </label>
+              <select
+                id="acquisitionMode"
+                formControlName="acquisitionMode"
+                class="field-input">
+                <option *ngFor="let mode of acquisitionModes" [value]="mode.value">
+                  {{ mode.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- API Config -->
+          <div *ngIf="selectedMode === 'API'" class="config-section">
+            <h4 class="config-section-title">API Configuration</h4>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="apiUrl">API URL</label>
+                <input
+                  id="apiUrl"
+                  type="url"
+                  formControlName="apiUrl"
+                  class="field-input"
+                  placeholder="https://api.example.com/sanctions"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="apiKey">API Key</label>
+                <input
+                  id="apiKey"
+                  type="password"
+                  formControlName="apiKey"
+                  class="field-input"
+                  placeholder="Enter API key..."
+                />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="apiFormat">Response Format</label>
+                <select id="apiFormat" formControlName="apiFormat" class="field-input">
+                  <option value="JSON">JSON</option>
+                  <option value="XML">XML</option>
+                  <option value="CSV">CSV</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SFTP Config -->
+          <div *ngIf="selectedMode === 'SFTP'" class="config-section">
+            <h4 class="config-section-title">SFTP Configuration</h4>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="sftpHost">Host</label>
+                <input
+                  id="sftpHost"
+                  type="text"
+                  formControlName="sftpHost"
+                  class="field-input"
+                  placeholder="sftp.example.com"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="sftpPort">Port</label>
+                <input
+                  id="sftpPort"
+                  type="number"
+                  formControlName="sftpPort"
+                  class="field-input"
+                  placeholder="22"
+                />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="sftpUsername">Username</label>
+                <input
+                  id="sftpUsername"
+                  type="text"
+                  formControlName="sftpUsername"
+                  class="field-input"
+                  placeholder="username"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="sftpPassword">Password</label>
+                <input
+                  id="sftpPassword"
+                  type="password"
+                  formControlName="sftpPassword"
+                  class="field-input"
+                  placeholder="Enter password..."
+                />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="sftpPath">Remote Path</label>
+                <input
+                  id="sftpPath"
+                  type="text"
+                  formControlName="sftpPath"
+                  class="field-input"
+                  placeholder="/data/sanctions/ofac.xml"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- File Download Config -->
+          <div *ngIf="selectedMode === 'FILE_DOWNLOAD'" class="config-section">
+            <h4 class="config-section-title">File Download Configuration</h4>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="downloadUrl">Download URL</label>
+                <input
+                  id="downloadUrl"
+                  type="url"
+                  formControlName="downloadUrl"
+                  class="field-input"
+                  placeholder="https://www.treasury.gov/ofac/downloads/sdn.xml"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Database Config -->
+          <div *ngIf="selectedMode === 'DATABASE'" class="config-section">
+            <h4 class="config-section-title">Database Configuration</h4>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="dbUrl">JDBC URL</label>
+                <input
+                  id="dbUrl"
+                  type="text"
+                  formControlName="dbUrl"
+                  class="field-input"
+                  placeholder="jdbc:postgresql://localhost:5432/sanctions"
+                />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="dbQuery">SQL Query</label>
+                <textarea
+                  id="dbQuery"
+                  formControlName="dbQuery"
+                  class="field-input field-textarea"
+                  rows="3"
+                  placeholder="SELECT * FROM sanction_entries WHERE active = true"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual Upload Info -->
+          <div *ngIf="selectedMode === 'MANUAL_UPLOAD'" class="config-section">
+            <div class="info-banner">
+              <mat-icon>info</mat-icon>
+              <span>Manual upload sources are populated by uploading Excel files or adding entries manually through the Entries Management page.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sync Schedule Card -->
+      <div class="form-card" *ngIf="selectedMode !== 'MANUAL_UPLOAD'">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">schedule</mat-icon>
+          <span class="form-card-title">Sync Schedule</span>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Auto Sync</label>
+              <div class="toggle-wrap">
+                <input type="checkbox" formControlName="syncEnabled" id="syncEnabled" class="toggle-input" />
+                <label for="syncEnabled" class="toggle-label">
+                  <span class="toggle-text">{{ form.get('syncEnabled')?.value ? 'Enabled' : 'Disabled' }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row" *ngIf="form.get('syncEnabled')?.value">
+            <div class="field-group">
+              <label class="field-label" for="syncCron">Cron Expression</label>
+              <input
+                id="syncCron"
+                type="text"
+                formControlName="syncCron"
+                class="field-input"
+                placeholder="0 0 3 * * ?"
+              />
+              <span class="field-hint">e.g. "0 0 3 * * ?" = daily at 3:00 AM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sync Strategy Card -->
+      <div class="form-card" *ngIf="selectedMode !== 'MANUAL_UPLOAD'">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">sync</mat-icon>
+          <span class="form-card-title">Sync Strategy</span>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="syncStrategy">Strategy</label>
+              <select id="syncStrategy" formControlName="syncStrategy" class="field-input">
+                <option *ngFor="let s of syncStrategies" [value]="s.value">{{ s.label }}</option>
+              </select>
+              <span class="field-hint">{{ syncStrategies.find(s => s.value === selectedStrategy)?.description }}</span>
+            </div>
+          </div>
+
+          <!-- Delta URLs (for DELTA_ONLY and HYBRID) -->
+          <div *ngIf="showDeltaUrls" class="config-section">
+            <h4 class="config-section-title">Delta Sync URLs</h4>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="deltaAdditionsUrl">Additions URL</label>
+                <input
+                  id="deltaAdditionsUrl"
+                  type="url"
+                  formControlName="deltaAdditionsUrl"
+                  class="field-input"
+                  placeholder="https://api.example.com/sanctions/additions"
+                />
+                <span class="field-hint">URL for new/added entries (OFAC: add.xml)</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="deltaDeletionsUrl">Deletions URL</label>
+                <input
+                  id="deltaDeletionsUrl"
+                  type="url"
+                  formControlName="deltaDeletionsUrl"
+                  class="field-input"
+                  placeholder="https://api.example.com/sanctions/deletions"
+                />
+                <span class="field-hint">URL for removed/delisted entries (OFAC: del.xml)</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="deltaChangesUrl">Changes URL</label>
+                <input
+                  id="deltaChangesUrl"
+                  type="url"
+                  formControlName="deltaChangesUrl"
+                  class="field-input"
+                  placeholder="https://api.example.com/sanctions/changes"
+                />
+                <span class="field-hint">URL for modified entries (optional)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full Reconciliation Cron (for HYBRID) -->
+          <div *ngIf="showFullReconciliationCron" class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="fullReconciliationCron">Full Sync Schedule</label>
+              <input
+                id="fullReconciliationCron"
+                type="text"
+                formControlName="fullReconciliationCron"
+                class="field-input"
+                placeholder="0 0 4 ? * SUN"
+              />
+              <span class="field-hint">When to run full reconciliation (e.g., weekly on Sunday at 4 AM)</span>
+            </div>
+          </div>
+
+          <!-- Incremental Field (for DATABASE + INCREMENTAL) -->
+          <div *ngIf="showIncrementalField" class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="incrementalField">Timestamp Field</label>
+              <input
+                id="incrementalField"
+                type="text"
+                formControlName="incrementalField"
+                class="field-input"
+                placeholder="updated_at"
+              />
+              <span class="field-hint">Database column to track changes (e.g., updated_at, modified_date)</span>
+            </div>
+          </div>
+
+          <!-- Advanced Configuration -->
+          <div class="config-section">
+            <h4 class="config-section-title">Record Tracking</h4>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="uniqueIdField">Unique ID Field</label>
+                <input
+                  id="uniqueIdField"
+                  type="text"
+                  formControlName="uniqueIdField"
+                  class="field-input"
+                  placeholder="sourceEntryId"
+                />
+                <span class="field-hint">Field used to identify unique records</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="retentionDays">Retention Days</label>
+                <input
+                  id="retentionDays"
+                  type="number"
+                  formControlName="retentionDays"
+                  class="field-input"
+                  placeholder="365"
+                  min="30"
+                />
+                <span class="field-hint">How long to keep delisted records</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-group--full">
+                <label class="field-label" for="hashFields">Hash Fields</label>
+                <input
+                  id="hashFields"
+                  type="text"
+                  formControlName="hashFields"
+                  class="field-input"
+                  placeholder="fullName,dateOfBirth,nationality,aliases"
+                />
+                <span class="field-hint">Comma-separated fields to detect changes (record hash)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thresholds Card -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <mat-icon class="form-card-icon">tune</mat-icon>
+          <span class="form-card-title">Threshold Overrides</span>
+        </div>
+        <div class="form-card-body">
+          <p class="field-hint" style="margin-bottom: 16px;">
+            Leave empty to use system defaults. Values are percentages (0-100).
+          </p>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="hitThresholdOverride">Hit Threshold</label>
+              <input
+                id="hitThresholdOverride"
+                type="number"
+                formControlName="hitThresholdOverride"
+                class="field-input"
+                placeholder="95"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="potentialThresholdOverride">Potential Threshold</label>
+              <input
+                id="potentialThresholdOverride"
+                type="number"
+                formControlName="potentialThresholdOverride"
+                class="field-input"
+                placeholder="85"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="matchThresholdOverride">Match Threshold</label>
+              <input
+                id="matchThresholdOverride"
+                type="number"
+                formControlName="matchThresholdOverride"
+                class="field-input"
+                placeholder="80"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aside actions -->
+    <div class="form-aside">
+      <div class="form-card" *ngIf="!isViewMode">
+        <div class="form-card-header">
+          <span class="form-card-title">Actions</span>
+        </div>
+        <div class="form-card-body">
+          <button
+            type="submit"
+            class="action-btn action-btn--primary"
+            [disabled]="form.invalid || isSubmitting">
+            <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
+            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isSubmitting ? 'Saving…' : (isEditMode ? 'Save Changes' : 'Create Source') }}
+          </button>
+          <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="form-card" *ngIf="isViewMode">
+        <div class="form-card-header">
+          <span class="form-card-title">Actions</span>
+        </div>
+        <div class="form-card-body">
+          <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">
+            Back to List
+          </button>
+        </div>
+      </div>
+
+      <!-- Source Stats (View Mode) -->
+      <div class="form-card" *ngIf="isViewMode && sourceData">
+        <div class="form-card-header">
+          <span class="form-card-title">Statistics</span>
+        </div>
+        <div class="form-card-body">
+          <div class="stat-item">
+            <span class="stat-label">Entries</span>
+            <span class="stat-value">{{ sourceData.entryCount.toLocaleString() }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Last Sync</span>
+            <span class="stat-value">{{ sourceData.lastSyncAt ? (sourceData.lastSyncAt | date:'medium') : 'Never' }}</span>
+          </div>
+          <div class="stat-item" *ngIf="sourceData.syncStrategy === 'HYBRID' || sourceData.syncStrategy === 'FULL_REPLACE'">
+            <span class="stat-label">Last Full Sync</span>
+            <span class="stat-value">{{ sourceData.lastFullSyncAt ? (sourceData.lastFullSyncAt | date:'medium') : 'Never' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Sync Strategy</span>
+            <span class="stat-value">{{ sourceData.syncStrategy || 'FULL_REPLACE' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Sync Status</span>
+            <span class="stat-value stat-badge" [ngClass]="'stat-badge--' + (sourceData.lastSyncStatus?.toLowerCase() || 'none')">
+              {{ sourceData.lastSyncStatus || 'Never Synced' }}
+            </span>
+          </div>
+          <div class="stat-item" *ngIf="sourceData.lastSyncError">
+            <span class="stat-label">Last Error</span>
+            <span class="stat-value stat-value--error">{{ sourceData.lastSyncError }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Help card -->
+      <div class="form-card form-card--info">
+        <div class="form-card-body">
+          <div class="info-item">
+            <mat-icon class="info-icon">info_outline</mat-icon>
+            <span>Full Replace: Downloads all, compares hashes, adds/updates/delists.</span>
+          </div>
+          <div class="info-item">
+            <mat-icon class="info-icon">info_outline</mat-icon>
+            <span>Delta Only: Uses separate add/del/change URLs (OFAC-style).</span>
+          </div>
+          <div class="info-item">
+            <mat-icon class="info-icon">info_outline</mat-icon>
+            <span>Hybrid: Delta daily + full reconciliation on schedule.</span>
+          </div>
+          <div class="info-item">
+            <mat-icon class="info-icon">info_outline</mat-icon>
+            <span>Incremental: Query DB by timestamp for changes.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

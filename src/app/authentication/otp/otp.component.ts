@@ -195,7 +195,13 @@ export class OtpComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         this.snackbar.alertSuccess(res.message || 'Login successful');
-        this._router.navigate(['/dashboard/home']);
+
+        // Check if user must change password
+        if (res.user?.mustChangePassword) {
+          this._router.navigate(['/auth/change-password']);
+        } else {
+          this._router.navigate(['/dashboard/home']);
+        }
       },
 
       error: (err) => {

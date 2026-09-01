@@ -32,7 +32,6 @@ export interface UserResponse {
 
 export interface CreateUserRequest {
   email: string;
-  password: string;
   firstName: string;
   lastName: string;
   branchCode: string;
@@ -110,6 +109,13 @@ export class UsersService {
   deleteUser(id: number): Observable<void> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
       map(() => {})
+    );
+  }
+
+  /** POST /users/{id}/force-reset-password - Force reset user password */
+  forceResetPassword(id: number): Observable<UserResponse> {
+    return this.http.post<ApiResponse<UserResponse>>(`${this.apiUrl}/${id}/force-reset-password`, null).pipe(
+      map(response => response.result)
     );
   }
 }

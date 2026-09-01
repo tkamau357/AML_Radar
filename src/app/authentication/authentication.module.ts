@@ -6,11 +6,12 @@ import { AuthenticationRoutingModule } from "./authentication-routing.module";
 import { Page500Component } from "./page500/page500.component";
 import { Page401Component } from './page401/page401.component';
 
-// Remove these imports - they're now in AppModule
-// import { Page404Component } from "./page404/page404.component";
-// import { SigninComponent } from "./signin/signin.component";
-// import { OtpComponent } from './otp/otp.component';
-// import { Page403Component } from './page403/page403.component';
+// Components declared in AppModule:
+// - Page404Component
+// - SigninComponent
+// - OtpComponent
+// - Page403Component
+// - ChangePasswordComponent
 
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";

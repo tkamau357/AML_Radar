@@ -64,6 +64,7 @@ import { HeaderComponent } from './layout/header/header.component';
 // Auth Components
 import { SigninComponent } from './authentication/signin/signin.component';
 import { OtpComponent } from './authentication/otp/otp.component';
+import { ChangePasswordComponent } from './authentication/change-password/change-password.component';
 import { Page404Component } from './authentication/page404/page404.component';
 import { Page403Component } from './authentication/page403/page403.component';
 import { IdleWarningComponent } from './layout/idle-warning-component/idle-warning-component';import { FullLayout } from './layout/full-layout/full-layout';
@@ -85,6 +86,7 @@ registerLocaleData(localeEn);
         // Auth Components
         SigninComponent,
         OtpComponent,
+        ChangePasswordComponent,
         Page404Component,
         Page403Component,
     ],

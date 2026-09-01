@@ -13,6 +13,7 @@ export interface User {
   isLocked: boolean;
   mfaEnabled: boolean;
   firstLogin?: boolean;
+  mustChangePassword?: boolean;
   hasAcceptedTerms?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

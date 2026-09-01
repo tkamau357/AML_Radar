@@ -9,6 +9,8 @@ import { SanctionsRoutingModule } from './sanctions-routing.module';
 import { AddSanctionsEntriesComponent } from './sanctions-entries/add-sanctions-entries-component/add-sanctions-entries-component';
 import { SanctionsEntriesComponent } from './sanctions-entries/sanctions-entries-component/sanctions-entries-component';
 import { ViewSanctionsEntriesComponent } from './sanctions-entries/view-sanctions-entries-component/view-sanctions-entries-component';
+import { SourceConfigurationComponent } from './source-configuration/source-configuration.component';
+import { AddSourceComponent } from './source-configuration/add-source/add-source.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -31,14 +33,14 @@ import { FeatherIconsModule } from '../../shared/feather-icons.module';
     SanctionsEntriesComponent,
     ViewSanctionsEntriesComponent,
     AddSanctionsEntriesComponent,
+    SourceConfigurationComponent,
+    AddSourceComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     SanctionsRoutingModule,
-    SharedModule,
-    ComponentsModule,
     SharedModule,
     ComponentsModule,
     MatIconModule,
@@ -51,7 +53,6 @@ import { FeatherIconsModule } from '../../shared/feather-icons.module';
     MatSelectModule,
     MatTableModule,
     MatTabsModule,
-    MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatDialogModule,

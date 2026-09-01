@@ -181,7 +181,7 @@
       <!-- Body -->
       <tbody>
         <!-- Loading -->
-        <tr *ngIf="isLoading">
+        <tr *ngIf="effectiveLoading">
           <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
             <div class="dt-loading">
               <div class="dt-spinner"></div>
@@ -191,7 +191,7 @@
         </tr>
 
         <!-- Empty -->
-        <tr *ngIf="!isLoading && pagedData.length === 0">
+        <tr *ngIf="!effectiveLoading && pagedData.length === 0">
           <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
             <div class="dt-empty">
               <mat-icon class="dt-empty-icon">inbox</mat-icon>
@@ -202,7 +202,7 @@
         </tr>
 
         <!-- Data rows -->
-        <ng-container *ngIf="!isLoading && pagedData.length > 0">
+        <ng-container *ngIf="!effectiveLoading && pagedData.length > 0">
           <tr
             *ngFor="let row of pagedData; let i = index"
             class="dt-row"

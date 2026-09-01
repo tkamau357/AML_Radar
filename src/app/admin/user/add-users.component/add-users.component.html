@@ -87,38 +87,11 @@
           </div>
 
           <div class="field-group" *ngIf="!isEditMode">
-            <label class="field-label">Password <span class="required">*</span></label>
-            <div class="field-password-wrap">
-              <input
-                [type]="showPassword ? 'text' : 'password'"
-                formControlName="password"
-                class="field-input"
-                [class.field-input--error]="err('password')"
-                placeholder="Minimum 8 characters"
-              />
-              <button type="button" class="field-password-toggle" (click)="showPassword = !showPassword">
-                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
+            <div class="info-banner">
+              <mat-icon>info</mat-icon>
+              <span>A temporary password will be auto-generated and sent to the user's email address. They will be required to change it on first login.</span>
             </div>
-            <span class="field-error" *ngIf="err('password')">Password must be at least 8 characters</span>
-            <span class="field-hint">User will be prompted to change this on first login</span>
           </div>
-
-          <!-- <div class="field-group" *ngIf="isEditMode">
-            <label class="field-label">Password</label>
-            <div class="field-password-wrap">
-              <input
-                [type]="showPassword ? 'text' : 'password'"
-                formControlName="password"
-                class="field-input"
-                placeholder="Leave blank to keep current password"
-              />
-              <button type="button" class="field-password-toggle" (click)="showPassword = !showPassword">
-                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-            </div>
-            <span class="field-hint">Leave blank to keep the current password</span>
-          </div> -->
 
         </div>
       </div>

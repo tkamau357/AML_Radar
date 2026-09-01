@@ -86,20 +86,36 @@ export class SigninComponent implements OnInit, OnDestroy {
 
     this.loginSubscription = this.authService.login(credentials).subscribe({
       next: (response) => {
-        this.loading = false;
-        
         if (this.authForm.value.rememberMe) {
           localStorage.setItem('savedEmail', this.authForm.value.username);
         } else {
           localStorage.removeItem('savedEmail');
         }
 
-        // Navigate to OTP verification. 
-        // The AuthService already handled storing otpExpirySeconds in TokenStorage!
+        // Check if user must change password (skip OTP)
+        if (response.skipOtp) {
+          // User needs to change password - call loginPasswordReset to get tokens
+          this.authService.loginPasswordReset(credentials).subscribe({
+            next: (authResponse) => {
+              this.loading = false;
+              // Navigate to change password page
+              this.router.navigate(['/auth/change-password']);
+            },
+            error: (error) => {
+              this.loading = false;
+              this.error = error.message || 'Authentication failed. Please try again.';
+              this.notificationService.alertError(this.error);
+            }
+          });
+          return;
+        }
+
+        this.loading = false;
+        // Normal flow: Navigate to OTP verification
         this.router.navigate(['/auth/verify-otp'], {
           state: { 
             email: this.authForm.value.username,
-            otpExpirySeconds: response.otpExpirySeconds // This is now valid thanks to the model update!
+            otpExpirySeconds: response.otpExpirySeconds
           }
         });
       },

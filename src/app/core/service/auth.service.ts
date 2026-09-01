@@ -83,6 +83,21 @@ export class AuthService {
   }
 
   /**
+   * Login for Password Reset Users - Skip OTP
+   * Used when user has mustChangePassword = true
+   */
+  loginPasswordReset(credentials: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${AUTH_API}/login-password-reset`, credentials).pipe(
+      tap(response => {
+        if (response && response.user) {
+          this.handleSuccessfulAuth(response);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Refresh Token - Silent background refresh
    */
   refreshToken(): Observable<RefreshTokenResponse> {
@@ -153,9 +168,14 @@ export class AuthService {
   changePassword(data: { 
     currentPassword: string; 
     newPassword: string; 
-    confirmPassword: string 
+    confirmPassword?: string 
   }): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${AUTH_API}/change-password`, data).pipe(
+    // Backend only expects currentPassword and newPassword
+    const payload = {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword
+    };
+    return this.http.post<{ message: string }>(`${AUTH_API}/change-password`, payload).pipe(
       catchError(this.handleError)
     );
   }
