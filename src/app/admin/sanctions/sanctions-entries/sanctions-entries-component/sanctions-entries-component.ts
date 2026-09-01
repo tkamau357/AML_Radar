@@ -1,5 +1,5 @@
-// sanctions-entries-component.ts
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { DeleteConfirmationDialog } from '../../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableAction, HeaderAction, CustomFilterOption } from '../../../../shared/components/dynamic-tables/dynamic-tables.component';
@@ -177,7 +177,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   }
 
   deleteEntry(entry: SanctionEntryResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialog, {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialog, {
       width: '460px',
       maxWidth: 'calc(100vw - 32px)',
       data: {

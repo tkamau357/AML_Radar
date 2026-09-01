@@ -1,7 +1,7 @@
 <div class="confirm-dialog">
 
   <div class="confirm-dialog-icon">
-    <mat-icon>check</mat-icon>
+    <mat-icon>warning</mat-icon>
   </div>
 
   <div class="confirm-dialog-content">
@@ -29,12 +29,12 @@
 
     <button
       type="button"
-      class="dialog-btn dialog-btn--confirm"
+      class="dialog-btn dialog-btn--danger"
       (click)="confirm()">
 
-      <mat-icon>check</mat-icon>
+      <mat-icon>delete</mat-icon>
 
-      {{ data.confirmText || 'Confirm' }}
+      {{ data.confirmText || 'Delete' }}
 
     </button>
 

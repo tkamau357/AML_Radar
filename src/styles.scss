@@ -19,6 +19,50 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 3. Material dropdown overlays must be globally styled because they render outside the component DOM */
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.cdk-overlay-pane .mat-select-panel,
+.cdk-overlay-pane .mat-autocomplete-panel,
+.cdk-overlay-pane .mat-mdc-select-panel,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e4e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+}
+
+.mat-mdc-select-panel .mat-mdc-option,
+.mat-mdc-autocomplete-panel .mat-mdc-option,
+.mat-select-panel .mat-option,
+.mat-autocomplete-panel .mat-option {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.mat-mdc-select-panel .mat-mdc-option:hover,
+.mat-mdc-autocomplete-panel .mat-mdc-option:hover,
+.mat-select-panel .mat-option:hover,
+.mat-autocomplete-panel .mat-option:hover,
+.mat-mdc-select-panel .mat-mdc-option.mat-mdc-option-active,
+.mat-mdc-autocomplete-panel .mat-mdc-option.mat-mdc-option-active,
+.mat-select-panel .mat-option.mat-active,
+.mat-autocomplete-panel .mat-option.mat-active {
+  background: #e8eef8 !important;
+  background-color: #e8eef8 !important;
+}
+
+.mat-mdc-select-panel .mat-mdc-option.mat-mdc-option-selected,
+.mat-mdc-autocomplete-panel .mat-mdc-option.mat-mdc-option-selected,
+.mat-select-panel .mat-option.mat-selected,
+.mat-autocomplete-panel .mat-option.mat-selected {
+  background: #e8eef8 !important;
+  background-color: #e8eef8 !important;
+  color: #2a5caa !important;
+}
+
 /* 3. Custom scrollbar (optional) */
 ::-webkit-scrollbar {
   width: 8px;
@@ -35,8 +79,9 @@ body, html {
 }
 
 // ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
-// Custom tooltip container
-.mat-tooltip {
+// Custom tooltip container (covers both legacy and MDC Material 21)
+.mat-tooltip,
+.mat-mdc-tooltip {
   font-family: 'Inter', sans-serif !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -44,7 +89,8 @@ body, html {
   line-height: 1.45 !important;
   padding: 8px 12px !important;
   border-radius: 8px !important;
-  background: rgba(15, 23, 42, 0.96) !important;
+  background: #0f172a !important;
+  background-color: #0f172a !important;
   color: #ffffff !important;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
   max-width: 280px !important;
@@ -55,7 +101,8 @@ body, html {
 }
 
 // Tooltip with arrow
-.mat-tooltip::before {
+.mat-tooltip::before,
+.mat-mdc-tooltip::before {
   content: '';
   position: absolute;
   bottom: -6px;
@@ -65,38 +112,48 @@ body, html {
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid rgba(15, 23, 42, 0.96);
+  border-top: 6px solid #0f172a;
   display: none; // Hidden by default, shown when arrow is needed
 }
 
 // Tooltip variations for different contexts
-.mat-tooltip.mat-tooltip--light {
+.mat-tooltip.mat-tooltip--light,
+.mat-mdc-tooltip.mat-tooltip--light {
   background: #ffffff !important;
+  background-color: #ffffff !important;
   color: #1e293b !important;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 3px 8px rgba(15, 23, 42, 0.06) !important;
   border: 1px solid #e4e8f0 !important;
 }
 
-.mat-tooltip.mat-tooltip--brand {
+.mat-tooltip.mat-tooltip--brand,
+.mat-mdc-tooltip.mat-tooltip--brand {
   background: #2a5caa !important;
+  background-color: #2a5caa !important;
   color: #ffffff !important;
   box-shadow: 0 10px 24px rgba(42, 92, 170, 0.24), 0 2px 8px rgba(42, 92, 170, 0.12) !important;
 }
 
-.mat-tooltip.mat-tooltip--danger {
+.mat-tooltip.mat-tooltip--danger,
+.mat-mdc-tooltip.mat-tooltip--danger {
   background: #dc2626 !important;
+  background-color: #dc2626 !important;
   color: #ffffff !important;
   box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 4px rgba(220, 38, 38, 0.1) !important;
 }
 
-.mat-tooltip.mat-tooltip--success {
+.mat-tooltip.mat-tooltip--success,
+.mat-mdc-tooltip.mat-tooltip--success {
   background: #16a34a !important;
+  background-color: #16a34a !important;
   color: #ffffff !important;
   box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3), 0 2px 4px rgba(22, 163, 74, 0.1) !important;
 }
 
-.mat-tooltip.mat-tooltip--warning {
+.mat-tooltip.mat-tooltip--warning,
+.mat-mdc-tooltip.mat-tooltip--warning {
   background: #d97706 !important;
+  background-color: #d97706 !important;
   color: #ffffff !important;
   box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3), 0 2px 4px rgba(217, 119, 6, 0.1) !important;
 }
@@ -158,7 +215,8 @@ body, html {
 }
 
 // Tooltip for action buttons (custom styling)
-.mat-tooltip.mat-tooltip--action {
+.mat-tooltip.mat-tooltip--action,
+.mat-mdc-tooltip.mat-tooltip--action {
   font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
@@ -166,6 +224,7 @@ body, html {
   padding: 6px 10px !important;
   border-radius: 6px !important;
   background: #1e293b !important;
+  background-color: #1e293b !important;
   color: #ffffff !important;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
 }
