@@ -1,7 +1,9 @@
 <div class="form-page">
 
   <div class="form-page-header">
-    <button class="back-btn" (click)="back()" type="button"><mat-icon>arrow_back</mat-icon></button>
+    <button class="back-btn" (click)="back()" type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
     <div>
       <h2 class="form-page-title">User Details</h2>
       <p class="form-page-subtitle">View account information for this user</p>
@@ -9,7 +11,8 @@
   </div>
 
   <div *ngIf="isLoading" class="state-loading">
-    <div class="spinner-sm"></div><span>Loading user…</span>
+    <div class="spinner-sm"></div>
+    <span>Loading user…</span>
   </div>
 
   <div *ngIf="!isLoading && user" class="form-layout">
@@ -26,7 +29,7 @@
             <span class="user-fullname">{{ user.firstName }} {{ user.lastName }}</span>
             <span class="user-email">{{ user.email }}</span>
           </div>
-          <span class="status-badge" [ngClass]="isActive ? 'badge-active' : 'badge-inactive'">
+          <span class="status-badge" [class.badge-active]="isActive" [class.badge-inactive]="!isActive">
             {{ user.status || 'Unknown' }}
           </span>
         </div>
@@ -43,7 +46,9 @@
             <span class="detail-label">Branch</span>
             <span class="detail-value">
               {{ user.branch?.branchName || '—' }}
-              <span class="detail-sub" *ngIf="user.branch?.branchCode">({{ user.branch?.branchCode }})</span>
+              <span class="detail-sub" *ngIf="user.branch?.branchCode">
+                ({{ user.branch?.branchCode }})
+              </span>
             </span>
           </div>
           <div class="detail-row">
@@ -66,7 +71,9 @@
     <!-- Aside actions -->
     <div class="form-aside">
       <div class="detail-card">
-        <div class="detail-card-header"><span class="detail-card-title">Actions</span></div>
+        <div class="detail-card-header">
+          <span class="detail-card-title">Actions</span>
+        </div>
         <div class="detail-body">
           <button class="action-btn action-btn--primary" (click)="editUser()" type="button">
             <mat-icon>edit</mat-icon> Edit User

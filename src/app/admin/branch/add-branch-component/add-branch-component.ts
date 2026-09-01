@@ -1,8 +1,9 @@
+// add-branch-component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { BranchService, BranchResponse, CreateBranchRequest, UploadResponse } from '../branch.service';
+import { BranchService, BranchResponse, CreateBranchRequest } from '../branch.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 
 @Component({
@@ -17,10 +18,10 @@ export class AddBranchComponent implements OnInit, OnDestroy {
 
   form!: FormGroup;
   isSubmitting = false;
-  isEditMode   = false;
-  editId: number | null = null;
+  isEditMode = false;
+  editCode: string | null = null;
 
-  branchTypes = ['HEAD_OFFICE', 'REGIONAL', 'BRANCH', 'AGENCY', 'ATM'];
+  // Status options based on BranchStatus enum
   statusOptions = ['ACTIVE', 'INACTIVE'];
 
   // Bulk upload properties
@@ -40,51 +41,51 @@ export class AddBranchComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
 
   constructor(
-    private fb:      FormBuilder,
+    private fb: FormBuilder,
     private service: BranchService,
-    private snack:   SnackbarService,
-    private router:  Router,
-    private route:   ActivatedRoute,
+    private snack: SnackbarService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      branchCode:  ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
-      branchName:  ['', [Validators.required, Validators.minLength(2)]],
-      branchType:  ['BRANCH'],
-      region:      [''],
-      address:     [''],
-      status:      ['ACTIVE'],
+      branchCode: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+      branchName: ['', [Validators.required, Validators.minLength(2)]],
+      description: [''],
+      address: [''],
+      region: [''],
     });
 
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
+    const code = this.route.snapshot.paramMap.get('code');
+    if (code) {
       this.isEditMode = true;
-      this.editId     = id;
-      this.loadBranch(id);
+      this.editCode = code;
+      this.loadBranch(code);
     }
   }
 
-  ngOnDestroy(): void { this.subs.forEach(s => s.unsubscribe()); }
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
 
   // ── Existing methods ────────────────────────────────────────────────────────
 
-  private loadBranch(id: number): void {
-    const s = this.service.getBranchById(id).subscribe({
+  private loadBranch(code: string): void {
+    const s = this.service.getBranchByCode(code).subscribe({
       next: (b: BranchResponse) => {
         this.form.patchValue({
           branchCode: b.branchCode,
           branchName: b.branchName,
-          branchType: b.branchType  || 'BRANCH',
-          region:     b.region      || '',
-          address:    b.address     || '',
-          status:     b.status      || 'ACTIVE',
+          description: b.description || '',
+          address: b.address || '',
+          region: b.region || '',
         });
         this.form.get('branchCode')!.disable();
       },
       error: err => {
         this.snack.alertError(err?.error?.message || 'Failed to load branch');
-        this.router.navigate(['admin/user-management/branches']);
+        this.router.navigate(['admin/configurations/branches']);
       },
     });
     this.subs.push(s);
@@ -98,35 +99,33 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     const payload: CreateBranchRequest = {
       branchCode: raw.branchCode.trim().toUpperCase(),
       branchName: raw.branchName.trim(),
-      branchType: raw.branchType  || undefined,
-      region:     raw.region?.trim()  || undefined,
-      address:    raw.address?.trim() || undefined,
-      status:     raw.status          || 'ACTIVE',
+      description: raw.description?.trim() || undefined,
+      address: raw.address?.trim() || undefined,
+      region: raw.region?.trim() || undefined,
     };
 
-    const call$ = this.isEditMode && this.editId !== null
-      ? this.service.updateBranch(this.editId, payload)
+    const call$ = this.isEditMode && this.editCode !== null
+      ? this.service.updateBranchByCode(this.editCode, payload)
       : this.service.createBranch(payload);
 
-    this.subs.push(
-      call$.subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.snack.alertSuccess(
-            this.isEditMode ? 'Branch updated successfully' : 'Branch created successfully'
-          );
-          this.router.navigate(['admin/user-management/branches']);
-        },
-        error: err => {
-          this.isSubmitting = false;
-          this.snack.alertError(err?.error?.message || 'Operation failed');
-        },
-      })
-    );
+    const sub = call$.subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.snack.alertSuccess(
+          this.isEditMode ? 'Branch updated successfully' : 'Branch created successfully'
+        );
+        this.router.navigate(['admin/configurations/branches']);
+      },
+      error: err => {
+        this.isSubmitting = false;
+        this.snack.alertError(err?.error?.message || 'Operation failed');
+      },
+    });
+    this.subs.push(sub);
   }
 
   cancel(): void {
-    this.router.navigate(['admin/user-management/branches']);
+    this.router.navigate(['admin/configurations/branches']);
   }
 
   err(field: string): boolean {
@@ -142,26 +141,25 @@ export class AddBranchComponent implements OnInit, OnDestroy {
 
   downloadTemplate(): void {
     this.isDownloading = true;
-    this.subs.push(
-      this.service.downloadTemplate().subscribe({
-        next: (blob: Blob) => {
-          this.isDownloading = false;
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'branch_template.xlsx';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-          this.snack.alertSuccess('Template downloaded successfully');
-        },
-        error: (err) => {
-          this.isDownloading = false;
-          this.snack.alertError(err?.error?.message || 'Failed to download template');
-        },
-      })
-    );
+    const sub = this.service.downloadTemplate().subscribe({
+      next: (blob: Blob) => {
+        this.isDownloading = false;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'branch_template.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.snack.alertSuccess('Template downloaded successfully');
+      },
+      error: (err) => {
+        this.isDownloading = false;
+        this.snack.alertError(err?.error?.message || 'Failed to download template');
+      },
+    });
+    this.subs.push(sub);
   }
 
   onFileSelected(event: Event): void {
@@ -187,7 +185,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.validateAndSetFile(files[0]);
@@ -202,7 +200,7 @@ export class AddBranchComponent implements OnInit, OnDestroy {
     const maxSize = 5 * 1024 * 1024; // 5MB
 
     // Validate file type
-    if (!validTypes.includes(file.type) && 
+    if (!validTypes.includes(file.type) &&
         !file.name.match(/\.(xlsx|xls)$/i)) {
       this.snack.alertError('Please upload a valid Excel file (.xlsx or .xls)');
       this.clearSelectedFile();
@@ -249,49 +247,48 @@ export class AddBranchComponent implements OnInit, OnDestroy {
       }
     }, 200);
 
-    this.subs.push(
-      this.service.uploadBranches(this.selectedFile).subscribe({
-        next: (response: BranchResponse[]) => {
-          clearInterval(progressInterval);
-          this.uploadProgress = 100;
-          this.isUploading = false;
-          
-          this.uploadResult = {
-            success: true,
-            message: 'Branches uploaded successfully',
-            branchesCreated: response.length,
-          };
-          
-          this.snack.alertSuccess(`${response.length} branch(es) created successfully`);
-          
-          // Reset file input
-          this.clearSelectedFile();
-          if (this.fileInput) {
-            this.fileInput.nativeElement.value = '';
-          }
-          
-          // Optionally navigate to branches list after a delay
-          setTimeout(() => {
-            this.router.navigate(['admin/user-management/branches']);
-          }, 2000);
-        },
-        error: (err) => {
-          clearInterval(progressInterval);
-          this.uploadProgress = 0;
-          this.isUploading = false;
-          
-          const errorMessage = err?.error?.message || 'Failed to upload branches';
-          
-          this.uploadResult = {
-            success: false,
-            message: 'Upload failed',
-            errors: err?.error?.errors || [{ row: 0, field: 'file', message: errorMessage }],
-          };
-          
-          this.snack.alertError(errorMessage);
-        },
-      })
-    );
+    const sub = this.service.uploadBranches(this.selectedFile).subscribe({
+      next: (response: BranchResponse[]) => {
+        clearInterval(progressInterval);
+        this.uploadProgress = 100;
+        this.isUploading = false;
+
+        this.uploadResult = {
+          success: true,
+          message: 'Branches uploaded successfully',
+          branchesCreated: response.length,
+        };
+
+        this.snack.alertSuccess(`${response.length} branch(es) created successfully`);
+
+        // Reset file input
+        this.clearSelectedFile();
+        if (this.fileInput) {
+          this.fileInput.nativeElement.value = '';
+        }
+
+        // Optionally navigate to branches list after a delay
+        setTimeout(() => {
+          this.router.navigate(['admin/configurations/branches']);
+        }, 2000);
+      },
+      error: (err) => {
+        clearInterval(progressInterval);
+        this.uploadProgress = 0;
+        this.isUploading = false;
+
+        const errorMessage = err?.error?.message || 'Failed to upload branches';
+
+        this.uploadResult = {
+          success: false,
+          message: 'Upload failed',
+          errors: err?.error?.errors || [{ row: 0, field: 'file', message: errorMessage }],
+        };
+
+        this.snack.alertError(errorMessage);
+      },
+    });
+    this.subs.push(sub);
   }
 
   formatFileSize(bytes: number): string {

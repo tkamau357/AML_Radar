@@ -1,4 +1,3 @@
-// src/app/authentication/sidebar/sidebar.component.ts
 import { Router, NavigationEnd } from "@angular/router";
 import { DOCUMENT } from "@angular/common";
 import {

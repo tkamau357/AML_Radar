@@ -31,7 +31,7 @@ export const admin: RouteInfo[] = [
     submenu: [],
   },
   {
-    path: "/admin/user-management/branches",
+    path: "/admin/configurations/branches",
     title: "Branch Management",
     moduleName: "branches",
     iconType: "feather",

@@ -1,9 +1,12 @@
+// sanctions-entries-component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableAction, HeaderAction } from '../../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
-import { SanctionEntryResponse, SanctionsService } from '../../sanctions.service';
+import { SanctionEntryResponse, SanctionsService, PageResponse, SanctionListSourceInfo } from '../../sanctions.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-sanctions-entries-components',
@@ -13,7 +16,12 @@ import { SanctionEntryResponse, SanctionsService } from '../../sanctions.service
 })
 export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   entries: SanctionEntryResponse[] = [];
+  sources: SanctionListSourceInfo[] = [];
+  selectedSource: string = 'OFAC_SDN';
   isLoading = false;
+  totalElements = 0;
+  currentPage = 0;
+  pageSize = 20;
 
   columns = [
     { label: '#',            field: 'index'                        },
@@ -38,6 +46,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     {
       label: 'Deactivate',
       icon: 'block',
+      show: (row) => row.active === true,
       onClick: (row: SanctionEntryResponse) => this.deactivateEntry(row),
     },
     {
@@ -66,22 +75,47 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     private sanctionsService: SanctionsService,
     private snackbar: SnackbarService,
     private router: Router,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
-    this.loadEntries();
+    this.loadSources();
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
+  loadSources(): void {
+    const sub = this.sanctionsService.getSources().subscribe({
+      next: (sources) => {
+        this.sources = sources;
+        if (sources.length > 0) {
+          this.selectedSource = sources[0].source;
+          this.loadEntries();
+        }
+      },
+      error: (err) => {
+        this.snackbar.alertError(err?.error?.message || 'Failed to load sources');
+      },
+    });
+    this.subs.push(sub);
+  }
+
+  onSourceChange(source: string): void {
+    this.selectedSource = source;
+    this.currentPage = 0;
+    this.loadEntries();
+  }
+
   loadEntries(): void {
+    if (!this.selectedSource) return;
+    
     this.isLoading = true;
-    // Load default source or first available
-    const sub = this.sanctionsService.getEntries('OFAC_SDN', 0, 100).subscribe({
-      next: (page: any) => {
+    const sub = this.sanctionsService.getEntries(this.selectedSource, this.currentPage, this.pageSize).subscribe({
+      next: (page: PageResponse<SanctionEntryResponse>) => {
         this.entries = page.content || [];
+        this.totalElements = page.totalElements || 0;
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -92,56 +126,105 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     this.subs.push(sub);
   }
 
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadEntries();
+  }
+
   onAdd(): void {
-    this.router.navigate(['/admin/sanctions/add']);
+    this.router.navigate(['/admin/sanctions/entries/add']);
   }
 
   viewEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/view', entry.id]);
+    this.router.navigate(['/admin/sanctions/entries/view', entry.id]);
   }
 
   editEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/edit', entry.id]);
+    this.router.navigate(['/admin/sanctions/entries/edit', entry.id]);
   }
 
   deleteEntry(entry: SanctionEntryResponse): void {
-    if (!confirm(`Delete sanction entry "${entry.fullName}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Delete Sanction Entry',
+        message: `Are you sure you want to delete the sanction entry "${entry.fullName}"? This action cannot be undone.`,
+        confirmText: 'Delete Entry',
+        cancelText: 'Cancel',
+      },
+    });
 
-    const sub = this.sanctionsService.deleteEntry(entry.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Entry deleted successfully');
-        this.loadEntries();
-      },
-      error: (err: any) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete entry');
-      },
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const deleteSub = this.sanctionsService.deleteEntry(entry.id).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Entry deleted successfully');
+          this.loadEntries();
+        },
+        error: (err: any) => {
+          this.snackbar.alertError(err?.error?.message || 'Failed to delete entry');
+        },
+      });
+      this.subs.push(deleteSub);
     });
     this.subs.push(sub);
   }
 
   deactivateEntry(entry: SanctionEntryResponse): void {
-    if (!confirm(`Deactivate sanction entry "${entry.fullName}"?`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Deactivate Sanction Entry',
+        message: `Are you sure you want to deactivate the sanction entry "${entry.fullName}"? The entry will no longer be used in screening.`,
+        confirmText: 'Deactivate',
+        cancelText: 'Cancel',
+      },
+    });
 
-    const sub = this.sanctionsService.deactivateEntry(entry.id).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Entry deactivated successfully');
-        this.loadEntries();
-      },
-      error: (err: any) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to deactivate entry');
-      },
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const deactivateSub = this.sanctionsService.deactivateEntry(entry.id).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Entry deactivated successfully');
+          this.loadEntries();
+        },
+        error: (err: any) => {
+          this.snackbar.alertError(err?.error?.message || 'Failed to deactivate entry');
+        },
+      });
+      this.subs.push(deactivateSub);
     });
     this.subs.push(sub);
   }
 
   syncLists(): void {
-    const sub = this.sanctionsService.syncAll().subscribe({
-      next: (msg: string) => {
-        this.snackbar.alertSuccess(msg || 'Sync started successfully');
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Sync All Sanction Lists',
+        message: 'This will sync all enabled sanction lists from their sources. This may take a few minutes. Do you want to continue?',
+        confirmText: 'Sync All',
+        cancelText: 'Cancel',
       },
-      error: (err: any) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to sync lists');
-      },
+    });
+
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const syncSub = this.sanctionsService.syncAll().subscribe({
+        next: (msg: string) => {
+          this.snackbar.alertSuccess(msg || 'Sync started successfully');
+        },
+        error: (err: any) => {
+          this.snackbar.alertError(err?.error?.message || 'Failed to sync lists');
+        },
+      });
+      this.subs.push(syncSub);
     });
     this.subs.push(sub);
   }

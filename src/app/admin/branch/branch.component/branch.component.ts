@@ -1,9 +1,12 @@
+// branch.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-branch',
@@ -55,6 +58,7 @@ export class BranchComponent implements OnInit, OnDestroy {
     private branchService: BranchService,
     private snackbar: SnackbarService,
     private router: Router,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -81,28 +85,46 @@ export class BranchComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
-    this.router.navigate(['/admin/user-management/branches/add']);
+    this.router.navigate(['/admin/configurations/branches/add']);
   }
 
   viewBranch(branch: BranchResponse): void {
-    this.router.navigate(['/admin/user-management/branches/view', branch.id]);
+    this.router.navigate(['/admin/configurations/branches/view', branch.branchCode]);
   }
 
   editBranch(branch: BranchResponse): void {
-    this.router.navigate(['/admin/user-management/branches/edit', branch.id]);
+    this.router.navigate(['/admin/configurations/branches/edit', branch.branchCode]);
   }
 
   deleteBranch(branch: BranchResponse): void {
-    if (!confirm(`Delete branch "${branch.branchName}"? This cannot be undone.`)) return;
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Delete Branch',
+        message: `Are you sure you want to delete the branch "${branch.branchName}"? This action cannot be undone.`,
+        confirmText: 'Delete Branch',
+        cancelText: 'Cancel',
+      },
+    });
 
-    const sub = this.branchService.deleteBranchByCode(branch.branchCode).subscribe({
-      next: () => {
-        this.snackbar.alertSuccess('Branch deleted successfully');
-        this.loadBranches();
-      },
-      error: (err: any) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to delete branch');
-      },
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isLoading = true;
+      const deleteSub = this.branchService.deleteBranchByCode(branch.branchCode).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Branch deleted successfully');
+          this.loadBranches();
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          this.snackbar.alertError(err?.error?.message || 'Failed to delete branch');
+        },
+      });
+      this.subs.push(deleteSub);
     });
     this.subs.push(sub);
   }

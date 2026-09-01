@@ -1,3 +1,4 @@
+// view-roles.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -16,38 +17,39 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
   permissions: PermissionResponse[] = [];
   groupedPermissions: { category: string; perms: PermissionResponse[] }[] = [];
 
-  isLoading     = false;
+  isLoading = false;
   isLoadingPerms = false;
 
+  collapsedGroups = new Set<string>();
   private subs: Subscription[] = [];
 
   constructor(
-    private route:  ActivatedRoute,
+    private route: ActivatedRoute,
     private router: Router,
-    private roles:  RolesService,
-    private snack:  SnackbarService,
+    private roles: RolesService,
+    private snack: SnackbarService,
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) { 
-      this.router.navigate(['/admin/user-management/roles']); 
-      return; 
+    if (!id || isNaN(id)) {
+      this.router.navigate(['/admin/user-management/roles']);
+      return;
     }
     this.loadRole(id);
     this.loadPermissions(id);
   }
 
-  ngOnDestroy(): void { 
-    this.subs.forEach(s => s.unsubscribe()); 
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   private loadRole(id: number): void {
     this.isLoading = true;
     const s = this.roles.getRoleById(id).subscribe({
-      next: r => { 
-        this.role = r; 
-        this.isLoading = false; 
+      next: r => {
+        this.role = r;
+        this.isLoading = false;
       },
       error: err => {
         this.isLoading = false;
@@ -66,11 +68,11 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
         this.buildGroups(perms);
         this.isLoadingPerms = false;
       },
-      error: (err) => { 
+      error: (err) => {
         this.isLoadingPerms = false;
-        // If permissions API fails, try using permissions from role object
-        if (this.role?.permissions) {
-          const permObjects = this.role.permissions.map(code => ({
+        // If permissions API fails, try to use permissions from role object
+        if (this.role?.permissions && this.role.permissions.length > 0) {
+          const permObjects: PermissionResponse[] = this.role.permissions.map(code => ({
             code: code,
             name: this.formatPermissionName(code),
             endpoint: '',
@@ -98,32 +100,28 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
 
   private buildGroups(perms: PermissionResponse[]): void {
     const map = new Map<string, PermissionResponse[]>();
-    
+
     perms.forEach(p => {
-      // Try to get category from method or code prefix
-      let cat = p.method?.toUpperCase() || 'General';
-      
-      // If no method, try to extract from code
+      let category = p.method?.toUpperCase() || 'General';
+
       if (!p.method && p.code) {
         const parts = p.code.split(':');
         if (parts.length > 1) {
-          cat = parts[0].toUpperCase();
+          category = parts[0].toUpperCase();
         }
       }
-      
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(p);
+
+      if (!map.has(category)) map.set(category, []);
+      map.get(category)!.push(p);
     });
-    
+
     this.groupedPermissions = Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([category, ps]) => ({ 
-        category, 
+      .map(([category, ps]) => ({
+        category,
         perms: ps.sort((a, b) => (a.name || a.code).localeCompare(b.name || b.code))
       }));
   }
-
-  collapsedGroups = new Set<string>();
 
   toggleGroupCollapse(category: string): void {
     if (this.collapsedGroups.has(category)) {
@@ -152,16 +150,14 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
   }
 
   get allGroupsCollapsed(): boolean {
-    return (
-      this.groupedPermissions.length > 0 &&
-      this.groupedPermissions.every(
-        group => this.collapsedGroups.has(group.category)
-      )
-    );
+    return this.groupedPermissions.length > 0 &&
+      this.groupedPermissions.every(group => this.collapsedGroups.has(group.category));
   }
 
   editRole(): void {
-    this.router.navigate(['/admin/user-management/roles/edit', this.role?.id]);
+    if (this.role?.id) {
+      this.router.navigate(['/admin/user-management/roles/edit', this.role.id]);
+    }
   }
 
   back(): void {

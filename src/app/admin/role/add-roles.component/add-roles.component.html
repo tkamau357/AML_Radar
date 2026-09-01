@@ -208,9 +208,9 @@
                   type="checkbox"
                   class="perm-checkbox"
                   [checked]="
-                    selectedPermissions.has(p.code)
+                    selectedPermissions.has(p.name)
                   "
-                  (change)="togglePermission(p.code)"
+                  (change)="togglePermission(p.name)"
                 />
 
                 <div class="perm-item-info">

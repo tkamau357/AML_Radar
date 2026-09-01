@@ -1,3 +1,4 @@
+// add-sanctions-entries-component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,7 +18,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
 
   form!: FormGroup;
   isSubmitting = false;
-  isEditMode   = false;
+  isEditMode = false;
   editId: number | null = null;
 
   sources: SanctionListSourceInfo[] = [];
@@ -30,7 +31,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   isDragOver = false;
   selectedFile: File | null = null;
   uploadProgress = 0;
-  bulkSource: SanctionListSourceInfo | null = null;
+  bulkSource: string = '';
   replaceExisting = false;
   uploadResult: {
     success: boolean;
@@ -42,55 +43,60 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
 
   constructor(
-    private fb:      FormBuilder,
+    private fb: FormBuilder,
     private service: SanctionsService,
-    private snack:   SnackbarService,
-    private router:  Router,
-    private route:   ActivatedRoute,
+    private snack: SnackbarService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      source:          ['', Validators.required],
-      sourceEntryId:   [''],
-      entityType:      ['', Validators.required],
-      fullName:        ['', Validators.required],
-      aliases:         [''],
-      dateOfBirth:     [''],
-      placeOfBirth:    [''],
-      nationality:     [''],
-      idNumber:        [''],
-      pinNumber:       [''],
-      passportNumber:  [''],
-      address:         [''],
-      program:         [''],
-      listedDate:      [''],
-      remarks:         [''],
-      gazetteNotice:   [''],
-      caseReference:   [''],
+      source: ['', Validators.required],
+      sourceEntryId: [''],
+      entityType: ['', Validators.required],
+      fullName: ['', Validators.required],
+      aliases: [''],
+      dateOfBirth: [''],
+      placeOfBirth: [''],
+      nationality: [''],
+      idNumber: [''],
+      pinNumber: [''],
+      passportNumber: [''],
+      address: [''],
+      program: [''],
+      listedDate: [''],
+      remarks: [''],
+      gazetteNotice: [''],
+      caseReference: [''],
     });
 
     this.loadSources();
 
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
-      this.isEditMode = true;
-      this.editId = id;
-      this.loadEntry(id);
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      const id = Number(idParam);
+      if (!isNaN(id)) {
+        this.isEditMode = true;
+        this.editId = id;
+        this.loadEntry(id);
+      }
     }
   }
 
-  ngOnDestroy(): void { this.subs.forEach(s => s.unsubscribe()); }
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
 
   private loadSources(): void {
     const s = this.service.getSources().subscribe({
       next: (sources: SanctionListSourceInfo[]) => {
         this.sources = sources;
         if (sources.length > 0 && !this.isEditMode) {
-          this.bulkSource = sources[0];
+          this.bulkSource = sources[0].source;
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.snack.alertError(err?.error?.message || 'Failed to load sources');
       },
     });
@@ -113,10 +119,12 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
           listedDate: entry.listedDate || '',
           remarks: entry.remarks || '',
         });
+        // Disable source on edit (cannot change source)
+        this.form.get('source')?.disable();
       },
-      error: err => {
+      error: (err: any) => {
         this.snack.alertError(err?.error?.message || 'Failed to load entry');
-        this.router.navigate(['admin/sanctions']);
+        this.router.navigate(['admin/sanctions/entries']);
       },
     });
     this.subs.push(s);
@@ -147,29 +155,23 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
       caseReference: raw.caseReference?.trim() || undefined,
     };
 
-    const call$ = this.isEditMode && this.editId !== null
-      ? this.service.updateEntry(this.editId, payload)
-      : this.service.addEntry(payload);
-
-    this.subs.push(
-      call$.subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.snack.alertSuccess(
-            this.isEditMode ? 'Entry updated successfully' : 'Entry created successfully'
-          );
-          this.router.navigate(['admin/sanctions']);
-        },
-        error: err => {
-          this.isSubmitting = false;
-          this.snack.alertError(err?.error?.message || 'Operation failed');
-        },
-      })
-    );
+    // Only create - no update functionality
+    const sub = this.service.addEntry(payload).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.snack.alertSuccess('Entry created successfully');
+        this.router.navigate(['admin/sanctions/entries']);
+      },
+      error: (err: any) => {
+        this.isSubmitting = false;
+        this.snack.alertError(err?.error?.message || 'Failed to create entry');
+      },
+    });
+    this.subs.push(sub);
   }
 
   cancel(): void {
-    this.router.navigate(['admin/sanctions']);
+    this.router.navigate(['admin/sanctions/entries']);
   }
 
   err(field: string): boolean {
@@ -191,20 +193,20 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
 
     this.isDownloading = true;
     this.subs.push(
-      this.service.downloadTemplate(this.bulkSource.source).subscribe({
+      this.service.downloadTemplate(this.bulkSource).subscribe({
         next: (blob: Blob) => {
           this.isDownloading = false;
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `${this.bulkSource!.source.toLowerCase()}_template.xlsx`;
+          a.download = `${this.bulkSource.toLowerCase()}_template.xlsx`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
           this.snack.alertSuccess('Template downloaded successfully');
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isDownloading = false;
           this.snack.alertError(err?.error?.message || 'Failed to download template');
         },
@@ -235,7 +237,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.validateAndSetFile(files[0]);
@@ -299,37 +301,42 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
     }, 200);
 
     this.subs.push(
-      this.service.uploadExcel(this.bulkSource.source, this.selectedFile, this.replaceExisting).subscribe({
+      this.service.uploadExcel(this.bulkSource, this.selectedFile, this.replaceExisting).subscribe({
         next: (message: string) => {
           clearInterval(progressInterval);
           this.uploadProgress = 100;
           this.isUploading = false;
-          
+
+          // Try to extract count from message
+          const countMatch = message.match(/(\d+)\s*entries?/i);
+          const count = countMatch ? parseInt(countMatch[1]) : undefined;
+
           this.uploadResult = {
             success: true,
             message: message || 'Entries uploaded successfully',
+            entriesCreated: count,
           };
-          
+
           this.snack.alertSuccess(message || 'Entries uploaded successfully');
           this.clearSelectedFile();
-          
+
           setTimeout(() => {
-            this.router.navigate(['admin/sanctions']);
+            this.router.navigate(['admin/sanctions/entries']);
           }, 2000);
         },
-        error: (err) => {
+        error: (err: any) => {
           clearInterval(progressInterval);
           this.uploadProgress = 0;
           this.isUploading = false;
-          
+
           const errorMessage = err?.error?.message || 'Failed to upload entries';
-          
+
           this.uploadResult = {
             success: false,
             message: 'Upload failed',
             errors: err?.error?.errors || [{ row: 0, field: 'file', message: errorMessage }],
           };
-          
+
           this.snack.alertError(errorMessage);
         },
       })
