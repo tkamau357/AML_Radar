@@ -7,9 +7,9 @@ import { ViewSanctionsEntriesComponent } from './sanctions-entries/view-sanction
 
 const routes: Routes = [
   { path: '', component: SanctionsEntriesComponent, canActivate: [AuthGuard] },
-  { path: 'add', component: AddSanctionsEntriesComponent, canActivate: [AuthGuard] },
-  { path: 'edit/:id', component: AddSanctionsEntriesComponent, canActivate: [AuthGuard] },
-  { path: 'view/:id', component: ViewSanctionsEntriesComponent, canActivate: [AuthGuard] },
+  { path: 'add-entries', component: AddSanctionsEntriesComponent, canActivate: [AuthGuard] },
+  { path: 'edit-entries/:id', component: AddSanctionsEntriesComponent, canActivate: [AuthGuard] },
+  { path: 'view-entries/:id', component: ViewSanctionsEntriesComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

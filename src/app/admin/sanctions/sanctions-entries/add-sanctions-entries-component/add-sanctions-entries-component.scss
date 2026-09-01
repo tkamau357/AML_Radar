@@ -1,20 +1,142 @@
 $brand:#2a5caa; $brand-light:#e8eef8; $surface:#fff; $border:#e4e8f0;
-$text-primary:#1e293b; $text-sec:#64748b; $text-muted:#94a3b8; $danger:#ef4444;
+$text-primary:#1e293b; $text-sec:#64748b; $text-muted:#94a3b8; $danger:#ef4444; $success:#22c55e;
 $radius:10px; $radius-sm:6px;
 
 :host { display:block; font-family:'Inter',sans-serif; }
 
-.form-page        { display:flex; flex-direction:column; gap:20px; }
-.form-page-header { display:flex; align-items:center; gap:12px; }
-.back-btn {
-  display:flex; align-items:center; justify-content:center;
-  width:36px; height:36px; border:1px solid $border; border-radius:50%;
-  background:$surface; color:$text-sec; cursor:pointer;
-  transition:background .14s, color .14s;
-  &:hover { background:$brand-light; color:$brand; }
+// ── Page container spacing ──────────────────────────────────────
+.form-page { 
+  display: flex;
+  flex-direction: column;
+  gap: 32px; // Increased from 20px to 32px for more overall spacing
 }
-.form-page-title    { font-size:20px; font-weight:700; color:$text-primary; margin:0 0 2px; }
-.form-page-subtitle { font-size:13px; color:$text-sec; margin:0; }
+
+// ── Page header ────────────────────────────────────────────────────
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: px;
+  flex-wrap: wrap;
+  
+  @media(max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  
+  @media(max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  
+  @media(max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid $border;
+  border-radius: 50%;
+  background: $surface;
+  color: $text-sec;
+  cursor: pointer;
+  transition: background .14s, color .14s;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: $brand-light;
+    color: $brand;
+  }
+}
+
+.form-page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 2px;
+}
+
+.form-page-subtitle {
+  font-size: 13px;
+  color: $text-sec;
+  margin: 0;
+}
+
+// ── Bulk Mode Toggle (now in header) ──────────────────────────────
+.bulk-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  justify-content: flex-end;
+  
+  @media(max-width: 768px) {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  
+  .toggle-btn {
+    width: auto;
+    padding: 0 20px;
+    min-width: 180px;
+    white-space: nowrap;
+    
+    @media(max-width: 480px) {
+      min-width: auto;
+      padding: 0 16px;
+      font-size: 12px;
+    }
+    
+    &--active {
+      background: $brand;
+      color: #fff;
+      border-color: $brand;
+      
+      &:hover {
+        background: $brand;
+        filter: brightness(1.1);
+      }
+      
+      mat-icon {
+        color: #fff;
+      }
+    }
+  }
+  
+  .bulk-count-badge {
+    font-size: 13px;
+    color: $text-sec;
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid $border;
+    white-space: nowrap;
+    
+    @media(max-width: 480px) {
+      font-size: 12px;
+      padding: 3px 10px;
+    }
+  }
+}
 
 .form-layout {
   display:grid; grid-template-columns:1fr 260px; gap:20px; align-items:start;
@@ -70,6 +192,7 @@ $radius:10px; $radius-sm:6px;
   height:38px; border-radius:$radius-sm; font-size:13px; font-weight:600;
   cursor:pointer; font-family:'Inter',sans-serif; margin-bottom:8px; transition:filter .14s;
   &--primary { border:none; background:$brand; color:#fff; &:hover:not(:disabled){filter:brightness(1.1);} &:disabled{opacity:.5;cursor:not-allowed;} }
+  &--success { border:none; background:$success; color:#fff; &:hover:not(:disabled){filter:brightness(1.1);} &:disabled{opacity:.5;cursor:not-allowed;} }
   &--ghost   { border:1px solid $border; background:$surface; color:$text-sec; &:hover{background:$brand-light;color:$brand;} }
   &--outline { border:2px solid $brand; background:transparent; color:$brand; margin-bottom:0; &:hover:not(:disabled){background:$brand-light;} &:disabled{opacity:.5;cursor:not-allowed;} }
 }
@@ -152,6 +275,7 @@ $radius:10px; $radius-sm:6px;
   background:transparent; color:$text-sec; cursor:pointer;
   transition:background .14s, color .14s;
   &:hover { background:#f1f5f9; color:$text-primary; }
+  &--danger:hover { background:#fef2f2; color:$danger; }
 }
 
 // ── Upload progress ──────────────────────────────────────────────────────────
@@ -182,3 +306,66 @@ $radius:10px; $radius-sm:6px;
 
 .upload-result--success .upload-result-icon { color:#22c55e; }
 .upload-result--error .upload-result-icon { color:#ef4444; }
+
+// ── Bulk Table ───────────────────────────────────────────────────────────────
+.bulk-table-container {
+  margin-top:20px;
+}
+
+.bulk-table {
+  width:100%; border-collapse:collapse; font-size:13px;
+  th {
+    text-align:left; padding:10px 14px; background:#f8fafc;
+    font-weight:600; color:$text-sec; border-bottom:2px solid $border;
+    font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+  }
+  td {
+    padding:10px 14px; border-bottom:1px solid $border; color:$text-primary;
+  }
+  tr {
+    &:hover { background:#fafbfc; }
+    &.row-editing { 
+      background:#e8eef8; 
+      td { border-bottom-color:$brand; }
+    }
+  }
+  .status-badge {
+    display:inline-block; padding:2px 10px; border-radius:12px;
+    font-size:11px; font-weight:600; text-transform:capitalize;
+    &--pending { background:#fef3c7; color:#d97706; }
+    &--success { background:#d1fae5; color:#059669; }
+    &--error { background:#fee2e2; color:#dc2626; }
+  }
+}
+
+.table-actions {
+  display:flex; align-items:center; gap:4px;
+  justify-content: center;
+}
+
+.btn-icon {
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border:none; border-radius:50%;
+  background:transparent; color:$text-sec; cursor:pointer;
+  transition:background .14s, color .14s;
+  &:hover { background:#f1f5f9; color:$text-primary; }
+  &--danger:hover { background:#fef2f2; color:$danger; }
+  &--edit:hover { background:#fef3c7; color:#d97706; }
+  &:disabled { opacity:0.4; cursor:not-allowed; }
+}
+
+.form-card-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; background:#f8fafc; border-top:1px solid $border;
+  .edit-notice {
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:$brand;
+    mat-icon { font-size:18px; }
+  }
+}
+
+.editing-badge {
+  font-size:11px; font-weight:600; color:#fff;
+  background:$brand; padding:2px 12px; border-radius:12px;
+  margin-left:auto; margin-right:8px;
+}

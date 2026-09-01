@@ -7,58 +7,106 @@
       <h2 class="audit-page-title">Audit Trail</h2>
       <p class="audit-page-subtitle">System activity log — all recorded events</p>
     </div>
+    <!-- <div class="audit-header-actions">
+      <button class="audit-btn-ghost-sm" (click)="viewMyAudit()" [class.active]="searchMode === 'user'">
+        <mat-icon>person</mat-icon>
+        My Activity
+      </button>
+    </div> -->
   </div>
 
-  <!-- ── Filter card ─────────────────────────────────────────────────── -->
-  <div class="audit-filter-card">
-    <form [formGroup]="dateForm" (ngSubmit)="fetchByDate()" class="audit-filter-row">
-
-      <div class="audit-filter-group">
-        <label class="audit-filter-label" for="audit-date">Date</label>
-        <input
-          type="date"
-          id="audit-date"
-          formControlName="date"
-          class="audit-filter-input"
-          [max]="maxDate"
-        />
+  <!-- ── Filter card (collapsible) ─────────────────────────────────── -->
+  <div class="audit-filter-card" [class.collapsed]="filterCollapsed">
+    
+    <!-- Filter card header / toggle -->
+    <div class="audit-filter-header" (click)="toggleFilter()">
+      <div class="audit-filter-header-left">
+        <mat-icon class="audit-filter-toggle-icon">
+          {{ filterCollapsed ? 'chevron_right' : 'expand_more' }}
+        </mat-icon>
+        <span class="audit-filter-header-title">Filters</span>
+        <span class="audit-filter-badge" *ngIf="hasActiveFilters()">
+          {{ getActiveFilterCount() }}
+        </span>
       </div>
-
-      <div class="audit-filter-group">
-        <label class="audit-filter-label">Filter by user (email)</label>
-        <input
-          type="text"
-          [(ngModel)]="filterEmail"
-          [ngModelOptions]="{standalone: true}"
-          placeholder="e.g. admin@amlradar.co.ke"
-          class="audit-filter-input"
-        />
-      </div>
-
-      <div class="audit-filter-group">
-        <label class="audit-filter-label">Event type</label>
-        <select [(ngModel)]="filterEventType" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
-          <option value="">All</option>
-          <option value="LOGIN">LOGIN</option>
-          <option value="LOGOUT">LOGOUT</option>
-          <option value="CREATE">CREATE</option>
-          <option value="UPDATE">UPDATE</option>
-          <option value="DELETE">DELETE</option>
-          <option value="READ">READ</option>
-        </select>
-      </div>
-
-      <div class="audit-filter-actions">
-        <button type="submit" class="audit-btn-primary" [disabled]="dateForm.invalid || loading">
-          <mat-icon class="audit-btn-icon">search</mat-icon>
-          Fetch Records
-        </button>
-        <button type="button" class="audit-btn-ghost" (click)="resetFilters()">
-          <mat-icon class="audit-btn-icon">refresh</mat-icon>
-          Reset
+      <div class="audit-filter-header-right">
+        <span class="audit-filter-header-hint" *ngIf="filterCollapsed">
+          {{ getFilterSummary() }}
+        </span>
+        <button 
+          type="button" 
+          class="audit-filter-clear-btn" 
+          *ngIf="hasActiveFilters()"
+          (click)="resetFilters(); $event.stopPropagation()"
+          matTooltip="Clear all filters"
+        >
+          <mat-icon>clear</mat-icon>
         </button>
       </div>
-    </form>
+    </div>
+
+    <!-- Filter content (collapsible) -->
+    <div class="audit-filter-body" [class.collapsed]="filterCollapsed">
+      <form [formGroup]="dateForm" (ngSubmit)="applyFilters()" class="audit-filter-form">
+
+        <div class="audit-filter-row">
+          <div class="audit-filter-group">
+            <label class="audit-filter-label" for="audit-date">Date</label>
+            <input
+              type="date"
+              id="audit-date"
+              formControlName="date"
+              class="audit-filter-input"
+              [max]="maxDate"
+            />
+          </div>
+
+          <div class="audit-filter-group">
+            <label class="audit-filter-label">User Email</label>
+            <input
+              type="text"
+              [(ngModel)]="filterEmail"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="Enter user email"
+              class="audit-filter-input"
+            />
+          </div>
+        </div>
+
+        <div class="audit-filter-row">
+          <div class="audit-filter-group">
+            <label class="audit-filter-label">Action Type</label>
+            <select [(ngModel)]="filterAction" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
+              <option *ngFor="let action of allActions" [value]="action.value">
+                {{ action.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="audit-filter-group">
+            <label class="audit-filter-label">Entity Type</label>
+            <input
+              type="text"
+              [(ngModel)]="filterEntityType"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="e.g. User, Branch, Role"
+              class="audit-filter-input"
+            />
+          </div>
+        </div>
+
+        <div class="audit-filter-actions">
+          <button type="submit" class="audit-btn-primary" [disabled]="loading">
+            <mat-icon class="audit-btn-icon">search</mat-icon>
+            Search
+          </button>
+          <button type="button" class="audit-btn-ghost" (click)="resetFilters()">
+            <mat-icon class="audit-btn-icon">refresh</mat-icon>
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ── Table card ──────────────────────────────────────────────────── -->
@@ -69,9 +117,12 @@
       <div>
         <span class="audit-card-title">Audit Records</span>
         <span class="audit-card-count" *ngIf="!loading">{{ totalRows | number }} total</span>
+        <span class="audit-mode-badge" [class.user-mode]="searchMode === 'user'">
+          {{ searchMode === 'user' ? 'My Activity' : 'Global Search' }}
+        </span>
       </div>
       <div class="audit-toolbar-actions">
-        <button class="audit-icon-btn" matTooltip="Refresh" (click)="fetchByDate()">
+        <button class="audit-icon-btn" matTooltip="Refresh" (click)="applyFilters()">
           <mat-icon class="audit-icon">refresh</mat-icon>
         </button>
       </div>
@@ -97,13 +148,13 @@
         <thead>
           <tr class="audit-thead-row">
             <th class="audit-th audit-th--num">#</th>
-            <th class="audit-th">Module</th>
-            <th class="audit-th">Event Type</th>
+            <th class="audit-th">Action</th>
             <th class="audit-th">User</th>
+            <th class="audit-th">Entity</th>
             <th class="audit-th">Timestamp</th>
             <th class="audit-th audit-th--center">Status</th>
-            <th class="audit-th">Activity</th>
-            <th class="audit-th audit-th--center">Details</th>
+            <th class="audit-th">Details</th>
+            <th class="audit-th audit-th--center">View</th>
           </tr>
         </thead>
         <tbody>
@@ -115,29 +166,32 @@
             <td class="audit-td audit-td--muted audit-td--num">{{ getRowNumber(i) }}</td>
 
             <td class="audit-td">
-              <span class="audit-module-tag">{{ row.moduleType || '—' }}</span>
-            </td>
-
-            <td class="audit-td">
               <div class="audit-event-cell">
-                <mat-icon class="audit-event-icon">{{ getEventIcon(row.eventType || '') }}</mat-icon>
-                <span>{{ row.eventType }}</span>
+                <mat-icon class="audit-event-icon">{{ getEventIcon(row.action || row.eventType || '') }}</mat-icon>
+                <span class="audit-action-name">{{ row.action || row.eventType || '—' }}</span>
               </div>
             </td>
 
             <td class="audit-td audit-td--email">{{ row.userEmail }}</td>
 
+            <td class="audit-td">
+              <span class="audit-module-tag">{{ row.entityType || row.moduleType || '—' }}</span>
+              <span class="audit-entity-id" *ngIf="row.entityId">({{ row.entityId }})</span>
+            </td>
+
             <td class="audit-td audit-td--mono audit-td--nowrap">
-            {{ row.timestamp ? (row.timestamp | date:'dd MMM yyyy, HH:mm:ss') : '—' }}
+              {{ row.timestamp ? (row.timestamp | date:'dd MMM yyyy, HH:mm:ss') : '—' }}
             </td>
 
             <td class="audit-td audit-td--center">
-              <span class="audit-status-badge" [ngClass]="getStatusClass(row.status || '')">
-                {{ row.status || '—' }}
+              <span class="audit-status-badge" [ngClass]="getStatusClass(row.status || row.success)">
+                {{ row.status || (row.success ? 'SUCCESS' : 'FAILED') || '—' }}
               </span>
             </td>
 
-            <td class="audit-td audit-td--activity">{{ row.activity }}</td>
+            <td class="audit-td audit-td--activity">
+              <span class="audit-detail-text">{{ row.details || row.activity || '—' }}</span>
+            </td>
 
             <td class="audit-td audit-td--center">
               <button

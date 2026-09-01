@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { Router } from '@angular/router';
 @Component({
     selector: "app-page500",
     templateUrl: "./page500.component.html",
@@ -6,6 +7,11 @@ import { Component, OnInit } from "@angular/core";
     standalone: false
 })
 export class Page500Component implements OnInit {
-  constructor() {}
+  constructor(private router: Router) {}
+
   ngOnInit() {}
+
+  goHome(): void {
+    this.router.navigate(['/']);
+  }
 }

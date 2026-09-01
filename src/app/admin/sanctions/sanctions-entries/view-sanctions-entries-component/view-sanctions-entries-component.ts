@@ -1,5 +1,5 @@
 // view-sanctions-entries-component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
@@ -27,6 +27,7 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
     private service: SanctionsService,
     private snack: SnackbarService,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -53,9 +54,11 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
       next: (entry: SanctionEntryResponse) => {
         this.entry = entry;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load entry');
         this.router.navigate(['/admin/sanctions/entries']);
       },

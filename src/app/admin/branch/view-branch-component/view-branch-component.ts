@@ -1,5 +1,5 @@
 // view-branch-component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
@@ -23,6 +23,7 @@ export class ViewBranchComponent implements OnInit, OnDestroy {
     private router: Router,
     private service: BranchService,
     private snack: SnackbarService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -44,9 +45,11 @@ export class ViewBranchComponent implements OnInit, OnDestroy {
       next: b => {
         this.branch = b;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: err => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load branch');
         this.router.navigate(['admin/configurations/branches']);
       },

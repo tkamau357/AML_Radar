@@ -39,18 +39,19 @@ body, html {
 .mat-tooltip {
   font-family: 'Inter', sans-serif !important;
   font-size: 12px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.01em !important;
-  line-height: 1.4 !important;
-  padding: 8px 14px !important;
+  line-height: 1.45 !important;
+  padding: 8px 12px !important;
   border-radius: 8px !important;
-  background: #1e293b !important;
+  background: rgba(15, 23, 42, 0.96) !important;
   color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
   max-width: 280px !important;
   text-align: center !important;
-  animation: tooltipFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: tooltipFadeIn 0.18s ease-out !important;
   transform-origin: center bottom !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
 }
 
 // Tooltip with arrow
@@ -64,7 +65,7 @@ body, html {
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid #1e293b;
+  border-top: 6px solid rgba(15, 23, 42, 0.96);
   display: none; // Hidden by default, shown when arrow is needed
 }
 
@@ -72,14 +73,14 @@ body, html {
 .mat-tooltip.mat-tooltip--light {
   background: #ffffff !important;
   color: #1e293b !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 3px 8px rgba(15, 23, 42, 0.06) !important;
   border: 1px solid #e4e8f0 !important;
 }
 
 .mat-tooltip.mat-tooltip--brand {
   background: #2a5caa !important;
   color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(42, 92, 170, 0.3), 0 2px 4px rgba(42, 92, 170, 0.1) !important;
+  box-shadow: 0 10px 24px rgba(42, 92, 170, 0.24), 0 2px 8px rgba(42, 92, 170, 0.12) !important;
 }
 
 .mat-tooltip.mat-tooltip--danger {
@@ -159,14 +160,14 @@ body, html {
 // Tooltip for action buttons (custom styling)
 .mat-tooltip.mat-tooltip--action {
   font-size: 11px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
-  padding: 6px 12px !important;
+  letter-spacing: 0.08em !important;
+  padding: 6px 10px !important;
   border-radius: 6px !important;
   background: #1e293b !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
 }
 
 // ── Snackbar base styles ──────────────────────────────────────────────────────
@@ -275,11 +276,11 @@ body, html {
 
 // ── Fix Material Select Dropdown Transparency ──────────────────────────────
 .mat-select-panel {
-  background: #ffffff !important;
+  background: #c4aaaa !important;
   border: 1.5px solid #e4e8f0 !important;
   border-radius: 6px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-  background-color: #ffffff !important;
+  background-color: #2b2525 !important;
   padding: 6px 0 !important;
   min-width: 80px !important;
   
@@ -295,19 +296,19 @@ body, html {
     height: 36px !important;
     line-height: 36px !important;
     padding: 0 16px !important;
-    background: #ffffff !important;
+    background: #c4aaaa !important;
     transition: background 0.15s ease !important;
     
     &:hover {
-      background: #e8eef8 !important;
+      background: #c4aaaa !important;
     }
     
     &.mat-active {
-      background: #e8eef8 !important;
+      background: #c4aaaa !important;
     }
     
     &.mat-selected {
-      background: #e8eef8 !important;
+      background: #c4aaaa !important;
       color: #2a5caa !important;
       font-weight: 600 !important;
       
@@ -324,14 +325,14 @@ body, html {
 // Ensure the overlay container has solid background
 .cdk-overlay-pane {
   .mat-select-panel {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
+    background: #c4aaaa !important;
+    background-color: #c4aaaa !important;
   }
 }
 
 // Fix for the dropdown trigger
 .mat-select-trigger {
-  background: #ffffff !important;
+  background: #c4aaaa !important;
 }
 
 // ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
