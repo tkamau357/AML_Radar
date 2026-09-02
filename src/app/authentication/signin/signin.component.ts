@@ -1,8 +1,9 @@
 // src/app/authentication/signin/signin.component.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
+import { finalize } from "rxjs/operators";
 import { NotificationToastService } from "../../data/services/notification-toast.service";
 import { AuthService } from "../../core/service/auth.service";
 import { TokenStorageService } from "../../core/service/token-storage.service";
@@ -27,7 +28,8 @@ export class SigninComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private tokenStorage: TokenStorageService,
-    private notificationService: NotificationToastService
+    private notificationService: NotificationToastService,
+    private cdr: ChangeDetectorRef
   ) {
     this.authForm = this.formBuilder.group({
       username: ['', [Validators.required]], 
@@ -84,7 +86,13 @@ export class SigninComponent implements OnInit, OnDestroy {
       password: this.authForm.value.pHolder,
     };
 
-    this.loginSubscription = this.authService.login(credentials).subscribe({
+    this.loginSubscription = this.authService.login(credentials).pipe(
+      // GUARANTEED to run on success, error, OR unsubscribe
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges(); // Force Angular to update the view
+      })
+    ).subscribe({
       next: (response) => {
         if (this.authForm.value.rememberMe) {
           localStorage.setItem('savedEmail', this.authForm.value.username);
@@ -94,15 +102,21 @@ export class SigninComponent implements OnInit, OnDestroy {
 
         // Check if user must change password (skip OTP)
         if (response.skipOtp) {
+          // Keep loading true for the second request
+          this.loading = true;
+          this.cdr.detectChanges();
+          
           // User needs to change password - call loginPasswordReset to get tokens
-          this.authService.loginPasswordReset(credentials).subscribe({
-            next: (authResponse) => {
+          this.authService.loginPasswordReset(credentials).pipe(
+            finalize(() => {
               this.loading = false;
-              // Navigate to change password page
+              this.cdr.detectChanges();
+            })
+          ).subscribe({
+            next: () => {
               this.router.navigate(['/auth/change-password']);
             },
             error: (error) => {
-              this.loading = false;
               this.error = error.message || 'Authentication failed. Please try again.';
               this.notificationService.alertError(this.error);
             }
@@ -110,7 +124,6 @@ export class SigninComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.loading = false;
         // Normal flow: Navigate to OTP verification
         this.router.navigate(['/auth/verify-otp'], {
           state: { 
@@ -120,7 +133,6 @@ export class SigninComponent implements OnInit, OnDestroy {
         });
       },
       error: (error) => {
-        this.loading = false;
         this.error = error.message || 'Invalid credentials. Please try again.';
         this.notificationService.alertError(this.error);
         

@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { SanctionsService, SourceConfigResponse, SourceConfigRequest, AcquisitionMode, SyncStrategyType } from '../../sanctions.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
+import { LoadingService } from '../../../../core/service/loading.service';
 
 @Component({
   selector: 'app-add-source',
@@ -50,6 +52,8 @@ export class AddSourceComponent implements OnInit, OnDestroy {
     private snack: SnackbarService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    public loadingService: LoadingService,
   ) {}
 
   ngOnInit(): void {
@@ -124,11 +128,15 @@ export class AddSourceComponent implements OnInit, OnDestroy {
 
   private loadSource(source: string): void {
     this.isLoading = true;
-    const sub = this.service.getSourceConfig(source).subscribe({
+    const sub = this.service.getSourceConfig(source).pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (data: SourceConfigResponse) => {
         this.sourceData = data;
         this.patchForm(data);
-        this.isLoading = false;
         if (this.isEditMode || this.isViewMode) {
           this.form.get('source')?.disable();
         }
@@ -137,7 +145,6 @@ export class AddSourceComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.isLoading = false;
         this.snack.alertError(err?.error?.message || 'Failed to load source');
         this.router.navigate(['/admin/sanctions/sources']);
       },
@@ -244,16 +251,19 @@ export class AddSourceComponent implements OnInit, OnDestroy {
       ? this.service.updateSourceConfig(this.editSource, payload)
       : this.service.createSourceConfig(payload);
 
-    const sub = call$.subscribe({
-      next: () => {
+    const sub = call$.pipe(
+      finalize(() => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
         this.snack.alertSuccess(
           this.isEditMode ? 'Source updated successfully' : 'Source created successfully'
         );
         this.router.navigate(['/admin/sanctions/sources']);
       },
       error: (err) => {
-        this.isSubmitting = false;
         this.snack.alertError(err?.error?.message || 'Operation failed');
       },
     });

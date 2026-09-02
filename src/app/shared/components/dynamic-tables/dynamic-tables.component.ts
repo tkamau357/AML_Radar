@@ -91,9 +91,13 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Whether to use the global LoadingService automatically.
    * When true, subscribes to LoadingService.loading$ instead of using isLoading input.
-   * Default: false (for backward compatibility)
+   * 
+   * DEFAULT: true - All tables now use global loading by default.
+   * Set to false only if you need component-specific loading behavior.
+   * 
+   * The global loading is automatically managed by HttpInterceptor for all HTTP requests.
    */
-  @Input() useGlobalLoading = false;
+  @Input() useGlobalLoading = true;
   
   // Internal loading state (resolved from isLoading, loading$, or global service)
   internalLoading = false;

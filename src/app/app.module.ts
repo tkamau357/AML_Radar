@@ -20,7 +20,7 @@ import { SharedModule } from './shared/shared.module';
 import { ComponentsModule } from './shared/components/components.module';
 
 // Interceptors
-import { AuthInterceptor } from './core/interceptor/auth.interceptor';
+import { HttpInterceptorService } from './core/interceptor/http.interceptor';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { NgClickOutsideDirective } from 'ng-click-outside2';
 import { BnNgIdleService } from 'bn-ng-idle';
@@ -68,7 +68,6 @@ import { ChangePasswordComponent } from './authentication/change-password/change
 import { Page404Component } from './authentication/page404/page404.component';
 import { Page403Component } from './authentication/page403/page403.component';
 import { IdleWarningComponent } from './layout/idle-warning-component/idle-warning-component';import { FullLayout } from './layout/full-layout/full-layout';
-import { JwtInterceptor } from './core/interceptor/jwt.interceptor';
 
 // Register locales
 registerLocaleData(localeFr);
@@ -134,12 +133,8 @@ registerLocaleData(localeEn);
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: ErrorHandler, useClass: GlobalErrorHandlerService },
-        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        {
-      provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor,
-      multi: true
-    },
+        // Single unified HTTP interceptor - handles auth, loading, and errors
+        { provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true },
         BnNgIdleService,
     ],
     bootstrap: [AppComponent],
