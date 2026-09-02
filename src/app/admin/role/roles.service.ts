@@ -24,7 +24,7 @@ export interface PermissionResponse {
   method: string;
   branchScoped: boolean;
 }
-
+79174
 @Injectable({
   providedIn: 'root'
 })
@@ -58,13 +58,6 @@ export class RolesService {
   /** GET /roles/permissions - Get all available permissions */
   getAllPermissions(): Observable<PermissionResponse[]> {
     return this.http.get<ApiResponse<PermissionResponse[]>>(`${this.apiUrl}/permissions`).pipe(
-      map(response => response.result || [])
-    );
-  }
-
-  /** GET /roles/{id}/permissions - Get permissions for a specific role */
-  getRolePermissions(roleId: number): Observable<PermissionResponse[]> {
-    return this.http.get<ApiResponse<PermissionResponse[]>>(`${this.apiUrl}/${roleId}/permissions`).pipe(
       map(response => response.result || [])
     );
   }

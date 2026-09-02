@@ -39,7 +39,7 @@ export class AuditService {
     if (endDate)   params = params.set("endDate", endDate);
 
     return this._http.get<ApiResponse<any>>(this.url, { params })
-      .pipe(map(res => res.result));
+      .pipe(map(res => res));
   }
 
   /**
@@ -68,7 +68,7 @@ export class AuditService {
       .set("sort",      sort);
 
     return this._http.get<ApiResponse<any>>(this.url, { params })
-      .pipe(map(res => res.result));
+      .pipe(map(res => res));
   }
 
   /**
@@ -89,7 +89,7 @@ export class AuditService {
     return this._http.get<ApiResponse<any>>(
       `${this.url}/user/${encodeURIComponent(email)}`,
       { params }
-    ).pipe(map(res => res.result));
+    ).pipe(map(res => res));
   }
 
   /**
@@ -111,6 +111,6 @@ export class AuditService {
     return this._http.get<ApiResponse<any>>(
       `${this.url}/entity/${encodeURIComponent(entityType)}/${encodeURIComponent(entityId)}`,
       { params }
-    ).pipe(map(res => res.result));
+    ).pipe(map(res => res));
   }
 }

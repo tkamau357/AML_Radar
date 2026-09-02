@@ -1,27 +1,15 @@
-<section class="min-h-screen bg-gray-100 pt-17 pl-0 lg:pl-64 transition-all">
-  <div class="flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-xl px-6 text-center">
-      
-      <form class="flex flex-col items-center">
-        <span class="text-[40px] font-bold !text-[#2A5CAA]">
-          404
-        </span>
-
-        <span class="text-[20px] p-b-5 font-bold !text-[#00A5E4]">
-          Page Not Found
-        </span>
-
-        <span class="text-sm !text-[#000]">
-          The Page You Are Looking For does not Exist!
-        </span>
-
-        <div class="mt-4">
-          <button type="button" (click)="goBack()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-[15px] font-medium text-white bg-[#2A5CAA]">
-            ← Back
-          </button>
-        </div>
-      </form>
-
+<main class="error-page error-page--missing">
+  <section class="error-page__panel" aria-labelledby="page404-title">
+    <div class="error-page__code" aria-hidden="true">
+      <span class="error-page__code-number">404</span>
     </div>
-  </div>
-</section>
+    <div class="error-page__content">
+      <span class="error-page__eyebrow">Route not found</span>
+      <h1 id="page404-title" class="error-page__title">That page has moved</h1>
+      <p class="error-page__message">The address may be outdated, or the page may no longer exist. Return to the previous screen and keep working.</p>
+      <div class="error-page__actions">
+        <button type="button" class="error-page__button" (click)="goBack()"><span aria-hidden="true">&lt;-</span> Go back</button>
+      </div>
+    </div>
+  </section>
+</main>

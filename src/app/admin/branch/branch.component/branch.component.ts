@@ -6,6 +6,7 @@ import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { DeleteConfirmationDialog } from '../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
 
 @Component({
   selector: 'app-branch',
@@ -111,7 +112,7 @@ export class BranchComponent implements OnInit, OnDestroy {
   }
 
   deleteBranch(branch: BranchResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialog, {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialog, {
       width: '460px',
       maxWidth: 'calc(100vw - 32px)',
       data: {

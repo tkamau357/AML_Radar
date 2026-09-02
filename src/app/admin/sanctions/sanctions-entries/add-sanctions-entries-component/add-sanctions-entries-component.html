@@ -2,14 +2,32 @@
 
   <!-- ── Page header ──────────────────────────────────────────────────── -->
   <div class="form-page-header">
-    <button class="back-btn" (click)="cancel()" type="button">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <div>
-      <h2 class="form-page-title">{{ isEditMode ? 'Edit Sanction Entry' : 'Add Sanction Entry' }}</h2>
-      <p class="form-page-subtitle">
-        {{ isEditMode ? 'Update sanction entry information' : 'Add a new person or entity to the sanction list' }}
-      </p>
+    <div class="header-left">
+      <button class="back-btn" (click)="cancel()" type="button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="form-page-title">{{ isEditMode ? 'Edit Sanction Entry' : 'Add Sanction Entry' }}</h2>
+        <p class="form-page-subtitle">
+          {{ isEditMode ? 'Update sanction entry information' : 'Add a new person or entity to the sanction list' }}
+        </p>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="bulk-mode-toggle">
+        <button 
+          type="button" 
+          class="action-btn action-btn--outline toggle-btn"
+          [class.toggle-btn--active]="showBulkTable"
+          (click)="toggleBulkMode()">
+          <mat-icon>{{ showBulkTable ? 'view_list' : 'playlist_add' }}</mat-icon>
+          {{ showBulkTable ? 'Show Entry Form' : 'Add Multiple Entries' }}
+        </button>
+        <span *ngIf="showBulkTable" class="bulk-count-badge">
+          {{ bulkEntries.length }} entry(ies) in queue
+        </span>
+      </div>
     </div>
   </div>
 
@@ -36,7 +54,7 @@
             [(ngModel)]="bulkSource"
             [ngModelOptions]="{standalone: true}"
             style="max-width: 300px;">
-            <option *ngFor="let source of sources" [value]="source">
+            <option *ngFor="let source of sources" [value]="source.source">
               {{ source.displayName }}
             </option>
           </select>
@@ -173,6 +191,8 @@
     </div>
   </div>
 
+  
+
   <form [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
 
     <!-- ── Main column ─────────────────────────────────────────────────── -->
@@ -197,20 +217,6 @@
                 </option>
               </select>
               <span class="field-error" *ngIf="err('source')">Source is required</span>
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="sourceEntryId">
-                Source Entry ID
-              </label>
-              <input
-                id="sourceEntryId"
-                type="text"
-                formControlName="sourceEntryId"
-                class="field-input"
-                placeholder="e.g. UN-12345"
-              />
-              <span class="field-hint">External reference from the source list</span>
             </div>
           </div>
         </div>
@@ -456,9 +462,22 @@
             [disabled]="form.invalid || isSubmitting"
           >
             <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
-            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-            {{ isSubmitting ? 'Saving…' : (isEditMode ? 'Save Changes' : 'Add Entry') }}
+            <mat-icon *ngIf="!isSubmitting">
+              {{ showBulkTable ? (isEditingBulkEntry ? 'save' : 'playlist_add') : (isEditMode ? 'save' : 'add') }}
+            </mat-icon>
+            {{ isSubmitting ? 'Saving…' : (showBulkTable ? (isEditingBulkEntry ? 'Update Entry' : 'Add to List') : (isEditMode ? 'Save Changes' : 'Add Entry')) }}
           </button>
+          
+          <button 
+            *ngIf="showBulkTable && bulkEntries.length > 0"
+            type="button" 
+            class="action-btn action-btn--success" 
+            (click)="submitBulkEntries()"
+            [disabled]="isSubmitting || isEditingBulkEntry">
+            <mat-icon>upload</mat-icon>
+            Submit All ({{ bulkEntries.length }})
+          </button>
+          
           <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">
             Cancel
           </button>
@@ -485,4 +504,78 @@
     </div>
 
   </form>
+
+  <!-- ── Bulk Entries Table ────────────────────────────────────────────── -->
+  <div *ngIf="showBulkTable && bulkEntries.length > 0" class="bulk-table-container">
+    <div class="form-card">
+      <div class="form-card-header">
+        <mat-icon class="form-card-icon">table_chart</mat-icon>
+        <span class="form-card-title">Bulk Entries ({{ bulkEntries.length }})</span>
+        <span *ngIf="isEditingBulkEntry" class="editing-badge">Editing Entry #{{ editingBulkEntryId }}</span>
+        <button type="button" class="btn-icon" (click)="toggleBulkMode()" title="Close table">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="form-card-body" style="padding: 0; overflow-x: auto;">
+        <table class="bulk-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Source</th>
+              <th>Entity Type</th>
+              <th>Full Name</th>
+              <th>DOB</th>
+              <th>Nationality</th>
+              <th>Status</th>
+              <th style="width: 120px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of bulkEntries" [class.row-editing]="isEditingBulkEntry && editingBulkEntryId === entry.id">
+              <td>{{ entry.id }}</td>
+              <td>{{ entry.sourceDisplayName }}</td>
+              <td>{{ entry.entityType | titlecase }}</td>
+              <td><strong>{{ entry.fullName }}</strong></td>
+              <td>{{ entry.dateOfBirth || '-' }}</td>
+              <td>{{ entry.nationality || '-' }}</td>
+              <td>
+                <span class="status-badge status-badge--pending">
+                  {{ entry.status || 'pending' }}
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button 
+                    type="button" 
+                    class="btn-icon btn-icon--edit" 
+                    (click)="editBulkEntry(entry)"
+                    [disabled]="isEditingBulkEntry && editingBulkEntryId !== entry.id"
+                    title="Edit entry">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn-icon btn-icon--danger" 
+                    (click)="removeBulkEntry(entry.id)"
+                    title="Remove entry">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="isEditingBulkEntry" class="form-card-footer">
+        <span class="edit-notice">
+          <mat-icon>info</mat-icon>
+          Editing entry #{{ editingBulkEntryId }} - Update fields in the form above and click "Update Entry"
+        </span>
+        <button type="button" class="action-btn action-btn--ghost" (click)="cancelEditBulkEntry()" style="width: auto; padding: 0 16px; margin: 0;">
+          Cancel Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

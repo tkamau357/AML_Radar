@@ -1,8 +1,8 @@
-// sanctions-entries-component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { DeleteConfirmationDialog } from '../../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TableAction, HeaderAction } from '../../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { TableAction, HeaderAction, CustomFilterOption } from '../../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { SanctionEntryResponse, SanctionsService, PageResponse, SanctionListSourceInfo } from '../../sanctions.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,18 +17,21 @@ import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/conf
 export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   entries: SanctionEntryResponse[] = [];
   sources: SanctionListSourceInfo[] = [];
-  selectedSource: string = 'OFAC_SDN';
+  selectedSource: string | null = null;
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
   pageSize = 20;
+
+  // Source filter options for dynamic table
+  sourceFilterOptions: CustomFilterOption[] = [];
+  selectedSourceFilter: string | null = null;
 
   columns = [
     { label: '#',            field: 'index'                        },
     { label: 'Full Name',    field: 'fullName'                     },
     { label: 'Source',       field: 'sourceDisplayName'            },
     { label: 'Entity Type',  field: 'entityType',    type: 'badge' },
-    { label: 'Status',       field: 'active',        type: 'badge' },
     { label: 'Listed Date',  field: 'listedDate',    type: 'date'  },
   ];
 
@@ -48,6 +51,12 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
       icon: 'block',
       show: (row) => row.active === true,
       onClick: (row: SanctionEntryResponse) => this.deactivateEntry(row),
+    },
+    {
+      label: 'Activate',
+      icon: 'check_circle',
+      show: (row) => row.active === false,
+      onClick: (row: SanctionEntryResponse) => this.activateEntry(row),
     },
     {
       label: 'Delete',
@@ -76,6 +85,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     private snackbar: SnackbarService,
     private router: Router,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -90,10 +100,24 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     const sub = this.sanctionsService.getSources().subscribe({
       next: (sources) => {
         this.sources = sources;
+        
+        // Build source filter options for dynamic table
+        this.sourceFilterOptions = sources.map(source => ({
+          value: source.source,
+          label: source.displayName
+        }));
+        
+        // Add "All Sources" option
+        this.sourceFilterOptions.unshift({
+          value: null,
+          label: 'All Sources'
+        });
+
         if (sources.length > 0) {
-          this.selectedSource = sources[0].source;
+          this.selectedSource = null; // Start with "All Sources"
           this.loadEntries();
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.snackbar.alertError(err?.error?.message || 'Failed to load sources');
@@ -102,24 +126,33 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     this.subs.push(sub);
   }
 
-  onSourceChange(source: string): void {
-    this.selectedSource = source;
+  onSourceFilterChange(sourceValue: string | null): void {
+    this.selectedSource = sourceValue;
     this.currentPage = 0;
     this.loadEntries();
   }
 
   loadEntries(): void {
-    if (!this.selectedSource) return;
-    
     this.isLoading = true;
-    const sub = this.sanctionsService.getEntries(this.selectedSource, this.currentPage, this.pageSize).subscribe({
+    
+    // If no source selected, load all entries (or use first source as fallback)
+    const sourceToLoad = this.selectedSource || (this.sources.length > 0 ? this.sources[0].source : '');
+    
+    if (!sourceToLoad) {
+      this.isLoading = false;
+      return;
+    }
+
+    const sub = this.sanctionsService.getEntries(sourceToLoad, this.currentPage, this.pageSize).subscribe({
       next: (page: PageResponse<SanctionEntryResponse>) => {
         this.entries = page.content || [];
         this.totalElements = page.totalElements || 0;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snackbar.alertError(err?.error?.message || 'Failed to load entries');
       },
     });
@@ -132,19 +165,19 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
-    this.router.navigate(['/admin/sanctions/entries/add']);
+    this.router.navigate(['/admin/sanctions/add-entries']);
   }
 
   viewEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/entries/view', entry.id]);
+    this.router.navigate(['/admin/sanctions/view-entries', entry.id]);
   }
 
   editEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/entries/edit', entry.id]);
+    this.router.navigate(['/admin/sanctions/edit-entries', entry.id]);
   }
 
   deleteEntry(entry: SanctionEntryResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialog, {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialog, {
       width: '460px',
       maxWidth: 'calc(100vw - 32px)',
       data: {
@@ -197,6 +230,35 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
         },
       });
       this.subs.push(deactivateSub);
+    });
+    this.subs.push(sub);
+  }
+
+  activateEntry(entry: SanctionEntryResponse): void {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Activate Sanction Entry',
+        message: `Are you sure you want to activate the sanction entry "${entry.fullName}"? The entry will be used in screening.`,
+        confirmText: 'Activate',
+        cancelText: 'Cancel',
+      },
+    });
+
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const activateSub = this.sanctionsService.deactivateEntry(entry.id).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess('Entry activated successfully');
+          this.loadEntries();
+        },
+        error: (err: any) => {
+          this.snackbar.alertError(err?.error?.message || 'Failed to activate entry');
+        },
+      });
+      this.subs.push(activateSub);
     });
     this.subs.push(sub);
   }

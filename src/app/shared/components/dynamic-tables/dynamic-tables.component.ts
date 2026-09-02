@@ -543,6 +543,7 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
 
     if (selected) {
       this.customFilterControl.setValue(selected, { emitEvent: false });
+      this.cdr.detectChanges();
     } else {
       this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
     }

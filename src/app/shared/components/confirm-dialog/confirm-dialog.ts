@@ -15,6 +15,7 @@ export interface ConfirmDialogData {
   styleUrl: './confirm-dialog.scss',
 })
 export class ConfirmDialog {
+  isWarning: boolean = false;
 
   constructor(
     private dialogRef: MatDialogRef<ConfirmDialog>,

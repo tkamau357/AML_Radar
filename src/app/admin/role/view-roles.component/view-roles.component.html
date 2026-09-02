@@ -92,7 +92,7 @@
 
         <!-- Loading -->
         <div
-          *ngIf="isLoadingPerms"
+          *ngIf="isLoading"
           class="perm-loading">
 
           <div class="spinner-sm"></div>
@@ -106,7 +106,7 @@
         <!-- No permissions -->
         <div
           *ngIf="
-            !isLoadingPerms &&
+            !isLoading &&
             permissions.length === 0
           "
           class="perm-empty">
@@ -121,7 +121,7 @@
         </div>
 
         <!-- Permission groups -->
-        <div *ngIf="!isLoadingPerms && groupedPermissions.length > 0" class="perm-list">
+        <div *ngIf="!isLoading && groupedPermissions.length > 0" class="perm-list">
           <div
             *ngFor="let group of groupedPermissions"
             class="perm-group">

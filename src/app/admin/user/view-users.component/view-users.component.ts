@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UsersService, UserResponse } from '../users.service';
@@ -26,6 +26,7 @@ export class ViewUsersComponent implements OnInit, OnDestroy {
     private users: UsersService,
     private snack: SnackbarService,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -52,9 +53,11 @@ export class ViewUsersComponent implements OnInit, OnDestroy {
       next: u => {
         this.user = u;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: err => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load user');
         this.router.navigate(['/admin/user-management/users']);
       },
@@ -88,10 +91,12 @@ export class ViewUsersComponent implements OnInit, OnDestroy {
         next: updated => {
           this.user = updated;
           this.isChanging = false;
+          this.cdr.detectChanges();
           this.snack.alertSuccess(`User ${status === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`);
         },
         error: err => {
           this.isChanging = false;
+          this.cdr.detectChanges();
           this.snack.alertError(err?.error?.message || 'Failed to update status');
         },
       });

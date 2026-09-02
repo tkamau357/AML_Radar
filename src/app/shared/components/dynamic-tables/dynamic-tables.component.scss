@@ -149,25 +149,31 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   min-width: 180px;
   flex: 1;
   max-width: 280px;
+  height: 40px;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  background: $surface;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+  &:focus-within {
+    border-color: $brand;
+    box-shadow: 0 0 0 3px rgba($brand, 0.08);
+    background: #fbfdff;
+  }
 }
 
 .dt-filter-input {
   width: 100%;
-  height: 38px;
+  height: 100%;
   padding: 0 36px 0 14px;
-  border: 1.5px solid $border;
+  border: none;
   border-radius: $radius-sm;
-  background: $surface;
+  background: transparent;
   font-size: 13px;
   color: $text-primary;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
 
   &::placeholder { color: $text-muted; }
-  &:focus { 
-    border-color: $brand;
-    box-shadow: 0 0 0 3px rgba($brand, 0.1);
-  }
 }
 
 .dt-filter-chevron {
@@ -717,43 +723,41 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
 .dt-per-page-select {
   width: 80px;
   font-size: 13px;
-  
-  // Style the trigger/input
+
   ::ng-deep .mat-select-trigger {
     height: 34px;
-    padding: 0 12px;
+    min-height: 34px;
+    padding: 0 10px 0 12px;
     border: 1.5px solid $border;
     border-radius: $radius-sm;
     background: $surface;
     font-size: 13px;
     font-weight: 500;
     color: $text-primary;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     cursor: pointer;
     position: relative;
-    
+
     &:hover {
       border-color: $brand;
-      background: #f8fafc;
+      background: #94a3b8;
     }
   }
-  
-  // Style the value text
+
   ::ng-deep .mat-select-value {
     display: flex;
     align-items: center;
     color: $text-primary;
     font-weight: 500;
   }
-  
-  // Style the arrow
+
   ::ng-deep .mat-select-arrow-wrapper {
     transform: none;
     display: flex;
     align-items: center;
-    margin-left: 4px;
+    margin-left: 6px;
   }
-  
+
   ::ng-deep .mat-select-arrow {
     color: $text-muted;
     border: none;
@@ -763,81 +767,111 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
     border-right: 5px solid transparent;
     border-top: 5px solid $text-muted;
     margin: 0;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, border-top-color 0.2s ease;
   }
-  
-  // Rotate arrow when open
-  ::ng-deep &.mat-focused .mat-select-arrow {
+
+  &.mat-focused ::ng-deep .mat-select-trigger {
+    border-color: $brand;
+    box-shadow: 0 0 0 3px rgba($brand, 0.1);
+  }
+
+  &.mat-focused ::ng-deep .mat-select-arrow {
     transform: rotate(180deg);
     border-top-color: $brand;
   }
-  
-  // Style the dropdown panel
-  ::ng-deep .mat-select-panel {
-    background: $surface !important;
-    border: 1.5px solid $border;
-    border-radius: $radius-sm;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    margin-top: 4px;
-    padding: 6px 0;
-    min-width: 80px;
-    max-height: 200px;
-    
-    // Remove default Material shadow and make it solid
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    
-    // Override any transparent backgrounds
-    background-color: $surface !important;
-    
-    // Style individual options
-    .mat-option {
-      font-size: 13px;
-      font-weight: 500;
-      color: $text-primary;
-      height: 36px;
-      line-height: 36px;
-      padding: 0 16px;
-      transition: background 0.15s ease;
-      
-      &:hover {
-        background: $brand-light !important;
-      }
-      
-      &.mat-active {
-        background: $brand-light !important;
-      }
-      
-      &.mat-selected {
-        background: $brand-light !important;
-        color: $brand;
-        font-weight: 600;
-        
-        // Add checkmark for selected option
-        &::after {
-          content: '✓';
-          float: right;
-          color: $brand;
-          font-weight: 700;
-        }
-      }
-    }
-  }
 }
 
-// Fix for dropdown overlay to ensure solid background
-::ng-deep .cdk-overlay-pane {
-  .mat-select-panel {
-    background: $surface !important;
-    border: 1.5px solid $border;
-    border-radius: $radius-sm;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    background-color: $surface !important;
-    
-    // Ensure no transparency
-    &::before {
-      display: none;
-    }
-  }
+::ng-deep .dt-select-panel {
+  background: $surface !important;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14) !important;
+  margin-top: 4px;
+  padding: 6px 0;
+  min-width: 80px;
+  max-height: 220px;
+  overflow: hidden;
+  background-color: $surface !important;
+}
+
+::ng-deep .dt-select-panel .mat-option,
+::ng-deep .dt-select-panel .mat-mdc-option,
+::ng-deep .mat-autocomplete-panel .mat-option,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option {
+  min-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $text-primary;
+  background: $surface !important;
+  background-color: $surface !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+::ng-deep .dt-select-panel .mat-option:hover:not(.mat-option-disabled),
+::ng-deep .dt-select-panel .mat-mdc-option:hover:not(.mat-mdc-option-disabled),
+::ng-deep .mat-autocomplete-panel .mat-option:hover:not(.mat-option-disabled),
+::ng-deep .mat-autocomplete-panel .mat-mdc-option:hover:not(.mat-mdc-option-disabled),
+::ng-deep .dt-select-panel .mat-option.mat-active,
+::ng-deep .dt-select-panel .mat-mdc-option.mat-active,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-active,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-active {
+  background: $brand-light !important;
+  background-color: $brand-light !important;
+}
+
+::ng-deep .dt-select-panel .mat-option.mat-selected,
+::ng-deep .dt-select-panel .mat-mdc-option.mat-selected,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-selected,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-selected {
+  background: $brand-light !important;
+  background-color: $brand-light !important;
+  color: $brand;
+  font-weight: 600;
+}
+
+::ng-deep .dt-select-panel .mat-option.mat-selected::after,
+::ng-deep .dt-select-panel .mat-mdc-option.mat-selected::after,
+::ng-deep .mat-autocomplete-panel .mat-option.mat-selected::after,
+::ng-deep .mat-autocomplete-panel .mat-mdc-option.mat-selected::after {
+  content: '✓';
+  float: right;
+  color: $brand;
+  font-weight: 700;
+}
+
+::ng-deep .mat-autocomplete-panel {
+  background: $surface !important;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14) !important;
+  padding: 6px 0;
+  overflow: hidden;
+  min-width: 220px;
+}
+
+::ng-deep .mat-autocomplete-panel .mat-option {
+  font-size: 14px;
+  min-height: 40px;
+  height: 40px;
+  line-height: 40px;
+  color: $text-primary;
+}
+
+::ng-deep .mat-autocomplete-panel .mat-option.mat-selected {
+  background: $brand-light !important;
+  color: $brand;
+  font-weight: 600;
+}
+
+::ng-deep .cdk-overlay-pane .mat-select-panel,
+::ng-deep .cdk-overlay-pane .mat-autocomplete-panel {
+  background: $surface !important;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14) !important;
 }
 
 // ── Navigation buttons ──────────────────────────────────────────────────────

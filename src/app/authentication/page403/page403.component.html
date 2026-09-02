@@ -1,29 +1,15 @@
-<section class="min-h-screen bg-gray-100 pt-17 pl-0 lg:pl-64 transition-all">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-xl px-6 text-center">
-
-            <form class="flex flex-col items-center">
-                <span class="text-[30px] font-semibold !text-[#2A5CAA]">
-                    403
-                </span>
-
-                <span class="text-[15px] p-b-5 !text-[#00A5E4]">
-                    Forbidden Access
-                </span>
-
-                <span class="text-sm !text-[#000]">
-                    You don't have permission to access this page. Please contact your administrator if you believe this
-                    is a mistake.
-                </span>
-
-                <div class="mt-4">
-                    <button type="button" (click)="goBack()"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg text-[15px] font-medium text-white bg-[#2A5CAA]">
-                        ← Back
-                    </button>
-                </div>
-            </form>
-
+<main class="error-page error-page--forbidden">
+    <section class="error-page__panel" aria-labelledby="page403-title">
+        <div class="error-page__code" aria-hidden="true">
+            <span class="error-page__code-number">403</span>
         </div>
-    </div>
-</section>
+        <div class="error-page__content">
+            <span class="error-page__eyebrow">Permission denied</span>
+            <h1 id="page403-title" class="error-page__title">You cannot access this page</h1>
+            <p class="error-page__message">Your account does not have the required permission. Contact an administrator if you believe this is a mistake.</p>
+            <div class="error-page__actions">
+                <button type="button" class="error-page__button" (click)="goBack()"><span aria-hidden="true">&lt;-</span> Go back</button>
+            </div>
+        </div>
+    </section>
+</main>

@@ -1,5 +1,5 @@
 // view-roles.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse, PermissionResponse } from '../roles.service';
@@ -18,7 +18,6 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
   groupedPermissions: { category: string; perms: PermissionResponse[] }[] = [];
 
   isLoading = false;
-  isLoadingPerms = false;
 
   collapsedGroups = new Set<string>();
   private subs: Subscription[] = [];
@@ -28,6 +27,7 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
     private router: Router,
     private roles: RolesService,
     private snack: SnackbarService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +37,6 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
       return;
     }
     this.loadRole(id);
-    this.loadPermissions(id);
   }
 
   ngOnDestroy(): void {
@@ -49,10 +48,14 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
     const s = this.roles.getRoleById(id).subscribe({
       next: r => {
         this.role = r;
+        this.permissions = this.toPermissionResponses(r.permissions);
+        this.buildGroups(this.permissions);
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: err => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load role');
         this.router.navigate(['/admin/user-management/roles']);
       },
@@ -60,31 +63,22 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
     this.subs.push(s);
   }
 
-  private loadPermissions(roleId: number): void {
-    this.isLoadingPerms = true;
-    const s = this.roles.getRolePermissions(roleId).subscribe({
-      next: perms => {
-        this.permissions = perms;
-        this.buildGroups(perms);
-        this.isLoadingPerms = false;
-      },
-      error: (err) => {
-        this.isLoadingPerms = false;
-        // If permissions API fails, try to use permissions from role object
-        if (this.role?.permissions && this.role.permissions.length > 0) {
-          const permObjects: PermissionResponse[] = this.role.permissions.map(code => ({
-            code: code,
-            name: this.formatPermissionName(code),
+  private toPermissionResponses(permissions: any[] | undefined): PermissionResponse[] {
+    return (permissions || []).map(permission => {
+      const code = typeof permission === 'string'
+        ? permission
+        : permission?.code || permission?.name || permission?.permission || permission?.permissionCode || permission?.key || '';
+
+      return typeof permission === 'object' && permission !== null
+        ? { ...permission, code: String(code) }
+        : {
+            code: String(code),
+            name: this.formatPermissionName(String(code)),
             endpoint: '',
             method: '',
-            branchScoped: false
-          }));
-          this.permissions = permObjects;
-          this.buildGroups(permObjects);
-        }
-      },
-    });
-    this.subs.push(s);
+            branchScoped: false,
+          };
+    }).filter(permission => !!permission.code);
   }
 
   /**

@@ -1,28 +1,15 @@
-<section class="min-h-screen bg-gray-100 pt-17 pl-0 lg:pl-64 transition-all">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-xl px-6 text-center">
-
-            <form class="flex flex-col items-center">
-                <span class="text-[30px] font-semibold !text-[#2A5CAA]">
-                    401
-                </span>
-
-                <span class="text-[15px] p-b-5 !text-[#00A5E4]">
-                    Unauthorized Access
-                </span>
-
-                <span class="text-sm !text-[#000]">
-                    We Could Not Validate your Credentials
-                </span>
-
-                <div class="mt-4">
-                    <button type="button" (click)="goToLogin()"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg text-[15px] font-medium text-white bg-[#2A5CAA]">
-                         Login ->
-                    </button>
-                </div>
-            </form>
-
+<main class="error-page error-page--unauthorized">
+    <section class="error-page__panel" aria-labelledby="page401-title">
+        <div class="error-page__code" aria-hidden="true">
+            <span class="error-page__code-number">401</span>
         </div>
-    </div>
-</section>
+        <div class="error-page__content">
+            <span class="error-page__eyebrow">Authentication required</span>
+            <h1 id="page401-title" class="error-page__title">Unauthorized access</h1>
+            <p class="error-page__message">We could not validate your credentials. Sign in again to continue securely.</p>
+            <div class="error-page__actions">
+                <button type="button" class="error-page__button" (click)="goToLogin()">Go to sign in <span aria-hidden="true">-&gt;</span></button>
+            </div>
+        </div>
+    </section>
+</main>
