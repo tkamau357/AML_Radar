@@ -1,4 +1,3 @@
-// src/app/core/auth/models/user.models.ts
 export interface User {
   id?: string | number;
   firstName?: string;

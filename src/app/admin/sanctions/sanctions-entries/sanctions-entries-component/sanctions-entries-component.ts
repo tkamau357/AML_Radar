@@ -165,15 +165,15 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
-    this.router.navigate(['/admin/sanctions/add-entries']);
+    this.router.navigate(['/admin/sanctions/entries/add']);
   }
 
   viewEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/view-entries', entry.id]);
+    this.router.navigate(['/admin/sanctions/entries/view', entry.id]);
   }
 
   editEntry(entry: SanctionEntryResponse): void {
-    this.router.navigate(['/admin/sanctions/edit-entries', entry.id]);
+    this.router.navigate(['/admin/sanctions/entries/edit', entry.id]);
   }
 
   deleteEntry(entry: SanctionEntryResponse): void {

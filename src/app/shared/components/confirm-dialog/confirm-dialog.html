@@ -1,11 +1,9 @@
 <div class="confirm-dialog">
-
   <div class="confirm-dialog-icon">
     <mat-icon>check</mat-icon>
   </div>
 
   <div class="confirm-dialog-content">
-
     <h2 class="confirm-dialog-title">
       {{ data.title }}
     </h2>
@@ -13,31 +11,22 @@
     <p class="confirm-dialog-message">
       {{ data.message }}
     </p>
-
   </div>
 
   <div class="confirm-dialog-actions">
-
     <button
       type="button"
       class="dialog-btn dialog-btn--cancel"
       (click)="cancel()">
-
       {{ data.cancelText || 'Cancel' }}
-
     </button>
 
     <button
       type="button"
       class="dialog-btn dialog-btn--confirm"
       (click)="confirm()">
-
       <mat-icon>check</mat-icon>
-
       {{ data.confirmText || 'Confirm' }}
-
     </button>
-
   </div>
-
 </div>

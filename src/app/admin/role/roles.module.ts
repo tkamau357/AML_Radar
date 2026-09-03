@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RolesRoutingModule }  from './roles-routing.module';
-import { SharedModule }        from '../../shared/shared.module';
-import { ComponentsModule }    from '../../shared/components/components.module';
-import { RolesComponent }      from './roles.component/roles.component';
-import { AddRolesComponent }   from './add-roles.component/add-roles.component';
-import { ViewRolesComponent }  from './view-roles.component/view-roles.component';
+import { RolesRoutingModule } from './roles-routing.module';
+import { SharedModule } from '../../shared/shared.module';
+import { ComponentsModule } from '../../shared/components/components.module';
+import { RolesComponent } from './roles.component/roles.component';
+import { AddRolesComponent } from './add-roles.component/add-roles.component';
+import { ViewRolesComponent } from './view-roles.component/view-roles.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -57,7 +57,7 @@ import { FeatherIconsModule } from '../../shared/feather-icons.module';
     MatCheckboxModule,
     MatRadioModule,
     MatProgressBarModule,
-    
+    MatDialogModule,
   ],
 })
 export class RolesModule {}

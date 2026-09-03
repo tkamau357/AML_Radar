@@ -135,3 +135,7 @@ $radius:10px; $radius-sm:6px;
   &--partial { background:#fef3c7; color:#b45309; }
   &--none { background:#f1f5f9; color:#64748b; }
 }
+
+// ── bare mat-select – global styles in styles.scss handle the rest ───────────
+// No local overrides needed; .field-select-trigger is defined globally.
+

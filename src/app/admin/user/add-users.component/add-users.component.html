@@ -65,23 +65,30 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Role <span class="required">*</span></label>
-              <select formControlName="roleId" class="field-input field-select"
-                [class.field-input--error]="err('roleId')">
-                <option [value]="null" disabled>Select a role…</option>
-                <option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</option>
-              </select>
+              <mat-select
+                id="roleId"
+                formControlName="roleId"
+                class="field-select-trigger"
+                [class.field-select-trigger--error]="err('roleId')"
+                panelClass="field-select-panel">
+                <mat-option [value]="" disabled>Select a role…</mat-option>
+                <mat-option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</mat-option>
+              </mat-select>
               <span class="field-error" *ngIf="err('roleId')">Role is required</span>
             </div>
 
             <div class="field-group">
               <label class="field-label">Branch <span class="required">*</span></label>
-              <select formControlName="branchCode" class="field-input field-select"
-                [class.field-input--error]="err('branchCode')">
-                <option [value]="null" disabled>Select a branch…</option>
-                <option *ngFor="let b of branches" [value]="b.branchCode">
+              <mat-select
+                formControlName="branchCode"
+                class="field-select-trigger"
+                [class.field-select-trigger--error]="err('branchCode')"
+                panelClass="field-select-panel">
+                <mat-option [value]="null" disabled>Select a branch…</mat-option>
+                <mat-option *ngFor="let b of branches" [value]="b.branchCode">
                   {{ b.branchName }} ({{ b.branchCode }})
-                </option>
-              </select>
+                </mat-option>
+              </mat-select>
               <span class="field-error" *ngIf="err('branchCode')">Branch is required</span>
             </div>
           </div>

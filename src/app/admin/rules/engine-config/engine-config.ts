@@ -1,0 +1,81 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { RulesService, EngineConfigRules } from '../rules.service';
+
+@Component({
+  selector: 'app-engine-config',
+  standalone: false,
+  templateUrl: './engine-config.html',
+  styleUrl: './engine-config.scss',
+})
+export class EngineConfig implements OnInit, OnDestroy {
+  configForm: FormGroup;
+  engineConfig: EngineConfigRules | null = null;
+  isLoading = false;
+  
+  private subs: Subscription[] = [];
+
+  constructor(
+    private fb: FormBuilder,
+    private rulesService: RulesService,
+    private snackbar: SnackbarService,
+  ) {
+    this.configForm = this.fb.group({
+      rawSubEngineEnabled: [true],
+      alertThreshold: [40, [Validators.required, Validators.min(0), Validators.max(100)]],
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadConfig();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  loadConfig(): void {
+    this.isLoading = true;
+    this.subs.push(
+      this.rulesService.getConfig().subscribe({
+        next: (response) => {
+          this.engineConfig = response.result;
+          if (this.engineConfig) {
+            this.configForm.patchValue({
+              rawSubEngineEnabled: this.engineConfig.rawSubEngineEnabled,
+              alertThreshold: this.engineConfig.alertThreshold,
+            });
+          }
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.snackbar.alertError('Failed to load engine config');
+          this.isLoading = false;
+        },
+      })
+    );
+  }
+
+  onSubmit(): void {
+    if (this.configForm.invalid) return;
+    
+    const { rawSubEngineEnabled, alertThreshold } = this.configForm.value;
+    this.isLoading = true;
+    
+    this.subs.push(
+      this.rulesService.patchSubEngine({ enabled: rawSubEngineEnabled, alertThreshold }).subscribe({
+        next: (response) => {
+          this.snackbar.alertSuccess('Engine config updated successfully');
+          this.engineConfig = response.result;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.snackbar.alertError('Failed to update engine config');
+          this.isLoading = false;
+        },
+      })
+    );
+  }
+}

@@ -1,0 +1,38 @@
+<div class="container-fluid p-4">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Engine Configuration</mat-card-title>
+      <mat-card-subtitle>Global settings for the rule-based AML engine</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Raw Sub-Engine</mat-label>
+              <mat-slide-toggle formControlName="rawSubEngineEnabled" color="primary">
+                {{ configForm.get('rawSubEngineEnabled')?.value ? 'Enabled' : 'Disabled' }}
+              </mat-slide-toggle>
+            </mat-form-field>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Alert Threshold</mat-label>
+              <input matInput type="number" formControlName="alertThreshold" min="0" max="100">
+              <mat-hint>Score required to trigger an alert (0-100)</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button mat-button type="button" (click)="loadConfig()">Reset</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || configForm.invalid">
+            {{ isLoading ? 'Saving...' : 'Save Configuration' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

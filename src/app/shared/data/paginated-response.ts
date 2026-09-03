@@ -1,6 +1,3 @@
-/**
- * Standard Spring Boot Page response structure
- */
 export interface PagedResponse<T> {
   content: T[];
   pageable: {

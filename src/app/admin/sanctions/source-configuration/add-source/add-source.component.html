@@ -35,14 +35,15 @@
               <label class="field-label" for="source">
                 Source Type <span class="required">*</span>
               </label>
-              <select
+              <mat-select
                 id="source"
                 formControlName="source"
-                class="field-input"
-                [class.field-input--error]="err('source')">
-                <option value="">Select source type...</option>
-                <option *ngFor="let s of availableSources" [value]="s">{{ s }}</option>
-              </select>
+                class="field-select-trigger"
+                [class.field-select-trigger--error]="err('source')"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select source type…</mat-option>
+                <mat-option *ngFor="let s of availableSources" [value]="s">{{ s }}</mat-option>
+              </mat-select>
               <span class="field-error" *ngIf="err('source')">Source type is required</span>
             </div>
 
@@ -101,14 +102,16 @@
               <label class="field-label" for="acquisitionMode">
                 Acquisition Mode <span class="required">*</span>
               </label>
-              <select
+              <mat-select
                 id="acquisitionMode"
                 formControlName="acquisitionMode"
-                class="field-input">
-                <option *ngFor="let mode of acquisitionModes" [value]="mode.value">
+                class="field-select-trigger"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select mode…</mat-option>
+                <mat-option *ngFor="let mode of acquisitionModes" [value]="mode.value">
                   {{ mode.label }}
-                </option>
-              </select>
+                </mat-option>
+              </mat-select>
             </div>
           </div>
 
@@ -140,11 +143,16 @@
             <div class="field-row">
               <div class="field-group">
                 <label class="field-label" for="apiFormat">Response Format</label>
-                <select id="apiFormat" formControlName="apiFormat" class="field-input">
-                  <option value="JSON">JSON</option>
-                  <option value="XML">XML</option>
-                  <option value="CSV">CSV</option>
-                </select>
+              <mat-select
+                id="apiFormat"
+                formControlName="apiFormat"
+                class="field-select-trigger"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select format…</mat-option>
+                <mat-option value="JSON">JSON</mat-option>
+                <mat-option value="XML">XML</mat-option>
+                <mat-option value="CSV">CSV</mat-option>
+              </mat-select>
               </div>
             </div>
           </div>
@@ -311,9 +319,14 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="syncStrategy">Strategy</label>
-              <select id="syncStrategy" formControlName="syncStrategy" class="field-input">
-                <option *ngFor="let s of syncStrategies" [value]="s.value">{{ s.label }}</option>
-              </select>
+              <mat-select
+                id="syncStrategy"
+                formControlName="syncStrategy"
+                class="field-select-trigger"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select strategy…</mat-option>
+                <mat-option *ngFor="let s of syncStrategies" [value]="s.value">{{ s.label }}</mat-option>
+              </mat-select>
               <span class="field-hint">{{ syncStrategies.find(s => s.value === selectedStrategy)?.description }}</span>
             </div>
           </div>

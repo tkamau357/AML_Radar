@@ -27,5 +27,4 @@ export class DeleteConfirmationDialog {
   cancel() {
     this.dialogRef.close(false);
   }
-
 }

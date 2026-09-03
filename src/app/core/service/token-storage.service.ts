@@ -1,4 +1,3 @@
-// src/app/core/service/token-storage.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { User } from "../models/user";
@@ -209,7 +208,6 @@ export class TokenStorageService {
   }
 
   // ==================== Temp Email for OTP Flow ====================
-
   public setTempEmail(email: string): void {
     window.sessionStorage.setItem(TEMP_EMAIL_KEY, email);
   }

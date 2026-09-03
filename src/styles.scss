@@ -1,8 +1,24 @@
-/* styles.scss */
 @use "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+/* ── CSS custom-property overrides for Angular Material 17+ (MDC) ──────────
+   These must be set at :root so they cascade into the cdk-overlay-container
+   which is appended to <body> outside any component scope.              */
+:root {
+  /* Select panel */
+  --mat-select-panel-background-color: #ffffff;
+  --mat-option-background-color: #ffffff;
+  --mat-option-selected-state-background-color: #e8eef8;
+  --mat-option-hover-state-background-color: #e8eef8;
+  --mat-option-focus-state-background-color: #e8eef8;
+  /* Autocomplete panel */
+  --mat-autocomplete-background-color: #ffffff;
+  /* MDC menu-surface (used by both select and autocomplete panels) */
+  --mdc-theme-surface: #ffffff;
+  --mdc-menu-container-color: #ffffff;
+}
 
 /* 2. Global Styles */
 * {
@@ -19,67 +35,21 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 3. Material dropdown overlays must be globally styled because they render outside the component DOM */
-.mat-mdc-select-panel,
-.mat-mdc-autocomplete-panel,
-.cdk-overlay-pane .mat-select-panel,
-.cdk-overlay-pane .mat-autocomplete-panel,
-.cdk-overlay-pane .mat-mdc-select-panel,
-.cdk-overlay-pane .mat-mdc-autocomplete-panel {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e4e8f0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+// For the dialog panel
+.screening-dialog-panel .mat-dialog-container {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2) !important;
 }
 
-.mat-mdc-select-panel .mat-mdc-option,
-.mat-mdc-autocomplete-panel .mat-mdc-option,
-.mat-select-panel .mat-option,
-.mat-autocomplete-panel .mat-option {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #1e293b !important;
-}
+/* ── Custom scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-.mat-mdc-select-panel .mat-mdc-option:hover,
-.mat-mdc-autocomplete-panel .mat-mdc-option:hover,
-.mat-select-panel .mat-option:hover,
-.mat-autocomplete-panel .mat-option:hover,
-.mat-mdc-select-panel .mat-mdc-option.mat-mdc-option-active,
-.mat-mdc-autocomplete-panel .mat-mdc-option.mat-mdc-option-active,
-.mat-select-panel .mat-option.mat-active,
-.mat-autocomplete-panel .mat-option.mat-active {
-  background: #e8eef8 !important;
-  background-color: #e8eef8 !important;
-}
-
-.mat-mdc-select-panel .mat-mdc-option.mat-mdc-option-selected,
-.mat-mdc-autocomplete-panel .mat-mdc-option.mat-mdc-option-selected,
-.mat-select-panel .mat-option.mat-selected,
-.mat-autocomplete-panel .mat-option.mat-selected {
-  background: #e8eef8 !important;
-  background-color: #e8eef8 !important;
-  color: #2a5caa !important;
-}
-
-/* 3. Custom scrollbar (optional) */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-// ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
-// Custom tooltip container (covers both legacy and MDC Material 21)
+/* ── Enhanced Material Tooltip Styles ────────────────────────────────────── */
 .mat-tooltip,
 .mat-mdc-tooltip {
   font-family: 'Inter', sans-serif !important;
@@ -95,12 +65,10 @@ body, html {
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
   max-width: 280px !important;
   text-align: center !important;
-  animation: tooltipFadeIn 0.18s ease-out !important;
   transform-origin: center bottom !important;
   border: 1px solid rgba(148, 163, 184, 0.2) !important;
 }
 
-// Tooltip with arrow
 .mat-tooltip::before,
 .mat-mdc-tooltip::before {
   content: '';
@@ -113,10 +81,9 @@ body, html {
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-top: 6px solid #0f172a;
-  display: none; // Hidden by default, shown when arrow is needed
+  display: none;
 }
 
-// Tooltip variations for different contexts
 .mat-tooltip.mat-tooltip--light,
 .mat-mdc-tooltip.mat-tooltip--light {
   background: #ffffff !important;
@@ -133,6 +100,8 @@ body, html {
   color: #ffffff !important;
   box-shadow: 0 10px 24px rgba(42, 92, 170, 0.24), 0 2px 8px rgba(42, 92, 170, 0.12) !important;
 }
+
+/* ... (rest of your tooltip styles can remain here) ... */
 
 .mat-tooltip.mat-tooltip--danger,
 .mat-mdc-tooltip.mat-tooltip--danger {
@@ -333,65 +302,169 @@ body, html {
   }
 }
 
-// ── Fix Material Select Dropdown Transparency ──────────────────────────────
-.mat-select-panel {
-  background: #c4aaaa !important;
-  border: 1.5px solid #e4e8f0 !important;
+// ── Bare mat-select trigger (used without mat-form-field) ─────────────────
+// Covers both legacy (mat-select) and MDC (mat-mdc-select) APIs
+.field-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  border: 1px solid #e4e8f0 !important;
   border-radius: 6px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-  background-color: #2b2525 !important;
-  padding: 6px 0 !important;
-  min-width: 80px !important;
-  
-  &::before,
-  &::after {
-    display: none !important;
+  background: #f8fafc !important;
+  font-size: 13px !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+  outline: none !important;
+
+  &:hover { border-color: #2a5caa !important; }
+
+  &.mat-focused,
+  &.cdk-focused {
+    border-color: #2a5caa !important;
+    box-shadow: 0 0 0 3px rgba(42,92,170,0.12) !important;
   }
-  
-  .mat-option {
+
+  &.field-select-trigger--error { border-color: #ef4444 !important; }
+
+  // Inner trigger layout
+  .mat-select-trigger,
+  .mat-mdc-select-trigger {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  // Value text — fills space, centred vertically
+  .mat-select-value,
+  .mat-mdc-select-value {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
     font-size: 13px !important;
-    font-weight: 500 !important;
     color: #1e293b !important;
-    height: 36px !important;
-    line-height: 36px !important;
-    padding: 0 16px !important;
-    background: #c4aaaa !important;
-    transition: background 0.15s ease !important;
-    
-    &:hover {
-      background: #c4aaaa !important;
+  }
+
+  // Placeholder colour
+  .mat-select-placeholder,
+  .mat-mdc-select-placeholder { color: #94a3b8 !important; }
+
+  // Arrow — centred vertically, no extra margin shifts
+  // .mat-select-arrow-wrapper,
+  // .mat-mdc-select-arrow-wrapper {
+  //   display: flex !important;
+  //   align-items: center !important;
+  //   flex-shrink: 0 !important;
+  //   margin-left: 8px !important;
+  //   transform: none !important;
+  // }
+
+  // .mat-select-arrow,
+  // .mat-mdc-select-arrow {
+  //   width: 0 !important;
+  //   height: 0 !important;
+  //   border-left: 5px solid transparent !important;
+  //   border-right: 5px solid transparent !important;
+  //   border-top: 5px solid #64748b !important;
+  //   border-bottom: none !important;
+  //   margin: 0 !important;
+  //   transition: transform 0.2s ease !important;
+  // }
+
+  // &.mat-focused .mat-select-arrow,
+  // &.mat-focused .mat-mdc-select-arrow {
+  //   transform: rotate(180deg) !important;
+  //   border-top-color: #2a5caa !important;
+  // }
+}
+
+// ── Dropdown panel ────────────────────────────────────────────────────────
+// Panel is rendered inside .cdk-overlay-container at the document root,
+// so rules must be scoped there to beat Material's own specificity.
+// Also sets CSS custom properties at that level for MDC components.
+.cdk-overlay-container {
+  // Re-declare the MDC tokens scoped to the overlay container so they
+  // cascade to every panel rendered inside it.
+  --mat-select-panel-background-color: #ffffff;
+  --mat-option-background-color: #ffffff;
+  --mat-option-selected-state-background-color: #e8eef8;
+  --mat-option-hover-state-background-color: #e8eef8;
+  --mat-option-focus-state-background-color: #e8eef8;
+  --mat-autocomplete-background-color: #ffffff;
+  --mdc-theme-surface: #ffffff;
+  --mdc-menu-container-color: #ffffff;
+
+  .field-select-panel,
+  .mat-select-panel,
+  .mat-mdc-select-panel,
+  .mdc-menu-surface,
+  .mat-mdc-autocomplete-panel,
+  .mat-autocomplete-panel {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e4e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.13) !important;
+    padding: 4px 0 !important;
+    max-height: 256px !important;
+    overflow-y: auto !important;
+    margin-top: 2px !important;
+
+    &::-webkit-scrollbar { width: 5px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    &::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  }
+
+  // ── Panel options ────────────────────────────────────────────────────────
+  .mat-option,
+  .mat-mdc-option,
+  .mdc-list-item {
+    height: 38px !important;
+    min-height: 38px !important;
+    line-height: 38px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-family: 'Inter', sans-serif !important;
+    color: #1e293b !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    transition: background 0.12s, color 0.12s !important;
+
+    &:hover,
+    &.mat-active,
+    &.mat-mdc-option-active,
+    &:focus {
+      background: #e8eef8 !important;
+      background-color: #e8eef8 !important;
+      color: #2a5caa !important;
     }
-    
-    &.mat-active {
-      background: #c4aaaa !important;
-    }
-    
-    &.mat-selected {
-      background: #c4aaaa !important;
+
+    &.mat-selected,
+    &.mdc-list-item--selected {
+      background: #e8eef8 !important;
+      background-color: #e8eef8 !important;
       color: #2a5caa !important;
       font-weight: 600 !important;
-      
-      &::after {
-        content: '✓';
-        float: right;
-        color: #2a5caa;
-        font-weight: 700;
-      }
     }
   }
-}
 
-// Ensure the overlay container has solid background
-.cdk-overlay-pane {
-  .mat-select-panel {
-    background: #c4aaaa !important;
-    background-color: #c4aaaa !important;
+  // MDC ripple / state-layer that can bleed through as a tinted overlay
+  .mat-mdc-option .mat-mdc-option-ripple,
+  .mat-mdc-option .mdc-list-item__ripple,
+  .mdc-list-item .mdc-list-item__ripple,
+  .mdc-list-item::before,
+  .mdc-list-item::after {
+    background: transparent !important;
   }
-}
-
-// Fix for the dropdown trigger
-.mat-select-trigger {
-  background: #c4aaaa !important;
 }
 
 // ── Enhanced Material Tooltip Styles ─────────────────────────────────────────
@@ -699,5 +772,274 @@ body, html {
     font-size: 10px !important;
     padding: 4px 10px !important;
     min-width: 50px !important;
+  }
+}
+
+// ==================== SCREENING COMPONENT ADDITIONAL STYLES ====================
+
+// Animation keyframes
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+// Loading skeleton
+.screening-skeleton {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+
+  .skeleton-item {
+    height: 14px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+    background-size: 1000px 100%;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    animation: shimmer 1.5s infinite linear;
+
+    &.skeleton-title {
+      height: 24px;
+      width: 200px;
+      margin-bottom: 20px;
+    }
+
+    &.skeleton-field {
+      height: 46px;
+      border-radius: 10px;
+    }
+
+    &.skeleton-table-header {
+      height: 48px;
+      border-radius: 8px;
+    }
+
+    &.skeleton-table-row {
+      height: 60px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+// Hover effects for table rows
+.hover-effect {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Custom tooltip for table actions
+.table-action-tooltip {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  background: #2d3748 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+// Success/Error/Info toast animations
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mat-snack-bar-container {
+  &.success-snackbar,
+  &.error-snackbar,
+  &.info-snackbar {
+    animation: toastSlideIn 0.3s ease-out;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  }
+}
+
+// Dialog animations
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.screening-dialog-panel {
+  animation: dialogFadeIn 0.3s ease-out;
+  
+  .mat-dialog-container {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+}
+
+// Form field focus effects
+.screening-form-field {
+  .form-control {
+    &:focus-within {
+      .form-label {
+        color: #2A5CAA;
+      }
+    }
+  }
+}
+
+// Custom scrollbar for dropdown panels
+.mat-select-panel::-webkit-scrollbar,
+.mat-autocomplete-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mat-select-panel::-webkit-scrollbar-track,
+.mat-autocomplete-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mat-select-panel::-webkit-scrollbar-thumb,
+.mat-autocomplete-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+  
+  &:hover {
+    background: #a0aec0;
+  }
+}
+
+// Enhanced button styles
+.screening-buttons {
+  .btn {
+    position: relative;
+    overflow: hidden;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+    
+    &:hover::after {
+      width: 200px;
+      height: 200px;
+    }
+  }
+}
+
+// Badge animations
+.status-badge {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.1);
+    animation: pulse 2s infinite;
+  }
+}
+
+// Responsive table improvements
+@media (max-width: 576px) {
+  .screening-results {
+    .results-header {
+      flex-direction: column;
+      gap: 12px;
+      
+      h3 {
+        font-size: 18px;
+      }
+    }
+    
+    .results-table {
+      overflow-x: auto;
+      
+      .screening-table {
+        min-width: 600px;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .screening-filters-container,
+  .screening-header .header-actions,
+  .results-header .results-actions {
+    display: none !important;
+  }
+  
+  .screening-container {
+    padding: 0;
+    background: #fff;
+  }
+  
+  .results-table {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    
+    .screening-table {
+      th.mat-header-cell {
+        background: #f0f0f0 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      
+      .status-badge {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
   }
 }

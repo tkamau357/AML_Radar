@@ -1,5 +1,4 @@
 <header class="app-header">
-
   <!-- ── Left: hamburger + logo + title ──────────────────────────────── -->
   <div class="header-left">
 
@@ -7,8 +6,7 @@
       class="hdr-icon-btn"
       (click)="callSidemenuCollapse()"
       title="Toggle sidebar"
-      aria-label="Toggle sidebar"
-    >
+      aria-label="Toggle sidebar">
       <i-feather name="menu" class="!w-5 !h-5"></i-feather>
     </button>
 
@@ -20,17 +18,14 @@
       />
       <span class="hdr-brand-title">AML Radar</span>
     </div>
-
   </div>
 
   <!-- ── Right: fullscreen + profile ────────────────────────────────── -->
   <div class="header-right">
-
     <button
       class="hdr-icon-btn"
       (click)="callFullscreen()"
-      [title]="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
-    >
+      [title]="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'">
       <i-feather
         [name]="isFullscreen ? 'minimize' : 'maximize'"
         class="!w-4.5 !h-4.5"
@@ -43,8 +38,7 @@
         class="hdr-profile-btn"
         (click)="isProfileMenuOpen = !isProfileMenuOpen"
         aria-haspopup="true"
-        [attr.aria-expanded]="isProfileMenuOpen"
-      >
+        [attr.aria-expanded]="isProfileMenuOpen">
         <div class="hdr-avatar">
           <span>{{ firstName ? firstName[0] : '' }}{{ lastName ? lastName[0] : '' }}</span>
         </div>

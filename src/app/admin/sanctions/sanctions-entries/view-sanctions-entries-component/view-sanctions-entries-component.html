@@ -28,9 +28,9 @@
         <div class="detail-card-header">
           <mat-icon class="detail-icon">gavel</mat-icon>
           <span class="detail-card-title">{{ entry.fullName }}</span>
-          <span class="status-badge" [class.status-badge--active]="entry.active" [class.status-badge--inactive]="!entry.active">
+          <!-- <span class="status-badge" [class.status-badge--active]="entry.active" [class.status-badge--inactive]="!entry.active">
             {{ entry.active ? 'Active' : 'Inactive' }}
-          </span>
+          </span> -->
         </div>
         <div class="detail-body">
           <div class="detail-row">
@@ -121,9 +121,6 @@
           </button>
           <button *ngIf="entry.active" class="action-btn action-btn--warning" (click)="deactivateEntry()" type="button">
             <mat-icon>block</mat-icon> Deactivate
-          </button>
-          <button class="action-btn action-btn--danger" (click)="deleteEntry()" type="button">
-            <mat-icon>delete</mat-icon> Delete
           </button>
           <button class="action-btn action-btn--ghost" (click)="back()" type="button">
             <mat-icon>arrow_back</mat-icon> Back to list

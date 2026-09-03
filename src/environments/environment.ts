@@ -8,6 +8,5 @@ export const environment = {
   // apiUrl: "https://reconmaster.emtechhouse.co.ke:3326/",
   // baseUrl: "https://reconmaster.emtechhouse.co.ke:3326/",
 
-
   sessionExpiration: 555,
 };

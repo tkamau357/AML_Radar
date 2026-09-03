@@ -369,3 +369,7 @@ $radius:10px; $radius-sm:6px;
   background:$brand; padding:2px 12px; border-radius:12px;
   margin-left:auto; margin-right:8px;
 }
+
+// ── bare mat-select – global styles in styles.scss handle the rest ───────────
+// No local overrides needed; .field-select-trigger is defined globally.
+

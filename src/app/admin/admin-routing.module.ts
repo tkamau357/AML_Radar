@@ -15,6 +15,31 @@ const routes: Routes = [
       import("./sanctions/sanctions.module").then((m) => m.SanctionsModule),
   },
   {
+    path: "assessments/alerts",
+    loadChildren: () =>
+      import("./alerts/alerts.module").then((m) => m.AlertsModule),
+  },
+  {
+    path: "assessments/case",
+    loadChildren: () =>
+      import("./case/case.module").then((m) => m.CaseModule),
+  },
+  {
+    path: "assessments/rules",
+    loadChildren: () =>
+      import("./rules/rules.module").then((m) => m.RulesModule),
+  },
+  {
+    path: "assessments/screening",
+    loadChildren: () =>
+      import("./screening/screening.module").then((m) => m.ScreeningModule),
+  },
+  {
+    path: "assessments/transactions",
+    loadChildren: () =>
+      import("./transactions/transactions.module").then((m) => m.TransactionsModule),
+  },
+  {
     path: "user-management/roles",
     loadChildren: () =>
       import("./role/roles.module").then((m) => m.RolesModule),
@@ -28,12 +53,7 @@ const routes: Routes = [
     path: "configurations/branches",
     loadChildren: () =>
       import("./branch/branch.module").then((m) => m.BranchModule),
-  },
-  {
-    path: "audit",
-    loadChildren: () =>
-      import("./audit/audit.module").then((m) => m.AuditModule),
-  },
+  }
 ];
 
 @NgModule({

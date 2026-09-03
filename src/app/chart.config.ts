@@ -1,13 +1,3 @@
-// // src/app/chart.config.ts
-// import { Chart, registerables } from 'chart.js';
-
-// Chart.register(...registerables);
-
-// export { Chart };
-
-
-
-// src/app/chart.config.ts
 import { Chart, registerables } from 'chart.js';
 
 // Register all Chart.js components

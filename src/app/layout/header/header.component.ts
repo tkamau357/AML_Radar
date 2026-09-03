@@ -168,7 +168,7 @@ export class HeaderComponent
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(["/authentication/signin"]);
+    this.router.navigate(["/auth/signin"]);
   }
 
   toSettings() {
@@ -180,7 +180,7 @@ export class HeaderComponent
   }
 
   toProfile() {
-    this.router.navigate(["/change-password"]);
+    this.router.navigate(["/auth/change-password"]);
   }
 
   closeDetail(): void {

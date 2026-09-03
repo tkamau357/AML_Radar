@@ -1,0 +1,16 @@
+<app-dynamic-tables
+  pageTitle="Rules Management"
+  pageSubtitle="Configure AML transaction monitoring rules"
+  TableSubtitle="Raw Feature Catalog"
+  addButtonLabel="Add Rule"
+  buttonPermission="SANCTION_CREATE"
+  [showAddButton]="false"
+  [columns]="columns"
+  [data]="features"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No rules found."
+  [showExcel]="true"
+  [showPdf]="true"
+></app-dynamic-tables>

@@ -19,8 +19,7 @@
         *ngIf="showAddButton"
         (click)="onAdd()"
         class="dt-add-btn"
-        [style.background]="addButtonBackground"
-      >
+        [style.background]="addButtonBackground">
         <span class="dt-add-btn-icon">+</span>
         <span class="dt-add-btn-text">{{ addButtonLabel }}</span>
       </button>
@@ -30,7 +29,6 @@
 
 <!-- ── Table card ────────────────────────────────────────────────────────────── -->
 <div class="dt-card">
-
   <!-- Card toolbar: subtitle + header actions + search/filters -->
   <div class="dt-card-toolbar">
     <div class="dt-card-titles">
@@ -49,8 +47,7 @@
           matTooltipPosition="above"
           (click)="action.onClick()"
           class="dt-header-action-btn"
-          [ngClass]="action.className || ''"
-        >
+          [ngClass]="action.className || ''">
           <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
         </button>
       </ng-container>
@@ -150,8 +147,7 @@
           <th
             *ngFor="let col of columns"
             class="dt-th"
-            [ngClass]="{ 'dt-th--center': col.type === 'badge' || col.type === 'date', 'dt-th--checkbox': col.type === 'checkbox' }"
-          >
+            [ngClass]="{ 'dt-th--center': col.type === 'badge' || col.type === 'date', 'dt-th--checkbox': col.type === 'checkbox' }">
             <ng-container [ngSwitch]="col.type">
               <!-- Select all checkbox -->
               <ng-container *ngSwitchCase="'checkbox'">
@@ -162,8 +158,7 @@
                 <div
                   class="dt-th-inner"
                   [ngClass]="{ 'dt-th-inner--center': col.type === 'badge' || col.type === 'date', 'dt-th-inner--sortable': isSortable(col) }"
-                  (click)="onSort(col)"
-                >
+                  (click)="onSort(col)">
                   {{ col.label }}
                   <mat-icon
                     *ngIf="isSortable(col) && activeSortField === col.field && sortDirection"
@@ -173,7 +168,6 @@
               </ng-container>
             </ng-container>
           </th>
-
           <th *ngIf="hasAnyVisibleActions()" class="dt-th dt-th--center">Actions</th>
         </tr>
       </thead>
@@ -205,13 +199,11 @@
         <ng-container *ngIf="!effectiveLoading && pagedData.length > 0">
           <tr
             *ngFor="let row of pagedData; let i = index"
-            class="dt-row"
-          >
+            class="dt-row">
             <td
               *ngFor="let col of columns"
               class="dt-td"
-              [ngClass]="{ 'dt-td--center': col.type === 'badge' || col.type === 'date', 'dt-td--checkbox': col.type === 'checkbox' }"
-            >
+              [ngClass]="{ 'dt-td--center': col.type === 'badge' || col.type === 'date', 'dt-td--checkbox': col.type === 'checkbox' }">
               <ng-container [ngSwitch]="col.type">
 
                 <!-- Checkbox -->
@@ -223,8 +215,9 @@
                 <span
                   *ngSwitchCase="'badge'"
                   class="dt-badge"
-                  [ngClass]="getStatusBadgeClass(row?.[col.field]).class"
-                >{{ getStatusBadgeClass(row?.[col.field]).text }}</span>
+                  [ngClass]="getStatusBadgeClass(row?.[col.field]).class">
+                  {{ getStatusBadgeClass(row?.[col.field]).text }}
+                </span>
 
                 <!-- Date -->
                 <span *ngSwitchCase="'date'" class="dt-td-text">
@@ -241,8 +234,7 @@
                   *ngSwitchDefault
                   class="dt-td-text"
                   [title]="row?.[col.field]"
-                  [style.maxWidth]="col.width || ''"
-                >
+                  [style.maxWidth]="col.width || ''">
                   <ng-container *ngIf="col.field === 'index'; else normalField">
                     {{ getRowNumber(i) }}
                   </ng-container>
@@ -268,8 +260,7 @@
                       'dt-action-btn--view': action.icon === 'visibility',
                       'dt-action-btn--edit': action.icon === 'edit',
                       'dt-action-btn--delete': action.icon === 'delete'
-                    }"
-                  >
+                    }">
                     <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="dt-action-label">{{ action.label }}</span>
                   </button>
@@ -287,8 +278,7 @@
                       class="dt-overflow-menu"
                       [style.bottom]="row.dropdownPosition === 'top' ? '100%' : 'auto'"
                       [style.top]="row.dropdownPosition === 'top' ? 'auto' : '100%'"
-                      [style.right]="'0'"
-                    >
+                      [style.right]="'0'">
                       <button
                         *ngFor="let action of getVisibleActions(row) | slice:maxVisibleActions"
                         (click)="action.onClick(row); closeRowActions(row); $event.stopPropagation()"

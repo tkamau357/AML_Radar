@@ -7,9 +7,9 @@ import { ViewBranchComponent } from './view-branch-component/view-branch-compone
 
 const routes: Routes = [
   { path: '',           component: BranchComponent,    canActivate: [AuthGuard] },
-    { path: 'add',        component: AddBranchComponent,  canActivate: [AuthGuard] },
-    { path: 'view/:code',   component: ViewBranchComponent, canActivate: [AuthGuard] },
-    { path: 'edit/:code',   component: AddBranchComponent,  canActivate: [AuthGuard] },
+  { path: 'add',        component: AddBranchComponent,  canActivate: [AuthGuard] },
+  { path: 'view/:code',   component: ViewBranchComponent, canActivate: [AuthGuard] },
+  { path: 'edit/:code',   component: AddBranchComponent,  canActivate: [AuthGuard] },
 ];
 
 @NgModule({
