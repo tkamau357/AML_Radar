@@ -1,0 +1,150 @@
+<div class="screening-dialog-container">
+  <!-- Header Section -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>search</mat-icon>
+      </div>
+      <div class="header-title">
+        <h2 mat-dialog-title>Screening Results</h2>
+        <p class="header-subtitle">{{ data.searchedName }}</p>
+      </div>
+      <button mat-icon-button class="close-button" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon matches-icon">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Matches Found</span>
+          <span class="summary-value">{{ data.matchCount }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon threshold-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Threshold</span>
+          <span class="summary-value">{{ data.thresholdUsed }}%</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon duration-icon">
+          <mat-icon>timer</mat-icon>
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Duration</span>
+          <span class="summary-value">{{ data.durationMs }}ms</span>
+        </div>
+      </div>
+
+      <div class="summary-card" [class.status-success]="data.status === 'COMPLETED'" 
+          [class.status-warning]="data.status === 'PARTIAL'"
+          [class.status-danger]="data.status === 'FAILED'">
+        <div class="summary-icon status-icon">
+          <mat-icon>{{ getStatusIcon(data.status) }}</mat-icon>
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Status</span>
+          <span class="summary-value status-badge">{{ data.status }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sources Section -->
+    <div class="sources-section">
+      <div class="section-header">
+        <mat-icon>settings_ethernet</mat-icon>
+        <span>Sources Searched</span>
+      </div>
+      <div class="source-tags">
+        <span class="source-tag" *ngFor="let source of data.sourcesSearched">
+          {{ source }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Timestamp -->
+    <div class="timestamp-section">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ data.timestamp | date:'medium' }}</span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Matches Section -->
+    <div class="matches-section">
+      <div class="section-header">
+        <mat-icon>list_alt</mat-icon>
+        <span>Matches ({{ data.matches?.length || 0 }})</span>
+        <span class="match-filter-hint">Click a match to view details</span>
+      </div>
+
+      <div class="matches-container" *ngIf="data.matches && data.matches.length > 0; else noMatches">
+        <div class="match-item" *ngFor="let match of data.matches" 
+             [class.match-hit]="match.matchType === 'HIT'"
+             [class.match-potential]="match.matchType === 'POTENTIAL'"
+             [class.match-review]="match.matchType === 'REVIEW'"
+             (click)="viewMatch(match)">
+          <div class="match-left">
+            <div class="match-type-indicator" [class.indicator-hit]="match.matchType === 'HIT'"
+                 [class.indicator-potential]="match.matchType === 'POTENTIAL'"
+                 [class.indicator-review]="match.matchType === 'REVIEW'">
+            </div>
+            <div class="match-info">
+              <div class="match-name">{{ match.fullName }}</div>
+              <div class="match-source">
+                <mat-icon>source</mat-icon>
+                <span>{{ match.source }}</span>
+              </div>
+              <div class="match-fields">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ match.matchedFields.join(', ') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="match-right">
+            <div class="match-score-container">
+              <div class="match-score-circle" [style.background]="getScoreColor(match.score)">
+                <span class="match-score-value">{{ match.score }}%</span>
+              </div>
+            </div>
+            <div class="match-type-badge" [class.badge-hit]="match.matchType === 'HIT'"
+                 [class.badge-potential]="match.matchType === 'POTENTIAL'"
+                 [class.badge-review]="match.matchType === 'REVIEW'">
+              {{ match.matchType }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noMatches>
+        <div class="no-matches">
+          <mat-icon>check_circle_outline</mat-icon>
+          <p>No matches found for this screening</p>
+        </div>
+      </ng-template>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button class="btn-secondary" (click)="close()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+    <button mat-raised-button color="primary" class="btn-primary" (click)="viewAll()">
+      <mat-icon>visibility</mat-icon>
+      View All Matches
+    </button>
+  </mat-dialog-actions>
+</div>

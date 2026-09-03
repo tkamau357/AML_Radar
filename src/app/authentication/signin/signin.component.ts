@@ -1,4 +1,3 @@
-// src/app/authentication/signin/signin.component.ts
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -27,7 +26,6 @@ export class SigninComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private tokenStorage: TokenStorageService,
     private notificationService: NotificationToastService,
     private cdr: ChangeDetectorRef
   ) {

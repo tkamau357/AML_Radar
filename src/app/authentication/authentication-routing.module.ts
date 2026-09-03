@@ -8,9 +8,7 @@ import { Page403Component } from "./page403/page403.component";
 
 const routes: Routes = [
   {
-    path: "",
-    redirectTo: "sign-in",
-    pathMatch: "full",
+    path: "", redirectTo: "sign-in", pathMatch: "full",
   },
   {
     path: "sign-in",

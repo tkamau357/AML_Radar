@@ -58,3 +58,8 @@ $radius:10px; $radius-sm:6px;
   &--white { border-color:rgba(255,255,255,.4); border-top-color:#fff; }
 }
 @keyframes spin { to { transform:rotate(360deg); } }
+
+// ── bare mat-select – global styles in styles.scss handle the rest ───────────
+// No local overrides needed; field-select-trigger picks up the project variables
+// ($brand, $border, $radius-sm) from styles.scss automatically.
+

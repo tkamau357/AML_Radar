@@ -1,15 +1,3 @@
-/**
- * Unified HTTP Interceptor
- * 
- * This interceptor combines auth token handling, error handling, and loading state management
- * into a single unified interceptor to avoid race conditions and ensure consistent behavior.
- * 
- * Features:
- * - Adds JWT Bearer token to all non-auth requests
- * - Handles 401 errors with token refresh (single refresh in progress at a time)
- * - Automatically manages global loading state for all HTTP requests
- * - Guarantees loading state cleanup via finalize() operator
- */
 import { Injectable } from '@angular/core';
 import {
   HttpInterceptor,
@@ -26,7 +14,6 @@ import { LoadingService } from '../service/loading.service';
 
 @Injectable()
 export class HttpInterceptorService implements HttpInterceptor {
-  
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
@@ -122,12 +109,8 @@ export class HttpInterceptorService implements HttpInterceptor {
   /**
    * Handle 401 Unauthorized errors with token refresh
    */
-  private handle401Error(
-    request: HttpRequest<any>,
-    next: HttpHandler,
-    isShowingLoading: boolean
-  ): Observable<HttpEvent<any>> {
-    
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler, isShowingLoading: boolean
+    ): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);

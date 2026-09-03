@@ -18,7 +18,7 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
   sources: SourceConfigResponse[] = [];
   totalElements = 0;
   pageIndex = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   // Expose loading$ for the template (initialized in ngOnInit)
   loading$!: Observable<boolean>;

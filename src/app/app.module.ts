@@ -1,4 +1,3 @@
-// src/app/app.module.ts
 import { ErrorHandler, NgModule, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
@@ -81,8 +80,6 @@ registerLocaleData(localeEn);
         SidebarComponent,
         HeaderComponent,
         FullLayout,
-        // Dashboard
-        // Auth Components
         SigninComponent,
         OtpComponent,
         ChangePasswordComponent,

@@ -76,11 +76,11 @@
         <div class="audit-filter-row">
           <div class="audit-filter-group">
             <label class="audit-filter-label">Action Type</label>
-            <select [(ngModel)]="filterAction" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
-              <option *ngFor="let action of allActions" [value]="action.value">
+            <mat-select [(ngModel)]="filterAction" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
+              <mat-option *ngFor="let action of allActions" [value]="action.value">
                 {{ action.label }}
-              </option>
-            </select>
+              </mat-option>
+            </mat-select>
           </div>
 
           <div class="audit-filter-group">

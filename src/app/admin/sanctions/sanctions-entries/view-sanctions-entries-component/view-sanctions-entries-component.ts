@@ -103,37 +103,6 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
     this.subs.push(sub);
   }
 
-  deleteEntry(): void {
-    if (!this.entry) return;
-
-    const dialogRef = this.dialog.open(ConfirmDialog, {
-      width: '460px',
-      maxWidth: 'calc(100vw - 32px)',
-      data: {
-        title: 'Delete Sanction Entry',
-        message: `Are you sure you want to delete the sanction entry "${this.entry.fullName}"? This action cannot be undone.`,
-        confirmText: 'Delete Entry',
-        cancelText: 'Cancel',
-      },
-    });
-
-    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-
-      const s = this.service.deleteEntry(this.entry!.id).subscribe({
-        next: () => {
-          this.snack.alertSuccess('Entry deleted successfully');
-          this.router.navigate(['/admin/sanctions/entries']);
-        },
-        error: (err) => {
-          this.snack.alertError(err?.error?.message || 'Failed to delete entry');
-        },
-      });
-      this.subs.push(s);
-    });
-    this.subs.push(sub);
-  }
-
   back(): void {
     this.router.navigate(['/admin/sanctions/entries']);
   }

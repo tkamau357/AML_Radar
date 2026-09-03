@@ -1,7 +1,6 @@
 <aside
   class="sidebar"
-  [class.sidebar--collapsed]="isSidebarCollapsed"
->
+  [class.sidebar--collapsed]="isSidebarCollapsed">
   <!-- ── Logo bar ─────────────────────────────────────────────────────── -->
   <div class="sidebar-brand">
     <div class="sidebar-brand-logo">
@@ -30,8 +29,7 @@
         type="button"
         (click)="clearSidebarSearch()"
         class="sidebar-search-clear"
-        aria-label="Clear search"
-      >
+        aria-label="Clear search">
         <i-feather name="x" class="!w-3.5 !h-3.5"></i-feather>
       </button>
     </div>
@@ -41,7 +39,6 @@
   <nav class="sidebar-nav sidebar-scroll">
     <ul class="sidebar-list">
       <li *ngFor="let item of filteredSidebarItems">
-
         <!-- Group title -->
         <div *ngIf="item.groupTitle" class="sidebar-group-label">
           {{ item.title }}
@@ -55,8 +52,7 @@
             routerLinkActive="nav-item--active"
             [routerLinkActiveOptions]="{ exact: false }"
             [attr.data-tour-target]="item.moduleName"
-            class="nav-item"
-          >
+            class="nav-item">
             <i-feather
               [name]="item.icon || 'circle'"
               class="nav-item-icon !w-4 !h-4"
@@ -77,8 +73,7 @@
           <!-- Level 2 submenu -->
           <ul
             *ngIf="hasChildren(item) && isLevel1Expanded(item)"
-            class="sidebar-submenu"
-          >
+            class="sidebar-submenu">
             <li *ngFor="let sub of item.submenu">
               <a
                 *ngIf="canView(sub)"
@@ -86,8 +81,7 @@
                 [routerLink]="!hasChildren(sub) ? [sub.path] : null"
                 routerLinkActive="nav-sub-item--active"
                 [routerLinkActiveOptions]="{ exact: false }"
-                class="nav-sub-item"
-              >
+                class="nav-sub-item">
                 <i-feather
                   *ngIf="sub.icon"
                   [name]="sub.icon"
@@ -109,8 +103,7 @@
 
     <div
       *ngIf="isSearchActive() && filteredSidebarItems.length === 0"
-      class="sidebar-empty"
-    >
+      class="sidebar-empty">
       No menu items found.
     </div>
   </nav>
@@ -120,8 +113,7 @@
     <button
       (click)="logout()"
       [disabled]="isLoggingOut"
-      class="sidebar-logout"
-    >
+      class="sidebar-logout">
       <i-feather name="log-out" class="!w-4 !h-4"></i-feather>
       <span>{{ isLoggingOut ? 'Logging out…' : 'Log Out' }}</span>
     </button>

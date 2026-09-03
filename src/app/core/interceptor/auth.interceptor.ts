@@ -1,44 +1,19 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpErrorResponse
-} from '@angular/common/http';
-
-import {
-  Observable,
-  throwError,
-  BehaviorSubject
-} from 'rxjs';
-
-import {
-  catchError,
-  filter,
-  take,
-  switchMap
-} from 'rxjs/operators';
-
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, filter, take, switchMap } from 'rxjs/operators';
 import { AuthService } from '../service/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-
   private isRefreshing = false;
-
-  private refreshTokenSubject =
-    new BehaviorSubject<boolean>(false);
+  private refreshTokenSubject = new BehaviorSubject<boolean>(false);
 
   constructor(
     private authService: AuthService
   ) {}
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Always allow authentication cookies
     const authReq = req.clone({
       withCredentials: true
@@ -51,7 +26,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError(error => {
-
         if (
           error instanceof HttpErrorResponse &&
           error.status === 401
@@ -73,23 +47,14 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
-  private handle401Error(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-
+  private handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
-
       this.isRefreshing = true;
-
       this.refreshTokenSubject.next(false);
 
       return this.authService.refreshToken().pipe(
-
         switchMap(() => {
-
           this.isRefreshing = false;
-
           this.refreshTokenSubject.next(true);
 
           return next.handle(
@@ -98,13 +63,9 @@ export class AuthInterceptor implements HttpInterceptor {
             })
           );
         }),
-
         catchError(err => {
-
           this.isRefreshing = false;
-
           this.refreshTokenSubject.next(false);
-
           this.authService.logout();
 
           return throwError(() => err);
@@ -113,11 +74,8 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     return this.refreshTokenSubject.pipe(
-
       filter(refreshed => refreshed),
-
       take(1),
-
       switchMap(() =>
         next.handle(
           req.clone({

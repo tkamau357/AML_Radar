@@ -49,15 +49,15 @@
             <mat-icon class="bulk-section-icon">list</mat-icon>
             <span class="bulk-section-title">Select Source List</span>
           </div>
-          <select 
+          <mat-select 
             class="field-input field-select" 
             [(ngModel)]="bulkSource"
             [ngModelOptions]="{standalone: true}"
             style="max-width: 300px;">
-            <option *ngFor="let source of sources" [value]="source.source">
+            <mat-option *ngFor="let source of sources" [value]="source.source">
               {{ source.displayName }}
-            </option>
-          </select>
+            </mat-option>
+          </mat-select>
         </div>
 
         <div class="bulk-divider"></div>
@@ -210,12 +210,17 @@
               <label class="field-label" for="source">
                 Source List <span class="required">*</span>
               </label>
-              <select id="source" formControlName="source" class="field-input field-select">
-                <option value="">Select source</option>
-                <option *ngFor="let source of sources" [value]="source.source">
+              <mat-select
+                id="source"
+                formControlName="source"
+                class="field-select-trigger"
+                [class.field-select-trigger--error]="err('source')"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select source…</mat-option>
+                <mat-option *ngFor="let source of sources" [value]="source.source">
                   {{ source.displayName }}
-                </option>
-              </select>
+                </mat-option>
+              </mat-select>
               <span class="field-error" *ngIf="err('source')">Source is required</span>
             </div>
           </div>
@@ -235,12 +240,17 @@
               <label class="field-label" for="entityType">
                 Entity Type <span class="required">*</span>
               </label>
-              <select id="entityType" formControlName="entityType" class="field-input field-select">
-                <option value="">Select type</option>
-                <option *ngFor="let type of entityTypes" [value]="type">
+              <mat-select
+                id="entityType"
+                formControlName="entityType"
+                class="field-select-trigger"
+                [class.field-select-trigger--error]="err('entityType')"
+                panelClass="field-select-panel">
+                <mat-option value="" disabled>Select type…</mat-option>
+                <mat-option *ngFor="let type of entityTypes" [value]="type">
                   {{ type | titlecase }}
-                </option>
-              </select>
+                </mat-option>
+              </mat-select>
               <span class="field-error" *ngIf="err('entityType')">Entity type is required</span>
             </div>
 

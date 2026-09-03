@@ -1,7 +1,6 @@
 import { User } from "./user";
 
 // ==================== Login ====================
-
 export interface LoginRequest {
   email: string;
   password: string;
@@ -18,7 +17,6 @@ export interface LoginResponse {
 }
 
 // ==================== OTP ====================
-
 export interface VerifyOtpRequest {
   email: string;
   otp: string;
@@ -27,17 +25,14 @@ export interface VerifyOtpRequest {
 export interface AuthResponse {
   status: number;
   message: string;
-
   accessToken: string;
   refreshToken: string;
   tokenType: string;
   expiresIn: number;
-
   user: User;
 }
 
 // ==================== Token ====================
-
 export interface TokenDetails {
   iat: number;
   expat: number;
@@ -45,7 +40,6 @@ export interface TokenDetails {
 }
 
 // ==================== Refresh Token ====================
-
 export interface RefreshTokenRequest {
   refreshToken: string;
   iat: number;

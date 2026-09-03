@@ -47,7 +47,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   editingBulkEntryId: number | null = null;
 
   sources: SanctionListSourceInfo[] = [];
-  entityTypes = ['INDIVIDUAL', 'ORGANIZATION', 'VESSEL', 'AIRCRAFT', 'UNKNOWN'];
+  entityTypes = ['INDIVIDUAL', 'ORGANIZATION', 'ENTITY', 'VESSEL', 'AIRCRAFT', 'UNKNOWN'];
 
   // Bulk upload properties
   bulkUploadExpanded = false;

@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/data/api-response';
-import { PagedResponse } from '../../shared/data/paginated-response';
 
 // ==================== ENUMS ====================
 export type AcquisitionMode = 'API' | 'FILE_DOWNLOAD' | 'SFTP' | 'DATABASE' | 'MANUAL_UPLOAD';

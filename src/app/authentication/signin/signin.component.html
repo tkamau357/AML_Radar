@@ -1,16 +1,12 @@
-<!-- src/app/authentication/signin/signin.component.html -->
 <section class="aml-login-page">
-  
   <!-- Hexagon Background Layer -->
   <div class="hex-bg"></div>
 
   <!-- Main Content Wrapper -->
   <div class="login-wrapper">
-    
     <!-- Left Info Panel (Updated with BRD Content) -->
     <div class="left-panel">
       <div class="left-content">
-        
         <!-- Logo -->
         <div class="logo-container">
           <img src="/assets/logos/aml-radar-logo-full.svg" alt="AML RADAR Logo"/>
@@ -58,11 +54,9 @@
     <!-- Right Card Panel -->
     <div class="right-panel">
       <div class="login-card">
-        
         <h3 class="card-title">Login</h3>
 
         <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="login-form">
-
           <!-- Input: Username/Email -->
           <div class="input-group">
             <mat-icon class="input-icon">person</mat-icon>
@@ -108,11 +102,8 @@
             <mat-icon *ngIf="!loading" class="btn-icon">login</mat-icon>
             {{ loading ? "Logging in..." : "Login" }}
           </button>
-
         </form>
-
       </div>
     </div>
-
   </div>
 </section>

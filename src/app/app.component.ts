@@ -1,4 +1,3 @@
-// src/app/app.component.ts
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Event, Router, NavigationStart, NavigationEnd } from "@angular/router";
 import { distinctUntilChanged, filter, Subject, takeUntil } from "rxjs";

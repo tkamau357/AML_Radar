@@ -1,4 +1,3 @@
-// src/app/core/interceptors/jwt.interceptor.ts
 import { Injectable } from "@angular/core";
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from "@angular/common/http";
 import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, throwError } from "rxjs";
@@ -15,11 +14,7 @@ export class JwtInterceptor implements HttpInterceptor {
     private authService: AuthService
   ) { }
 
-  intercept(
-    request: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Skip adding token for auth endpoints
     if (this.isAuthEndpoint(request.url)) {
       return next.handle(request);
@@ -56,10 +51,7 @@ export class JwtInterceptor implements HttpInterceptor {
       url.includes('/auth/refresh');
   }
 
-  private handle401Error(
-    request: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
