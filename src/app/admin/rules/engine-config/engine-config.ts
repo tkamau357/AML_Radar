@@ -78,4 +78,25 @@ export class EngineConfig implements OnInit, OnDestroy {
       })
     );
   }
+
+  getThresholdClass(threshold: number): string {
+    if (threshold >= 80) return 'threshold-critical';
+    if (threshold >= 60) return 'threshold-high';
+    if (threshold >= 40) return 'threshold-medium';
+    return 'threshold-low';
+  }
+
+  getRiskLevel(threshold: number): string {
+    if (threshold >= 80) return 'Strict';
+    if (threshold >= 60) return 'Moderate';
+    if (threshold >= 40) return 'Balanced';
+    return 'Lenient';
+  }
+
+  getRiskBadgeClass(threshold: number): string {
+    if (threshold >= 80) return 'bg-danger';
+    if (threshold >= 60) return 'bg-warning text-dark';
+    if (threshold >= 40) return 'bg-info text-dark';
+    return 'bg-success';
+  }
 }

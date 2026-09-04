@@ -18,7 +18,7 @@ export class Rules implements OnInit, OnDestroy {
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   columns = [
     { label: '#',            field: 'index'                        },
@@ -96,11 +96,11 @@ export class Rules implements OnInit, OnDestroy {
   }
 
   viewFeature(row: RawFeatureDef): void {
-    this.router.navigate(['/admin/assessment/rules/view', row.id]);
+    this.router.navigate(['/admin/assessments/rules/view', row.id]);
   }
 
   editFeature(row: RawFeatureDef): void {
-    this.router.navigate(['/admin/assessment/rules/edit', row.id]);
+    this.router.navigate(['/admin/assessments/rules/edit', row.id]);
   }
 
   toggleFeature(row: RawFeatureDef): void {
@@ -120,7 +120,7 @@ export class Rules implements OnInit, OnDestroy {
   }
 
   openConfig(): void {
-    this.router.navigate(['/admin/assessment/rules/config']);
+    this.router.navigate(['/admin/assessments/rules/config']);
   }
 
   private getFeatureEnabled(featureId: string): boolean {

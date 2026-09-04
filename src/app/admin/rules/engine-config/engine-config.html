@@ -1,38 +1,242 @@
-<div class="container-fluid p-4">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Engine Configuration</mat-card-title>
-      <mat-card-subtitle>Global settings for the rule-based AML engine</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Raw Sub-Engine</mat-label>
-              <mat-slide-toggle formControlName="rawSubEngineEnabled" color="primary">
-                {{ configForm.get('rawSubEngineEnabled')?.value ? 'Enabled' : 'Disabled' }}
-              </mat-slide-toggle>
-            </mat-form-field>
-          </div>
-          
-          <div class="col-md-6 mb-3">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Alert Threshold</mat-label>
-              <input matInput type="number" formControlName="alertThreshold" min="0" max="100">
-              <mat-hint>Score required to trigger an alert (0-100)</mat-hint>
-            </mat-form-field>
+<div class="rules-page">
+
+  <!-- Page Header -->
+  <div class="rules-page__header">
+    <div class="rules-page__header-inner">
+      <button class="btn-back" routerLink="/admin/assessments/rules" type="button" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="rules-page__header-text">
+        <h1 class="rules-page__title">Engine Configuration</h1>
+        <p class="rules-page__subtitle">Global settings for the rule-based AML engine</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="rules-page__body">
+    <div class="layout-grid">
+
+      <!-- ── Main column ─────────────────────────────────────── -->
+      <div class="layout-grid__main">
+
+        <!-- Engine identity card -->
+        <div class="rule-card">
+          <div class="rule-card__hero">
+            <div class="rule-card__icon-wrap rule-card__icon-wrap--engine">
+              <mat-icon class="rule-card__icon">settings</mat-icon>
+            </div>
+            <div class="rule-card__identity">
+              <span class="rule-card__name">Engine Settings</span>
+              <span class="rule-card__sub">Configure core AML engine behavior</span>
+            </div>
+            <div class="ms-auto">
+              <span class="status-chip"
+                [class.status-chip--ok]="configForm.get('rawSubEngineEnabled')?.value"
+                [class.status-chip--off]="!configForm.get('rawSubEngineEnabled')?.value">
+                <mat-icon>{{ configForm.get('rawSubEngineEnabled')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ configForm.get('rawSubEngineEnabled')?.value ? 'Engine Active' : 'Engine Disabled' }}
+              </span>
+            </div>
           </div>
         </div>
-        
-        <div class="d-flex justify-content-end gap-2 mt-4">
-          <button mat-button type="button" (click)="loadConfig()">Reset</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || configForm.invalid">
-            {{ isLoading ? 'Saving...' : 'Save Configuration' }}
-          </button>
+
+        <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+
+          <!-- Sub-engine toggle card -->
+          <div class="rule-card">
+            <div class="form-section__header">
+              <mat-icon class="form-section__icon">memory</mat-icon>
+              <span class="form-section__title">Sub-Engine Status</span>
+            </div>
+
+            <div class="toggle-feature-row">
+              <div class="toggle-feature-row__info">
+                <span class="toggle-feature-row__name">Raw Sub-Engine</span>
+                <span class="toggle-feature-row__desc">Enable or disable the raw transaction feature engine</span>
+              </div>
+              <div class="toggle-row">
+                <input type="checkbox" formControlName="rawSubEngineEnabled" id="rawSubEngineEnabled" class="toggle-input" />
+                <label for="rawSubEngineEnabled" class="toggle-track" aria-label="Enable or disable raw sub-engine">
+                  <span class="toggle-thumb"></span>
+                </label>
+                <span class="toggle-value" [class.toggle-value--on]="configForm.get('rawSubEngineEnabled')?.value">
+                  {{ configForm.get('rawSubEngineEnabled')?.value ? 'Enabled' : 'Disabled' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert threshold card -->
+          <div class="rule-card">
+            <div class="form-section__header">
+              <mat-icon class="form-section__icon">notifications_active</mat-icon>
+              <span class="form-section__title">Alert Threshold</span>
+            </div>
+
+            <div class="threshold-layout">
+              <!-- Input side -->
+              <div class="threshold-layout__input">
+                <div class="field-group">
+                  <label class="field-label" for="alertThreshold">Threshold Score</label>
+                  <div class="score-input-wrap">
+                    <input
+                      id="alertThreshold"
+                      type="number"
+                      formControlName="alertThreshold"
+                      class="form-control score-input"
+                      min="0"
+                      max="100"
+                    />
+                    <span class="score-input__scale">0 – 100</span>
+                  </div>
+                  <span class="field-hint">Minimum score required to trigger an alert</span>
+                </div>
+              </div>
+
+              <!-- Gauge side -->
+              <div class="threshold-layout__gauge">
+                <div class="threshold-gauge" [ngClass]="getThresholdClass(configForm.get('alertThreshold')?.value)">
+                  <svg class="threshold-gauge__svg" viewBox="0 0 80 80">
+                    <circle class="threshold-gauge__track" cx="40" cy="40" r="33"/>
+                    <circle
+                      class="threshold-gauge__fill"
+                      cx="40" cy="40" r="33"
+                      [style.stroke-dashoffset]="207 - (207 * (configForm.get('alertThreshold')?.value || 0) / 100)"
+                    />
+                  </svg>
+                  <span class="threshold-gauge__value">{{ configForm.get('alertThreshold')?.value || 0 }}</span>
+                </div>
+                <span class="threshold-gauge__label">Current Threshold</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Severity scale card -->
+          <div class="rule-card">
+            <div class="form-section__header">
+              <mat-icon class="form-section__icon">bar_chart</mat-icon>
+              <span class="form-section__title">Severity Scale</span>
+            </div>
+
+            <div class="severity-grid">
+              <div class="sev-band sev-band--clear">
+                <div class="sev-band__header">
+                  <span class="sev-band__dot"></span>
+                  <span class="sev-band__name">CLEAR</span>
+                </div>
+                <div class="sev-band__range">&lt; {{ configForm.get('alertThreshold')?.value || 40 }}</div>
+                <div class="sev-band__bar"></div>
+              </div>
+              <div class="sev-band sev-band--low">
+                <div class="sev-band__header">
+                  <span class="sev-band__dot"></span>
+                  <span class="sev-band__name">LOW</span>
+                </div>
+                <div class="sev-band__range">{{ configForm.get('alertThreshold')?.value || 40 }} – 60</div>
+                <div class="sev-band__bar"></div>
+              </div>
+              <div class="sev-band sev-band--medium">
+                <div class="sev-band__header">
+                  <span class="sev-band__dot"></span>
+                  <span class="sev-band__name">MEDIUM</span>
+                </div>
+                <div class="sev-band__range">60 – 75</div>
+                <div class="sev-band__bar"></div>
+              </div>
+              <div class="sev-band sev-band--high">
+                <div class="sev-band__header">
+                  <span class="sev-band__dot"></span>
+                  <span class="sev-band__name">HIGH</span>
+                </div>
+                <div class="sev-band__range">75 – 90</div>
+                <div class="sev-band__bar"></div>
+              </div>
+              <div class="sev-band sev-band--critical">
+                <div class="sev-band__header">
+                  <span class="sev-band__dot"></span>
+                  <span class="sev-band__name">CRITICAL</span>
+                </div>
+                <div class="sev-band__range">90+</div>
+                <div class="sev-band__bar"></div>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ── Sidebar ──────────────────────────────────────────── -->
+      <div class="layout-grid__sidebar">
+
+        <!-- Actions card -->
+        <div class="side-card">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">bolt</mat-icon>
+            <span>Actions</span>
+          </div>
+          <div class="side-card__body">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              class="action-btn action-btn--primary"
+              [disabled]="isLoading || configForm.invalid"
+              (click)="onSubmit()">
+              <mat-icon>{{ isLoading ? 'hourglass_top' : 'save' }}</mat-icon>
+              {{ isLoading ? 'Saving…' : 'Save Configuration' }}
+            </button>
+            <button mat-stroked-button type="button" class="action-btn" (click)="loadConfig()">
+              <mat-icon>restart_alt</mat-icon> Reset
+            </button>
+          </div>
         </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
+
+        <!-- Engine Summary card -->
+        <div class="side-card">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">monitor_heart</mat-icon>
+            <span>Engine Summary</span>
+          </div>
+          <div class="side-card__body side-card__body--rows">
+            <div class="meta-row">
+              <span class="meta-row__label">Sub-Engine</span>
+              <span class="status-chip"
+                [class.status-chip--ok]="configForm.get('rawSubEngineEnabled')?.value"
+                [class.status-chip--off]="!configForm.get('rawSubEngineEnabled')?.value">
+                <mat-icon>{{ configForm.get('rawSubEngineEnabled')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ configForm.get('rawSubEngineEnabled')?.value ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Alert Threshold</span>
+              <span class="score-badge" [ngClass]="getRiskBadgeClass(configForm.get('alertThreshold')?.value)">
+                <mat-icon class="score-badge__icon">speed</mat-icon>
+                {{ configForm.get('alertThreshold')?.value || 40 }}
+              </span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Risk Level</span>
+              <span class="meta-row__value fw-semibold">{{ getRiskLevel(configForm.get('alertThreshold')?.value) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- About card -->
+        <div class="side-card side-card--info">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">lightbulb</mat-icon>
+            <span>About This Configuration</span>
+          </div>
+          <div class="side-card__body">
+            <p class="side-card__note">
+              When a rule triggers, its score is added to the transaction's total.
+              If the total exceeds this threshold, an alert is generated and routed for review.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
