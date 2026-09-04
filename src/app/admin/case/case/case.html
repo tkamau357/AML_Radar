@@ -1,1 +1,19 @@
-<p>case works!</p>
+<app-dynamic-tables
+  pageTitle="Case Manager"
+  pageSubtitle="Manage case entries"
+  TableSubtitle="All cases"
+  addButtonLabel="Add Source"
+  buttonPermission="SANCTIONS_SOURCE_CREATE"
+  [showAddButton]="false"
+  [columns]="columns"
+  [data]="cases"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No cases found."
+  [showExcel]="true"
+  [showPdf]="true"
+  [totalDataCount]="totalElements"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+></app-dynamic-tables>

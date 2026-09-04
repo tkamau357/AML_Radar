@@ -32,7 +32,7 @@ import { EngineConfig } from './engine-config/engine-config';
     AddRules,
     ViewRules,
     Rules,
-    EngineConfig
+    EngineConfig,
   ],
   imports: [
     CommonModule,

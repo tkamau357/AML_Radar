@@ -1,1 +1,19 @@
-<p>alerts works!</p>
+<app-dynamic-tables
+  pageTitle="Alert"
+  pageSubtitle="Manage alerts received"
+  TableSubtitle="All alerts"
+  addButtonLabel="Add Source"
+  buttonPermission="SANCTIONS_SOURCE_CREATE"
+  [showAddButton]="false"
+  [columns]="columns"
+  [data]="alerts"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No alerts found."
+  [showExcel]="true"
+  [showPdf]="true"
+  [totalDataCount]="totalElements"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+></app-dynamic-tables>

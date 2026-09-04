@@ -25,7 +25,7 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
 
   columns = [
     { label: '#', field: 'index' },
-    { label: 'Display Name', field: 'displayName' },
+    // { label: 'Display Name', field: 'displayName' },
     { label: 'Source', field: 'source' },
     { label: 'Acquisition Mode', field: 'acquisitionModeDisplay' },
     { label: 'Entries', field: 'entryCountDisplay' },
@@ -44,6 +44,11 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
       label: 'Edit',
       icon: 'edit',
       onClick: (row: SourceConfigResponse) => this.editSource(row),
+    },
+    {
+      label: 'Sync',
+      icon: 'sync',
+      onClick: (row: SourceConfigResponse) => this.syncSource(row),
     },
     {
       label: 'Sync History',
@@ -196,6 +201,35 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
         });
         this.subs.push(enableSub);
       }
+    });
+    this.subs.push(sub);
+  }
+
+  syncSource(entry: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '460px',
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        title: 'Sync Sanction Source',
+        message: `Are you sure you want to sync the sanction source: "${entry.source}"?`,
+        confirmText: 'Sync',
+        cancelText: 'Cancel',
+      },
+    });
+
+    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const deactivateSub = this.sanctionsService.syncList(entry.source).subscribe({
+        next: () => {
+          this.snackbar.alertSuccess(`Sync started for ${entry.source}`);
+          this.loadSources();
+        },
+        error: (err: any) => {
+          this.snackbar.alertError(err?.error?.message || 'Failed to sync sanction source');
+        },
+      });
+      this.subs.push(deactivateSub);
     });
     this.subs.push(sub);
   }

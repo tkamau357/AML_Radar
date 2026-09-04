@@ -6,8 +6,7 @@ import { Alerts } from './alerts/alerts';
 import { ViewAlerts } from './view-alerts/view-alerts';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'entries', pathMatch: 'full' },
-  { path: 'alerts', component: Alerts, canActivate: [AuthGuard] },
+  { path: '', component: Alerts, canActivate: [AuthGuard] },
   { path: 'add', component: AddAlerts, canActivate: [AuthGuard] },
   { path: 'view/:id', component: ViewAlerts, canActivate: [AuthGuard] },
   { path: 'edit/:id', component: AddAlerts, canActivate: [AuthGuard] },

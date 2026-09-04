@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { RulesService, RawFeatureDef } from '../rules.service';
+import { RulesService, RawFeatureDef, EngineConfigRules } from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { NotificationToastService } from '../../../data/services/notification-to
 })
 export class Rules implements OnInit, OnDestroy {
   features: RawFeatureDef[] = [];
-  config: any;
+  config: EngineConfigRules | null = null;
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
@@ -39,11 +39,11 @@ export class Rules implements OnInit, OnDestroy {
       icon: 'edit',
       onClick: (row: RawFeatureDef) => this.editFeature(row),
     },
-    {
-      label: 'Toggle',
-      icon: 'toggle_on',
-      onClick: (row: RawFeatureDef) => this.toggleFeature(row),
-    },
+    // {
+    //   label: 'Toggle',
+    //   icon: 'toggle_on',
+    //   onClick: (row: RawFeatureDef) => this.toggleFeature(row),
+    // },
   ];
 
   headerActions: HeaderAction[] = [
@@ -79,13 +79,17 @@ export class Rules implements OnInit, OnDestroy {
   loadCatalog(): void {
     this.isLoading = true;
     this.subs.push(
-      this.rulesService.getCatalog().subscribe({
-        next: (response) => {
-          this.features = response.result || [];
+      forkJoin({
+        catalog: this.rulesService.getCatalog(),
+        config:  this.rulesService.getConfig(),
+      }).subscribe({
+        next: ({ catalog, config }) => {
+          this.features = catalog.result || [];
+          this.config   = config.result;
           this.isLoading = false;
           this.cdr.detectChanges();
         },
-        error: (err) => {
+        error: () => {
           this.snackbar.alertError('Failed to load feature catalog');
           this.isLoading = false;
         },

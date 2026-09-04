@@ -1,1 +1,19 @@
-<p>transactions works!</p>
+<app-dynamic-tables
+  pageTitle="Transactions"
+  pageSubtitle="Manage transactions entries"
+  TableSubtitle="All transactions"
+  addButtonLabel="Add Source"
+  buttonPermission="SANCTIONS_SOURCE_CREATE"
+  [showAddButton]="false"
+  [columns]="columns"
+  [data]="transactions"
+  [actions]="actions"
+  [headerActions]="headerActions"
+  [isLoading]="isLoading"
+  noRecordsMessage="No transactions found."
+  [showExcel]="true"
+  [showPdf]="true"
+  [totalDataCount]="totalElements"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+></app-dynamic-tables>

@@ -35,7 +35,7 @@ export class Screening implements OnInit, OnDestroy {
   // Screening Results
   screeningHistory: ScreeningResponse[] = [];
   screeningDataSource!: MatTableDataSource<ScreeningResponse>;
-  displayedColumns: string[] = ['searchedName', 'matchCount', 'status', 'thresholdUsed', 'sourcesSearched', 'timestamp', 'actions'];
+  displayedColumns: string[] = ['searchedName', 'matchCount', 'status', 'thresholdUsed', 'timestamp', 'actions'];
 
   // Config
   screeningConfig!: ScreeningConfigResponse;
@@ -46,7 +46,12 @@ export class Screening implements OnInit, OnDestroy {
   isLoadingHistory = false;
   isLoadingConfig = false;
 
-  sanctionSources = Object.values(SanctionListSource);
+  availableSources = [
+    'OFAC_SDN', 'OFAC_CONSOLIDATED', 'UN_CONSOLIDATED', 'EU_CONSOLIDATED', 'UK_HMT', 'INTERPOL',
+    'KRA_TAX_DEFAULTERS', 'KRA_DEREGISTERED', 'CBK_DEBARRED', 'CBK_FOREX_BUREAUS',
+    'FRC_WATCHLIST', 'PPRA_DEBARRED', 'DCI_WANTED', 'EACC_CASES', 'NSE_SUSPENDED', 'IRA_DEREGISTERED',
+    'EAC_WATCHLIST', 'AU_SANCTIONS', 'PEP', 'PEP_INTERNATIONAL', 'ADVERSE_MEDIA', 'CUSTOM'
+  ];
   screeningCategories = Object.values(ScreeningCategory);
   riskLevels = Object.values(RiskLevel);
   matchTypes = Object.values(MatchType);

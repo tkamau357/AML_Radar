@@ -18,10 +18,17 @@ export interface RawFeatureDef {
 
 export interface ParamDef {
   key: string;
-  kind: string;
+  kind: string;          // NUMBER | DECIMAL | ENUM | STRING | STRING_LIST
   label: string;
   hint: string | null;
+  meaning: string;
+  engineUse: string;
+  allowedValues: string[];
   defaultValue: any;
+  exampleValue: any;
+  uiControl: string;     // SELECT | NUMBER_INPUT | TEXT_INPUT | MULTI_SELECT | TAG_INPUT
+  inputFormat: string;
+  emptyValueMeaning: string;
 }
 
 export interface EngineConfigRules {

@@ -4,8 +4,7 @@ import { AuthGuard } from '../../core/guard/auth.guard';
 import { Transactions } from './transactions/transactions';
 
 const routes: Routes = [
-    { path: '', redirectTo: 'entries', pathMatch: 'full' },
-    { path: 'transactions', component: Transactions, canActivate: [AuthGuard] },
+  { path: '', component: Transactions, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

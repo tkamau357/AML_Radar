@@ -5,8 +5,8 @@ export const environment = {
   apiUrl: "http://localhost:9060",
   baseUrl: "http://localhost:9060",
 
-  // apiUrl: "https://reconmaster.emtechhouse.co.ke:3326/",
-  // baseUrl: "https://reconmaster.emtechhouse.co.ke:3326/",
+  // apiUrl: "http://172.16.8.180:9060",
+  // baseUrl: "http://172.16.8.180:9060",
 
   sessionExpiration: 555,
 };
