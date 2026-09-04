@@ -282,8 +282,7 @@
                       <button
                         *ngFor="let action of getVisibleActions(row) | slice:maxVisibleActions"
                         (click)="action.onClick(row); closeRowActions(row); $event.stopPropagation()"
-                        class="dt-overflow-item"
-                      >
+                        class="dt-overflow-item">
                         <mat-icon class="dt-icon-sm">{{ action.icon }}</mat-icon>
                         <span>{{ action.label || getActionLabel(action.icon) }}</span>
                       </button>
@@ -311,8 +310,7 @@
           [(ngModel)]="pageSize"
           (selectionChange)="onPageSizeChange()"
           class="dt-per-page-select"
-          panelClass="dt-select-panel"
-        >
+          panelClass="dt-select-panel">
           <mat-option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</mat-option>
         </mat-select>
       </div>
@@ -322,8 +320,7 @@
           class="dt-nav-btn"
           (click)="prevPage()"
           [disabled]="pageIndex === 0"
-          aria-label="Previous page"
-        >
+          aria-label="Previous page">
           <mat-icon class="dt-nav-icon">chevron_left</mat-icon>
         </button>
         <span class="dt-nav-page">{{ pageIndex + 1 }}</span>
@@ -331,8 +328,7 @@
           class="dt-nav-btn"
           (click)="nextPage()"
           [disabled]="pageIndex === totalPages.length - 1"
-          aria-label="Next page"
-        >
+          aria-label="Next page">
           <mat-icon class="dt-nav-icon">chevron_right</mat-icon>
         </button>
       </div>

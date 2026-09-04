@@ -21,7 +21,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   // Source filter options for dynamic table
   sourceFilterOptions: CustomFilterOption[] = [];
@@ -49,14 +49,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
     {
       label: 'Deactivate',
       icon: 'block',
-      show: (row) => row.active === true,
       onClick: (row: SanctionEntryResponse) => this.deactivateEntry(row),
-    },
-    {
-      label: 'Activate',
-      icon: 'check_circle',
-      show: (row) => row.active === false,
-      onClick: (row: SanctionEntryResponse) => this.activateEntry(row),
     },
     {
       label: 'Delete',
@@ -230,35 +223,6 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
         },
       });
       this.subs.push(deactivateSub);
-    });
-    this.subs.push(sub);
-  }
-
-  activateEntry(entry: SanctionEntryResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialog, {
-      width: '460px',
-      maxWidth: 'calc(100vw - 32px)',
-      data: {
-        title: 'Activate Sanction Entry',
-        message: `Are you sure you want to activate the sanction entry "${entry.fullName}"? The entry will be used in screening.`,
-        confirmText: 'Activate',
-        cancelText: 'Cancel',
-      },
-    });
-
-    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-
-      const activateSub = this.sanctionsService.deactivateEntry(entry.id).subscribe({
-        next: () => {
-          this.snackbar.alertSuccess('Entry activated successfully');
-          this.loadEntries();
-        },
-        error: (err: any) => {
-          this.snackbar.alertError(err?.error?.message || 'Failed to activate entry');
-        },
-      });
-      this.subs.push(activateSub);
     });
     this.subs.push(sub);
   }

@@ -1,5 +1,4 @@
 <div class="form-page">
-
   <!-- ── Page header ──────────────────────────────────────────────────── -->
   <div class="form-page-header">
     <div class="header-left">
@@ -16,11 +15,8 @@
     
     <div class="header-right">
       <div class="bulk-mode-toggle">
-        <button 
-          type="button" 
-          class="action-btn action-btn--outline toggle-btn"
-          [class.toggle-btn--active]="showBulkTable"
-          (click)="toggleBulkMode()">
+        <button type="button" class="action-btn action-btn--outline toggle-btn"
+          [class.toggle-btn--active]="showBulkTable" (click)="toggleBulkMode()">
           <mat-icon>{{ showBulkTable ? 'view_list' : 'playlist_add' }}</mat-icon>
           {{ showBulkTable ? 'Show Entry Form' : 'Add Multiple Entries' }}
         </button>
@@ -49,11 +45,8 @@
             <mat-icon class="bulk-section-icon">list</mat-icon>
             <span class="bulk-section-title">Select Source List</span>
           </div>
-          <mat-select 
-            class="field-input field-select" 
-            [(ngModel)]="bulkSource"
-            [ngModelOptions]="{standalone: true}"
-            style="max-width: 300px;">
+          <mat-select class="field-input field-select" [(ngModel)]="bulkSource"
+            [ngModelOptions]="{standalone: true}" style="max-width: 300px;">
             <mat-option *ngFor="let source of sources" [value]="source.source">
               {{ source.displayName }}
             </mat-option>
@@ -72,11 +65,8 @@
             Download the Excel template to prepare your sanction entries for bulk upload.
             The template contains all required fields for adding entries to the selected list.
           </p>
-          <button 
-            type="button" 
-            class="action-btn action-btn--outline" 
-            (click)="downloadTemplate()"
-            [disabled]="isDownloading">
+          <button type="button" class="action-btn action-btn--outline" 
+            (click)="downloadTemplate()" [disabled]="isDownloading">
             <mat-icon *ngIf="!isDownloading">download</mat-icon>
             <div *ngIf="isDownloading" class="spinner-sm spinner-sm--primary"></div>
             {{ isDownloading ? 'Downloading...' : 'Download Template' }}
@@ -97,11 +87,8 @@
           </p>
           
           <!-- File upload area -->
-          <div 
-            class="upload-drop-zone"
-            (dragover)="onDragOver($event)"
-            (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)"
+          <div class="upload-drop-zone" (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
             [class.upload-drop-zone--dragover]="isDragOver">
             <input 
               type="file" 
@@ -127,10 +114,7 @@
               <span class="upload-file-size">({{ formatFileSize(selectedFile.size) }})</span>
             </div>
             <div class="upload-file-actions">
-              <button 
-                type="button" 
-                class="btn-icon" 
-                (click)="clearSelectedFile()"
+              <button type="button" class="btn-icon" (click)="clearSelectedFile()"
                 title="Remove file">
                 <mat-icon>close</mat-icon>
               </button>
@@ -146,11 +130,8 @@
           </div>
 
           <!-- Upload button -->
-          <button 
-            type="button" 
-            class="action-btn action-btn--primary" 
-            (click)="uploadBulkEntries()"
-            [disabled]="!selectedFile || isUploading">
+          <button type="button" class="action-btn action-btn--primary" 
+            (click)="uploadBulkEntries()" [disabled]="!selectedFile || isUploading">
             <mat-icon *ngIf="!isUploading">upload</mat-icon>
             <div *ngIf="isUploading" class="spinner-sm spinner-sm--white"></div>
             {{ isUploading ? 'Uploading...' : 'Upload Entries' }}
@@ -191,13 +172,9 @@
     </div>
   </div>
 
-  
-
   <form [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
-
     <!-- ── Main column ─────────────────────────────────────────────────── -->
     <div class="form-main">
-
       <!-- Source Selection card -->
       <div class="form-card">
         <div class="form-card-header">
@@ -210,12 +187,8 @@
               <label class="field-label" for="source">
                 Source List <span class="required">*</span>
               </label>
-              <mat-select
-                id="source"
-                formControlName="source"
-                class="field-select-trigger"
-                [class.field-select-trigger--error]="err('source')"
-                panelClass="field-select-panel">
+              <mat-select id="source" formControlName="source" class="field-select-trigger"
+                [class.field-select-trigger--error]="err('source')" panelClass="field-select-panel">
                 <mat-option value="" disabled>Select source…</mat-option>
                 <mat-option *ngFor="let source of sources" [value]="source.source">
                   {{ source.displayName }}
@@ -234,16 +207,12 @@
           <span class="form-card-title">Entity Identity</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="entityType">
                 Entity Type <span class="required">*</span>
               </label>
-              <mat-select
-                id="entityType"
-                formControlName="entityType"
-                class="field-select-trigger"
+              <mat-select id="entityType" formControlName="entityType" class="field-select-trigger"
                 [class.field-select-trigger--error]="err('entityType')"
                 panelClass="field-select-panel">
                 <mat-option value="" disabled>Select type…</mat-option>
@@ -281,7 +250,6 @@
             />
             <span class="field-hint">Separate multiple aliases with semicolons (;)</span>
           </div>
-
         </div>
       </div>
 
@@ -292,7 +260,6 @@
           <span class="form-card-title">Personal Details</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="dateOfBirth">Date of Birth</label>
@@ -339,7 +306,6 @@
               />
             </div>
           </div>
-
         </div>
       </div>
 
@@ -350,7 +316,6 @@
           <span class="form-card-title">Identifiers</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="idNumber">ID Number</label>
@@ -398,7 +363,6 @@
               />
             </div>
           </div>
-
         </div>
       </div>
 
@@ -409,7 +373,6 @@
           <span class="form-card-title">Additional Information</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="listedDate">Listed Date</label>
@@ -454,7 +417,6 @@
               placeholder="Any additional notes about this entry"
             ></textarea>
           </div>
-
         </div>
       </div>
     </div>
@@ -469,8 +431,7 @@
           <button
             type="submit"
             class="action-btn action-btn--primary"
-            [disabled]="form.invalid || isSubmitting"
-          >
+            [disabled]="form.invalid || isSubmitting">
             <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
             <mat-icon *ngIf="!isSubmitting">
               {{ showBulkTable ? (isEditingBulkEntry ? 'save' : 'playlist_add') : (isEditMode ? 'save' : 'add') }}
@@ -478,11 +439,8 @@
             {{ isSubmitting ? 'Saving…' : (showBulkTable ? (isEditingBulkEntry ? 'Update Entry' : 'Add to List') : (isEditMode ? 'Save Changes' : 'Add Entry')) }}
           </button>
           
-          <button 
-            *ngIf="showBulkTable && bulkEntries.length > 0"
-            type="button" 
-            class="action-btn action-btn--success" 
-            (click)="submitBulkEntries()"
+          <button *ngIf="showBulkTable && bulkEntries.length > 0" type="button" 
+            class="action-btn action-btn--success" (click)="submitBulkEntries()"
             [disabled]="isSubmitting || isEditingBulkEntry">
             <mat-icon>upload</mat-icon>
             Submit All ({{ bulkEntries.length }})
@@ -512,7 +470,6 @@
         </div>
       </div>
     </div>
-
   </form>
 
   <!-- ── Bulk Entries Table ────────────────────────────────────────────── -->
@@ -587,5 +544,4 @@
       </div>
     </div>
   </div>
-
 </div>

@@ -1,5 +1,4 @@
 <div class="form-page">
-
   <!-- Header -->
   <div class="form-page-header">
     <button class="back-btn" (click)="back()" type="button">
@@ -18,10 +17,8 @@
   </div>
 
   <div *ngIf="!isLoading && role" class="form-layout">
-
     <!-- Main column -->
     <div class="form-main">
-
       <!-- Details card -->
       <div class="detail-card">
         <div class="detail-card-header">
@@ -57,60 +54,34 @@
           </span>
 
           <!-- Total selected next to title -->
-          <span
-            class="perm-badge"
-            *ngIf="permissions.length > 0">
-
+          <span class="perm-badge" *ngIf="permissions.length > 0">
             {{ permissions.length }} selected
-
           </span>
 
           <!-- Collapse all -->
-          <button
-            *ngIf="groupedPermissions.length > 0"
-            type="button"
-            class="perm-collapse-all"
-            (click)="toggleAllGroups()">
-
+          <button *ngIf="groupedPermissions.length > 0" type="button"
+            class="perm-collapse-all" (click)="toggleAllGroups()">
             <mat-icon>
-              {{ allGroupsCollapsed
-                ? 'unfold_more'
-                : 'unfold_less'
-              }}
+              {{ allGroupsCollapsed ? 'unfold_more' : 'unfold_less' }}
             </mat-icon>
 
             <span>
-              {{ allGroupsCollapsed
-                ? 'Expand all'
-                : 'Collapse all'
-              }}
+              {{ allGroupsCollapsed ? 'Expand all' : 'Collapse all'}}
             </span>
-
           </button>
-
         </div>
 
         <!-- Loading -->
-        <div
-          *ngIf="isLoading"
-          class="perm-loading">
-
+        <div *ngIf="isLoading" class="perm-loading">
           <div class="spinner-sm"></div>
 
           <span>
             Loading permissions…
           </span>
-
         </div>
 
         <!-- No permissions -->
-        <div
-          *ngIf="
-            !isLoading &&
-            permissions.length === 0
-          "
-          class="perm-empty">
-
+        <div *ngIf="!isLoading && permissions.length === 0" class="perm-empty">
           <mat-icon>
             info_outline
           </mat-icon>
@@ -122,16 +93,10 @@
 
         <!-- Permission groups -->
         <div *ngIf="!isLoading && groupedPermissions.length > 0" class="perm-list">
-          <div
-            *ngFor="let group of groupedPermissions"
-            class="perm-group">
+          <div *ngFor="let group of groupedPermissions" class="perm-group">
             <!-- Group header -->
-            <div
-              class="perm-group-header perm-group-header--readonly"
-              [class.perm-group-header--collapsed]="
-                isGroupCollapsed(group.category)
-              ">
-
+            <div class="perm-group-header perm-group-header--readonly"
+              [class.perm-group-header--collapsed]="isGroupCollapsed(group.category)">
               <span class="perm-group-label">
                 {{ group.category }}
               </span>
@@ -148,33 +113,18 @@
               </span>
 
               <!-- Collapse button -->
-              <button
-                type="button"
-                class="perm-collapse-btn"
-                [attr.aria-label]="
-                  isGroupCollapsed(group.category)
-                    ? 'Expand ' + group.category
-                    : 'Collapse ' + group.category
-                "
-                (click)="toggleGroupCollapse(group.category)">
-
+              <button type="button" class="perm-collapse-btn"
+                [attr.aria-label]="isGroupCollapsed(group.category) ? 'Expand ' + group.category
+                  : 'Collapse ' + group.category" (click)="toggleGroupCollapse(group.category)">
                 <mat-icon>
-                  {{
-                    isGroupCollapsed(group.category)
-                      ? 'expand_more'
-                      : 'expand_less'
-                  }}
+                  {{ isGroupCollapsed(group.category) ? 'expand_more' : 'expand_less' }}
                 </mat-icon>
               </button>
             </div>
 
             <!-- Permission items -->
-            <div
-              *ngIf="!isGroupCollapsed(group.category)"
-              class="perm-items">
-              <div
-                *ngFor="let p of group.perms"
-                class="perm-item perm-item--readonly">
+            <div *ngIf="!isGroupCollapsed(group.category)" class="perm-items">
+              <div *ngFor="let p of group.perms" class="perm-item perm-item--readonly">
                 <mat-icon class="perm-check-icon">
                   check_circle
                 </mat-icon>
@@ -189,9 +139,7 @@
                   </code>
                 </div>
 
-                <span
-                  class="perm-endpoint"
-                  *ngIf="p.endpoint">
+                <span class="perm-endpoint" *ngIf="p.endpoint">
                   <code>
                     {{ p.method }} {{ p.endpoint }}
                   </code>
@@ -210,12 +158,8 @@
           <span class="detail-card-title">Actions</span>
         </div>
         <div class="detail-body">
-          <button
-            *ngIf="!role.isSystemRole"
-            class="action-btn action-btn--primary"
-            (click)="editRole()"
-            type="button"
-          >
+          <button *ngIf="!role.isSystemRole" class="action-btn action-btn--primary"
+            (click)="editRole()" type="button">
             <mat-icon>edit</mat-icon> Edit Role
           </button>
           <button class="action-btn action-btn--ghost" (click)="back()" type="button">

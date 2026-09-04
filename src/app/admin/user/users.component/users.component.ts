@@ -20,7 +20,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   totalElements = 0;
   pageIndex = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   columns = [
     { label: '#',            field: 'index' },

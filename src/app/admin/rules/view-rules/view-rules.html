@@ -1,5 +1,4 @@
 <div class="rules-page">
-
   <!-- Page Header -->
   <div class="rules-page__header">
     <div class="rules-page__header-inner">
@@ -15,7 +14,6 @@
 
   <!-- Body -->
   <div class="rules-page__body">
-
     <!-- Loading State -->
     <div *ngIf="isLoading && !featureDef" class="state-panel">
       <div class="spinner-border text-primary" role="status">
@@ -36,10 +34,8 @@
 
     <!-- Content -->
     <div *ngIf="featureDef" class="layout-grid">
-
       <!-- ── Main column ─────────────────────────────────────── -->
       <div class="layout-grid__main">
-
         <!-- Identity card -->
         <div class="rule-card">
           <div class="rule-card__hero">
@@ -81,9 +77,7 @@
               <div class="score-ring" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
                 <svg class="score-ring__svg" viewBox="0 0 80 80">
                   <circle class="score-ring__track" cx="40" cy="40" r="33"/>
-                  <circle
-                    class="score-ring__fill"
-                    cx="40" cy="40" r="33"
+                  <circle class="score-ring__fill" cx="40" cy="40" r="33"
                     [style.stroke-dashoffset]="207 - (207 * getCurrentConfig().score / 100)"
                   />
                 </svg>
@@ -173,12 +167,10 @@
             </table>
           </div>
         </div>
-
       </div>
 
       <!-- ── Sidebar ──────────────────────────────────────────── -->
       <div class="layout-grid__sidebar">
-
         <!-- Actions card -->
         <div class="side-card">
           <div class="side-card__header">
@@ -243,7 +235,6 @@
             </p>
           </div>
         </div>
-
       </div>
     </div>
   </div>

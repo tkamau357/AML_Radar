@@ -1,4 +1,3 @@
-// view-branch-component.ts
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -12,7 +11,6 @@ import { SnackbarService } from '../../../shared/services/snackbar.service';
   styleUrl: './view-branch-component.scss',
 })
 export class ViewBranchComponent implements OnInit, OnDestroy {
-
   branch: BranchResponse | null = null;
   isLoading = false;
 

@@ -14,7 +14,6 @@ import { SnackbarService } from '../../../shared/services/snackbar.service';
   styleUrl: './add-users.component.scss',
 })
 export class AddUsersComponent implements OnInit, OnDestroy {
-
   form!: FormGroup;
   roles: RoleResponse[] = [];
   branches: BranchResponse[] = [];
