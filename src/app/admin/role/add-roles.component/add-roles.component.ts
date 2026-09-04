@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, PermissionResponse, RoleResponse } from '../roles.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-add-roles',
@@ -30,7 +30,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private roles: RolesService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,

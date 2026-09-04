@@ -3,10 +3,10 @@ import { DeleteConfirmationDialog } from '../../../../shared/components/delete-c
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableAction, HeaderAction, CustomFilterOption } from '../../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { SanctionEntryResponse, SanctionsService, PageResponse, SanctionListSourceInfo } from '../../sanctions.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { NotificationToastService } from '../../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-sanctions-entries-components',
@@ -75,7 +75,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
 
   constructor(
     private sanctionsService: SanctionsService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private router: Router,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,

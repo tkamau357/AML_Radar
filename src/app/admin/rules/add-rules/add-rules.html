@@ -1,225 +1,303 @@
-<div class="rules-page">
-  <!-- Page Header -->
-  <div class="rules-page__header">
-    <div class="rules-page__header-inner">
-      <button class="btn-back" (click)="onCancel()" type="button" aria-label="Go back">
+<div class="rp">
+
+  <!-- ═══ STICKY HEADER ══════════════════════════════════════════════════════ -->
+  <header class="rp__header">
+    <div class="rp__header-inner">
+      <button class="rp__back-btn" (click)="onCancel()" type="button" aria-label="Go back">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <div class="rules-page__header-text">
-        <h1 class="rules-page__title">{{ isEdit ? 'Edit Rule' : 'Add Rule' }}</h1>
-        <p class="rules-page__subtitle">{{ isEdit ? 'Update rule configuration' : 'Configure a new rule' }}</p>
+
+      <div *ngIf="featureDef" class="rp__header-feature">
+        <div class="rp__header-icon-wrap">
+          <mat-icon>{{ getFeatureIcon(featureDef.id) }}</mat-icon>
+        </div>
+        <div class="rp__header-text">
+          <h1 class="rp__header-title">{{ isEdit ? 'Edit Rule' : 'Add Rule' }}</h1>
+          <p class="rp__header-sub">{{ featureDef.label }}
+            <code class="rp__id-chip">{{ featureDef.id }}</code>
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="!featureDef" class="rp__header-text">
+        <h1 class="rp__header-title">{{ isEdit ? 'Edit Rule' : 'Add Rule' }}</h1>
+        <p class="rp__header-sub">{{ isEdit ? 'Update rule configuration' : 'Configure a new rule' }}</p>
+      </div>
+
+      <div class="ms-auto d-flex align-items-center gap-2" *ngIf="featureDef">
+        <span class="rp__score-chip" [ngClass]="getScoreClass(getCurrentScore())">
+          <mat-icon>speed</mat-icon>Score {{ getCurrentScore() }}
+        </span>
+        <span class="rp__status-chip"
+          [class.rp__status-chip--on]="featureForm.get('enabled')?.value"
+          [class.rp__status-chip--off]="!featureForm.get('enabled')?.value">
+          <mat-icon>{{ featureForm.get('enabled')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
+        </span>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Body -->
-  <div class="rules-page__body">
-    <!-- Loading State -->
-    <div *ngIf="isLoading && !featureDef" class="state-panel">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+  <!-- ═══ BODY ════════════════════════════════════════════════════════════════ -->
+  <div class="rp__body">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading && !featureDef" class="rp__state">
+      <div class="rp__state-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading…</span>
+        </div>
       </div>
-      <p class="state-panel__text">Loading feature definition…</p>
+      <p class="rp__state-text">Loading feature definition…</p>
     </div>
 
-    <!-- Error State -->
-    <div *ngIf="!isLoading && !featureDef" class="state-panel state-panel--error">
-      <div class="state-panel__icon-wrap">
-        <mat-icon>error_outline</mat-icon>
-      </div>
-      <h4 class="state-panel__heading">Feature Not Found</h4>
-      <p class="state-panel__text">The requested feature could not be loaded.</p>
+    <!-- Error -->
+    <div *ngIf="!isLoading && !featureDef" class="rp__state rp__state--error">
+      <div class="rp__state-icon"><mat-icon>error_outline</mat-icon></div>
+      <h4 class="rp__state-heading">Feature Not Found</h4>
+      <p class="rp__state-text">The requested feature could not be loaded.</p>
     </div>
 
     <!-- Content -->
-    <div *ngIf="featureDef" class="layout-grid">
-      <!-- ── Main column ─────────────────────────────────────── -->
-      <div class="layout-grid__main">
-        <!-- Feature identity card -->
-        <div class="rule-card">
-          <div class="rule-card__hero">
-            <div class="rule-card__icon-wrap">
-              <mat-icon class="rule-card__icon">{{ getFeatureIcon(featureDef.id) }}</mat-icon>
+    <div *ngIf="featureDef" class="rp__layout">
+
+      <!-- ── MAIN COLUMN ─────────────────────────────────────────────────── -->
+      <div class="rp__main">
+
+        <!-- Blurb banner -->
+        <div class="rp__blurb">
+          <div class="rp__blurb-icon"><mat-icon>lightbulb</mat-icon></div>
+          <p class="rp__blurb-text">{{ featureDef.blurb }}</p>
+        </div>
+
+        <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
+
+          <!-- ── Rule Settings ──────────────────────────────────────────── -->
+          <div class="rp-card">
+            <div class="rp-card__header">
+              <mat-icon class="rp-card__header-icon">tune</mat-icon>
+              <span class="rp-card__header-title">Rule Settings</span>
             </div>
-            <div class="rule-card__identity">
-              <span class="rule-card__name">{{ featureDef.label || 'Loading…' }}</span>
-              <code class="rule-card__id">{{ featureDef.id }}</code>
-            </div>
-            <div class="ms-auto">
-              <span class="score-badge" [ngClass]="getScoreClass(getCurrentScore())">
-                <mat-icon class="score-badge__icon">speed</mat-icon>
-                Score {{ getCurrentScore() }}
-              </span>
+            <div class="rp-card__body">
+              <div class="row g-4">
+
+                <!-- Status toggle -->
+                <div class="col-md-6">
+                  <div class="rp-field">
+                    <label class="rp-field__label">Status</label>
+                    <div class="rp-toggle">
+                      <input type="checkbox" id="enabled" formControlName="enabled" class="rp-toggle__input" />
+                      <label for="enabled" class="rp-toggle__track" aria-label="Enable or disable rule">
+                        <span class="rp-toggle__thumb"></span>
+                      </label>
+                      <span class="rp-toggle__label"
+                        [class.rp-toggle__label--on]="featureForm.get('enabled')?.value">
+                        {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
+                      </span>
+                    </div>
+                    <span class="rp-field__hint">Toggle to enable or disable this rule</span>
+                  </div>
+                </div>
+
+                <!-- Score -->
+                <div class="col-md-6">
+                  <div class="rp-field">
+                    <label class="rp-field__label" for="score">Alert Score</label>
+                    <div class="rp-score-wrap">
+                      <input id="score" type="number" formControlName="score"
+                        class="rp-input rp-score-input" min="0" max="100" readonly
+                        [class.rp-input--invalid]="featureForm.get('score')?.invalid && featureForm.get('score')?.touched" />
+                      <div class="rp-score-bar">
+                        <div class="rp-score-bar__fill"
+                          [ngClass]="getScoreClass(getCurrentScore())"
+                          [style.width.%]="getCurrentScore()"></div>
+                      </div>
+                      <span class="rp-score-scale">/ 100</span>
+                    </div>
+                    <span class="rp-field__hint">Higher score = higher risk weight</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
 
-          <!-- Description banner -->
-          <div class="desc-banner">
-            <mat-icon class="desc-banner__icon">info</mat-icon>
-            <div class="desc-banner__body">
-              <span class="desc-banner__label">Description</span>
-              <p class="desc-banner__text">{{ featureDef.blurb }}</p>
+          <!-- ── Parameters ─────────────────────────────────────────────── -->
+          <div class="rp-card" *ngIf="featureDef.params.length">
+            <div class="rp-card__header">
+              <mat-icon class="rp-card__header-icon">settings_input_component</mat-icon>
+              <span class="rp-card__header-title">Parameters</span>
+              <span class="rp-card__header-count">{{ featureDef.params.length }}</span>
             </div>
-          </div>
-        </div>
+            <div class="rp-card__params" formGroupName="params">
 
-        <!-- Configuration form card -->
-        <div class="rule-card rule-card--form">
-          <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
-            <!-- Rule Configuration section -->
-            <div class="form-section">
-              <div class="form-section__header">
-                <mat-icon class="form-section__icon">tune</mat-icon>
-                <span class="form-section__title">Rule Configuration</span>
-              </div>
+              <div class="rp-param" *ngFor="let param of featureDef.params; let last = last"
+                [class.rp-param--last]="last">
 
-              <div class="form-section__body">
-                <div class="row g-4">
-                  <!-- Enabled toggle -->
-                  <div class="col-md-6">
-                    <div class="field-group">
-                      <label class="field-label">Status</label>
-                      <div class="toggle-row">
-                        <input type="checkbox" formControlName="enabled" id="enabled" class="toggle-input" />
-                        <label for="enabled" class="toggle-track" aria-label="Enable or disable rule">
-                          <span class="toggle-thumb"></span>
-                        </label>
-                        <span class="toggle-value" [class.toggle-value--on]="featureForm.get('enabled')?.value">
-                          {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
-                        </span>
-                      </div>
-                    </div>
+                <!-- left: meta + input -->
+                <div class="rp-param__left">
+                  <div class="rp-param__header">
+                    <span class="rp-param__label">{{ param.label }}</span>
+                    <code class="rp-param__key">{{ param.key }}</code>
+                    <span class="rp-param__kind">{{ param.kind }}</span>
                   </div>
+                  <p class="rp-param__meaning" *ngIf="param.meaning">{{ param.meaning }}</p>
 
-                  <!-- Score input -->
-                  <div class="col-md-6">
-                    <div class="field-group">
-                      <label class="field-label" for="score">Alert Score</label>
-                      <div class="score-input-wrap">
-                        <input
-                          id="score"
-                          type="number"
-                          formControlName="score"
-                          class="form-control score-input"
-                          min="0"
-                          max="100"
-                          [class.is-invalid]="featureForm.get('score')?.invalid && featureForm.get('score')?.touched"
-                        />
-                        <span class="score-input__scale">0 – 100</span>
-                      </div>
-                      <span class="field-hint">Higher value = more risky</span>
+                  <div class="rp-param__control">
+                    <ng-container [ngSwitch]="param.kind">
+
+                      <!-- ENUM → single mat-select -->
+                      <mat-select *ngSwitchCase="'ENUM'"
+                        [formControlName]="param.key"
+                        class="rp-select">
+                        <mat-option *ngFor="let opt of getEnumOptions(param)" [value]="opt">
+                          {{ opt }}
+                        </mat-option>
+                      </mat-select>
+
+                      <!-- NUMBER -->
+                      <input *ngSwitchCase="'NUMBER'" type="number" class="rp-input"
+                        [formControlName]="param.key" />
+
+                      <!-- DECIMAL -->
+                      <input *ngSwitchCase="'DECIMAL'" type="number" step="any" class="rp-input"
+                        [formControlName]="param.key" />
+
+                      <!-- STRING -->
+                      <input *ngSwitchCase="'STRING'" type="text" class="rp-input"
+                        [formControlName]="param.key" />
+
+                      <!-- STRING_LIST → multi-select mat-select -->
+                      <mat-select *ngSwitchCase="'STRING_LIST'"
+                        [formControlName]="param.key"
+                        [multiple]="true"
+                        class="rp-select">
+                        <mat-option *ngFor="let opt of getStringListOptions(param)" [value]="opt">
+                          {{ opt }}
+                        </mat-option>
+                      </mat-select>
+
+                      <!-- Fallback -->
+                      <input *ngSwitchDefault type="text" class="rp-input"
+                        [formControlName]="param.key" />
+
+                    </ng-container>
+                  </div>
+                </div>
+
+                <!-- right: context panel -->
+                <div class="rp-param__right">
+                  <div class="rp-param__ctx-row" *ngIf="param.engineUse">
+                    <mat-icon class="rp-param__ctx-icon">precision_manufacturing</mat-icon>
+                    <span>{{ param.engineUse }}</span>
+                  </div>
+                  <div class="rp-param__ctx-row" *ngIf="param.inputFormat">
+                    <mat-icon class="rp-param__ctx-icon">edit_note</mat-icon>
+                    <span>{{ param.inputFormat }}</span>
+                  </div>
+                  <div class="rp-param__ctx-row rp-param__ctx-row--muted" *ngIf="param.emptyValueMeaning">
+                    <mat-icon class="rp-param__ctx-icon">info_outline</mat-icon>
+                    <span>{{ param.emptyValueMeaning }}</span>
+                  </div>
+                  <div class="rp-param__allowed" *ngIf="param.allowedValues.length">
+                    <span class="rp-param__allowed-label">Allowed</span>
+                    <div class="rp-param__allowed-pills">
+                      <span class="rp-pill" *ngFor="let v of param.allowedValues">{{ v }}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Parameters section -->
-            <div class="form-section" *ngIf="featureDef.params?.length">
-              <div class="form-section__header">
-                <mat-icon class="form-section__icon">settings_input_component</mat-icon>
-                <span class="form-section__title">Parameters</span>
-                <span class="form-section__count">{{ featureDef.params.length }}</span>
-              </div>
+              </div><!-- /rp-param -->
+            </div><!-- /rp-card__params -->
+          </div><!-- /params card -->
 
-              <div class="form-section__body">
-                <div class="row g-3" formGroupName="params">
-                  <div class="col-md-6" *ngFor="let param of featureDef.params">
-                    <div class="field-group">
-                      <label class="field-label">{{ param.label }}</label>
+        </form>
+      </div><!-- /main -->
 
-                      <ng-container [ngSwitch]="param.kind">
-                        <select *ngSwitchCase="'ENUM'" class="form-select" [formControlName]="param.key">
-                          <option value="" disabled>Select option…</option>
-                          <option *ngFor="let option of getEnumOptions(param)" [value]="option">{{ option }}</option>
-                        </select>
+      <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+      <aside class="rp__sidebar">
 
-                        <input *ngSwitchCase="'NUMBER'" type="number" class="form-control" [formControlName]="param.key" />
-                        <input *ngSwitchCase="'DECIMAL'" type="number" step="0.01" class="form-control" [formControlName]="param.key" />
-                        <input *ngSwitchCase="'STRING'" type="text" class="form-control" [formControlName]="param.key" />
-
-                        <select *ngSwitchCase="'STRING_LIST'" class="form-select form-select--multi" [formControlName]="param.key" multiple>
-                          <option *ngFor="let option of getStringListOptions(param)" [value]="option">{{ option }}</option>
-                        </select>
-
-                        <input *ngSwitchDefault type="text" class="form-control" [formControlName]="param.key" />
-                      </ng-container>
-                      <span class="field-hint" *ngIf="param.hint">{{ param.hint }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- ── Sidebar ──────────────────────────────────────────── -->
-      <div class="layout-grid__sidebar">
-
-        <!-- Actions card -->
-        <div class="side-card">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">bolt</mat-icon>
+        <!-- Actions -->
+        <div class="rp-side">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">bolt</mat-icon>
             <span>Actions</span>
           </div>
-          <div class="side-card__body">
-            <button mat-flat-button color="primary" type="submit"
-              class="action-btn action-btn--primary" [disabled]="isLoading || featureForm.invalid"
+          <div class="rp-side__body">
+            <button mat-flat-button color="primary" type="button"
+              class="rp-btn rp-btn--primary"
+              [disabled]="isLoading || featureForm.invalid"
               (click)="onSubmit()">
               <mat-icon>{{ isLoading ? 'hourglass_top' : 'save' }}</mat-icon>
               {{ isLoading ? 'Saving…' : 'Save Changes' }}
             </button>
-            <button mat-stroked-button type="button" class="action-btn" (click)="onReset()">
-              <mat-icon>restart_alt</mat-icon> Reset
+            <button mat-stroked-button type="button" class="rp-btn" (click)="onReset()">
+              <mat-icon>restart_alt</mat-icon> Reset to Defaults
             </button>
-            <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+            <button mat-stroked-button type="button" class="rp-btn" (click)="onCancel()">
               <mat-icon>arrow_back</mat-icon> Back to List
             </button>
           </div>
         </div>
 
-        <!-- Metadata card -->
-        <div class="side-card" *ngIf="featureDef">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">info</mat-icon>
-            <span>Metadata</span>
+        <!-- Metadata -->
+        <div class="rp-side" *ngIf="featureDef">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">info</mat-icon>
+            <span>Feature Info</span>
           </div>
-          <div class="side-card__body side-card__body--rows">
-            <div class="meta-row">
-              <span class="meta-row__label">History Required</span>
-              <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+          <div class="rp-side__rows">
+            <div class="rp-meta">
+              <span class="rp-meta__label">Feature ID</span>
+              <code class="rp-meta__code">{{ featureDef.id }}</code>
+            </div>
+            <div class="rp-meta">
+              <span class="rp-meta__label">Needs History</span>
+              <span class="rp-chip"
+                [class.rp-chip--warn]="featureDef.needsHistory"
+                [class.rp-chip--ok]="!featureDef.needsHistory">
                 <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
-                {{ featureDef.needsHistory ? 'Required' : 'Not Needed' }}
+                {{ featureDef.needsHistory ? 'Required' : 'Not needed' }}
               </span>
             </div>
-            <div class="meta-row">
-              <span class="meta-row__label">Fields Read</span>
-              <div class="pill-list">
-                <span class="pill" *ngFor="let f of featureDef.readsFields">{{ f }}</span>
-              </div>
+            <div class="rp-meta">
+              <span class="rp-meta__label">Default Score</span>
+              <span class="rp-meta__value fw-bold">{{ featureDef.defaultScore }}</span>
             </div>
-            <div class="meta-row">
-              <span class="meta-row__label">Default Score</span>
-              <span class="meta-row__value fw-bold">{{ featureDef.defaultScore }}</span>
+            <div class="rp-meta rp-meta--col">
+              <span class="rp-meta__label">Reads Fields</span>
+              <div class="rp-pill-row">
+                <span class="rp-pill" *ngFor="let f of featureDef.readsFields">{{ f }}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- How It Works card -->
-        <div class="side-card side-card--info">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">lightbulb</mat-icon>
-            <span>How It Works</span>
+        <!-- Score gauge -->
+        <div class="rp-side rp-side--gauge">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">speed</mat-icon>
+            <span>Score Preview</span>
           </div>
-          <div class="side-card__body">
-            <p class="side-card__note">
-              When this rule triggers, its score is added to the transaction's total risk score.
-              If the total exceeds the alert threshold, an alert is generated.
-            </p>
+          <div class="rp-side__body rp-side__body--center">
+            <div class="rp-gauge" [ngClass]="getScoreColorClass(getCurrentScore())">
+              <svg class="rp-gauge__svg" viewBox="0 0 80 80">
+                <circle class="rp-gauge__track" cx="40" cy="40" r="33"/>
+                <circle class="rp-gauge__fill" cx="40" cy="40" r="33"
+                  [style.stroke-dashoffset]="207 - (207 * getCurrentScore() / 100)"/>
+              </svg>
+              <span class="rp-gauge__value">{{ getCurrentScore() }}</span>
+            </div>
+            <span class="rp-gauge__label" [ngClass]="getScoreColorClass(getCurrentScore())">
+              {{ getCurrentScore() >= 90 ? 'CRITICAL RISK' :
+                 getCurrentScore() >= 75 ? 'HIGH RISK' :
+                 getCurrentScore() >= 60 ? 'MEDIUM RISK' :
+                 getCurrentScore() >= 30 ? 'LOW RISK' : 'NO RISK' }}
+            </span>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+
+      </aside>
+    </div><!-- /layout -->
+  </div><!-- /body -->
 </div>

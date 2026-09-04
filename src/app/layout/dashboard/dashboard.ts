@@ -158,14 +158,14 @@ export class Dashboard implements OnInit, OnDestroy {
      * Navigate to alert details
      */
     viewAlert(alertId: number): void {
-        this.router.navigate(['/alerts', alertId]);
+        this.router.navigate(['/admin/assessments/alerts', alertId]);
     }
 
     /**
      * Navigate to case details
      */
     viewCase(caseId: number): void {
-        this.router.navigate(['/cases', caseId]);
+        this.router.navigate(['/admin/assessments/case', caseId]);
     }
 
     /**

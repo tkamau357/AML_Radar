@@ -1,6 +1,5 @@
-import { Directive, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewContainerRef } from '@angular/core';
-// import { AccessControlService } from 'src/app/data/services/_AccessControlService.service';
-import { SnackbarService } from '../../shared/services/snackbar.service';
+import { Directive, Input, OnChanges, SimpleChanges, TemplateRef, ViewContainerRef } from '@angular/core';
+import { NotificationToastService } from '../../data/services/notification-toast.service';
 
 @Directive({
   selector: '[appHasPermission]',
@@ -14,8 +13,7 @@ export class HasPermissionDirective implements OnChanges {
   constructor(
     private viewContainer: ViewContainerRef,
     private templateRef: TemplateRef<any>,
-    // private accessControlService: AccessControlService,
-    private snackbarService: SnackbarService
+    private snackbarService: NotificationToastService
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {

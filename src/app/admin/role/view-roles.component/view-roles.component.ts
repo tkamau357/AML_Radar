@@ -1,9 +1,8 @@
-// view-roles.component.ts
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse, PermissionResponse } from '../roles.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-view-roles',
@@ -26,7 +25,7 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private roles: RolesService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {}
 

@@ -1,220 +1,266 @@
-<div class="rules-page">
-  <!-- Page Header -->
-  <div class="rules-page__header">
-    <div class="rules-page__header-inner">
-      <button class="btn-back" (click)="backToList()" type="button" aria-label="Go back">
+<div class="rp">
+
+  <!-- ═══ STICKY HEADER ══════════════════════════════════════════════════════ -->
+  <header class="rp__header">
+    <div class="rp__header-inner">
+      <button class="rp__back-btn" (click)="backToList()" type="button" aria-label="Go back">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <div class="rules-page__header-text">
-        <h1 class="rules-page__title">Rule Details</h1>
-        <p class="rules-page__subtitle">Read-only view of rule configuration</p>
+
+      <div *ngIf="featureDef" class="rp__header-feature">
+        <div class="rp__header-icon-wrap">
+          <mat-icon>{{ getFeatureIcon(featureDef.id) }}</mat-icon>
+        </div>
+        <div class="rp__header-text">
+          <h1 class="rp__header-title">Rule Details</h1>
+          <p class="rp__header-sub">{{ featureDef.label }}
+            <code class="rp__id-chip">{{ featureDef.id }}</code>
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="!featureDef" class="rp__header-text">
+        <h1 class="rp__header-title">Rule Details</h1>
+        <p class="rp__header-sub">Read-only view of rule configuration</p>
+      </div>
+
+      <div class="ms-auto d-flex align-items-center gap-2" *ngIf="featureDef">
+        <span class="rp__score-chip" [ngClass]="getScoreClass(getCurrentConfig().score)">
+          <mat-icon>speed</mat-icon>Score {{ getCurrentConfig().score }}
+        </span>
+        <span class="rp__status-chip"
+          [class.rp__status-chip--on]="getCurrentConfig().enabled"
+          [class.rp__status-chip--off]="!getCurrentConfig().enabled">
+          <mat-icon>{{ getCurrentConfig().enabled ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ getCurrentConfig().enabled ? 'Active' : 'Inactive' }}
+        </span>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Body -->
-  <div class="rules-page__body">
-    <!-- Loading State -->
-    <div *ngIf="isLoading && !featureDef" class="state-panel">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+  <!-- ═══ BODY ════════════════════════════════════════════════════════════════ -->
+  <div class="rp__body">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading && !featureDef" class="rp__state">
+      <div class="rp__state-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading…</span>
+        </div>
       </div>
-      <p class="state-panel__text">Loading rule details…</p>
+      <p class="rp__state-text">Loading rule details…</p>
     </div>
 
-    <!-- Error State -->
-    <div *ngIf="!isLoading && !featureDef" class="state-panel">
-      <div class="state-panel__icon-wrap">
-        <mat-icon>error_outline</mat-icon>
-      </div>
-      <h4 class="state-panel__heading">Rule Not Found</h4>
-      <p class="state-panel__text">The requested rule could not be loaded.</p>
+    <!-- Error -->
+    <div *ngIf="!isLoading && !featureDef" class="rp__state rp__state--error">
+      <div class="rp__state-icon"><mat-icon>error_outline</mat-icon></div>
+      <h4 class="rp__state-heading">Rule Not Found</h4>
+      <p class="rp__state-text">The requested rule could not be loaded.</p>
       <button mat-flat-button color="primary" (click)="backToList()" class="mt-3">Back to Rules</button>
     </div>
 
     <!-- Content -->
-    <div *ngIf="featureDef" class="layout-grid">
-      <!-- ── Main column ─────────────────────────────────────── -->
-      <div class="layout-grid__main">
-        <!-- Identity card -->
-        <div class="rule-card">
-          <div class="rule-card__hero">
-            <div class="rule-card__icon-wrap">
-              <mat-icon class="rule-card__icon">{{ getFeatureIcon(featureDef.id) }}</mat-icon>
-            </div>
-            <div class="rule-card__identity">
-              <span class="rule-card__name">{{ featureDef.label }}</span>
-              <code class="rule-card__id">{{ featureDef.id }}</code>
-            </div>
-            <div class="ms-auto">
-              <span class="status-chip" [class.status-chip--ok]="getCurrentConfig().enabled" [class.status-chip--off]="!getCurrentConfig().enabled">
-                <mat-icon>{{ getCurrentConfig().enabled ? 'check_circle' : 'cancel' }}</mat-icon>
-                {{ getCurrentConfig().enabled ? 'Active' : 'Inactive' }}
-              </span>
-            </div>
-          </div>
+    <div *ngIf="featureDef" class="rp__layout">
 
-          <!-- Description banner -->
-          <div class="desc-banner">
-            <mat-icon class="desc-banner__icon">info</mat-icon>
-            <div class="desc-banner__body">
-              <span class="desc-banner__label">Description</span>
-              <p class="desc-banner__text">{{ featureDef.blurb }}</p>
-            </div>
-          </div>
+      <!-- ── MAIN COLUMN ─────────────────────────────────────────────────── -->
+      <div class="rp__main">
+
+        <!-- Blurb banner -->
+        <div class="rp__blurb">
+          <div class="rp__blurb-icon"><mat-icon>lightbulb</mat-icon></div>
+          <p class="rp__blurb-text">{{ featureDef.blurb }}</p>
         </div>
 
-        <!-- Score + Basic Info card -->
-        <div class="rule-card">
-          <div class="form-section__header">
-            <mat-icon class="form-section__icon">analytics</mat-icon>
-            <span class="form-section__title">Risk Score &amp; Info</span>
+        <!-- Score + Info card -->
+        <div class="rp-card">
+          <div class="rp-card__header">
+            <mat-icon class="rp-card__header-icon">analytics</mat-icon>
+            <span class="rp-card__header-title">Risk Score &amp; Info</span>
           </div>
+          <div class="rp-score-info">
 
-          <div class="score-info-grid">
-            <!-- Score widget -->
-            <div class="score-widget">
-              <div class="score-ring" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
-                <svg class="score-ring__svg" viewBox="0 0 80 80">
-                  <circle class="score-ring__track" cx="40" cy="40" r="33"/>
-                  <circle class="score-ring__fill" cx="40" cy="40" r="33"
-                    [style.stroke-dashoffset]="207 - (207 * getCurrentConfig().score / 100)"
-                  />
+            <!-- Gauge -->
+            <div class="rp-score-info__gauge">
+              <div class="rp-gauge" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
+                <svg class="rp-gauge__svg" viewBox="0 0 80 80">
+                  <circle class="rp-gauge__track" cx="40" cy="40" r="33"/>
+                  <circle class="rp-gauge__fill" cx="40" cy="40" r="33"
+                    [style.stroke-dashoffset]="207 - (207 * getCurrentConfig().score / 100)"/>
                 </svg>
-                <span class="score-ring__value">{{ getCurrentConfig().score }}</span>
+                <span class="rp-gauge__value">{{ getCurrentConfig().score }}</span>
               </div>
-              <span class="score-widget__label">{{ getScoreLabel(getCurrentConfig().score) }}</span>
+              <span class="rp-gauge__label" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
+                {{ getScoreLabel(getCurrentConfig().score) }}
+              </span>
             </div>
 
             <!-- Info grid -->
-            <div class="basic-info">
-              <div class="info-item">
-                <span class="info-item__label">Feature ID</span>
-                <code class="rule-card__id">{{ featureDef.id }}</code>
+            <div class="rp-score-info__grid">
+              <div class="rp-info-row">
+                <span class="rp-info-row__label">Feature ID</span>
+                <code class="rp-meta__code">{{ featureDef.id }}</code>
               </div>
-              <div class="info-item">
-                <span class="info-item__label">History Required</span>
-                <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+              <div class="rp-info-row">
+                <span class="rp-info-row__label">Default Score</span>
+                <span class="rp-info-row__value fw-bold">{{ featureDef.defaultScore }}</span>
+              </div>
+              <div class="rp-info-row">
+                <span class="rp-info-row__label">Needs History</span>
+                <span class="rp-chip"
+                  [class.rp-chip--warn]="featureDef.needsHistory"
+                  [class.rp-chip--ok]="!featureDef.needsHistory">
                   <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
                   {{ featureDef.needsHistory ? 'Yes' : 'No' }}
                 </span>
               </div>
-              <div class="info-item">
-                <span class="info-item__label">Reads Fields</span>
-                <div class="pill-list">
-                  <span class="pill" *ngFor="let field of featureDef.readsFields">{{ field }}</span>
+              <div class="rp-info-row rp-info-row--col">
+                <span class="rp-info-row__label">Reads Fields</span>
+                <div class="rp-pill-row">
+                  <span class="rp-pill" *ngFor="let f of featureDef.readsFields">{{ f }}</span>
                 </div>
               </div>
-              <div class="info-item">
-                <span class="info-item__label">Default Score</span>
-                <span class="info-item__value fw-bold">{{ featureDef.defaultScore }}</span>
-              </div>
             </div>
+
           </div>
         </div>
 
         <!-- Current Parameters card -->
-        <div class="rule-card" *ngIf="featureDef.params?.length">
-          <div class="form-section__header">
-            <mat-icon class="form-section__icon">settings_input_component</mat-icon>
-            <span class="form-section__title">Current Parameters</span>
-            <span class="form-section__count">{{ featureDef.params.length }}</span>
+        <div class="rp-card" *ngIf="featureDef.params.length">
+          <div class="rp-card__header">
+            <mat-icon class="rp-card__header-icon">settings_input_component</mat-icon>
+            <span class="rp-card__header-title">Current Parameters</span>
+            <span class="rp-card__header-count">{{ featureDef.params.length }}</span>
           </div>
 
-          <div class="params-table-wrap">
-            <table class="params-table" aria-label="Current parameters">
-              <thead>
-                <tr>
-                  <th>Parameter</th>
-                  <th class="text-end">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let param of featureDef.params">
-                  <td class="params-table__name">{{ param.label }}</td>
-                  <td class="text-end">
-                    <span class="pill pill--value">{{ formatParamValue(param.key, getCurrentConfig().params[param.key]) }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="rp-param-view" *ngFor="let param of featureDef.params; let last = last"
+            [class.rp-param-view--last]="last">
+
+            <!-- top row: name + live value -->
+            <div class="rp-param-view__top">
+              <div class="rp-param-view__title-row">
+                <span class="rp-param-view__label">{{ param.label }}</span>
+                <code class="rp-param__key">{{ param.key }}</code>
+                <span class="rp-param__kind">{{ param.kind }}</span>
+              </div>
+              <span class="rp-value-pill">
+                {{ formatParamValue(param.key, getCurrentConfig().params[param.key]) }}
+              </span>
+            </div>
+
+            <!-- detail grid -->
+            <div class="rp-param-view__details">
+              <div class="rp-detail" *ngIf="param.meaning">
+                <span class="rp-detail__key">Meaning</span>
+                <span class="rp-detail__val">{{ param.meaning }}</span>
+              </div>
+              <div class="rp-detail" *ngIf="param.engineUse">
+                <span class="rp-detail__key">Engine use</span>
+                <span class="rp-detail__val">{{ param.engineUse }}</span>
+              </div>
+              <div class="rp-detail" *ngIf="param.inputFormat">
+                <span class="rp-detail__key">Input format</span>
+                <span class="rp-detail__val">{{ param.inputFormat }}</span>
+              </div>
+              <div class="rp-detail" *ngIf="param.allowedValues.length">
+                <span class="rp-detail__key">Allowed values</span>
+                <div class="rp-pill-row">
+                  <span class="rp-pill" *ngFor="let v of param.allowedValues">{{ v }}</span>
+                </div>
+              </div>
+              <div class="rp-detail" *ngIf="param.emptyValueMeaning">
+                <span class="rp-detail__key">If empty</span>
+                <span class="rp-detail__val rp-detail__val--muted">{{ param.emptyValueMeaning }}</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
         <!-- Default Parameters card -->
-        <div class="rule-card" *ngIf="featureDef.params?.length">
-          <div class="form-section__header">
-            <mat-icon class="form-section__icon">restore</mat-icon>
-            <span class="form-section__title">Default Parameters</span>
+        <div class="rp-card" *ngIf="featureDef.params.length">
+          <div class="rp-card__header">
+            <mat-icon class="rp-card__header-icon">restore</mat-icon>
+            <span class="rp-card__header-title">Default Parameters</span>
           </div>
-
-          <div class="params-table-wrap">
-            <table class="params-table" aria-label="Default parameters">
+          <div class="rp-defaults-table-wrap">
+            <table class="rp-defaults-table" aria-label="Default parameters">
               <thead>
                 <tr>
                   <th>Parameter</th>
+                  <th>Type</th>
                   <th class="text-end">Default Value</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let param of featureDef.params">
-                  <td class="params-table__name">{{ param.label }}</td>
+                  <td>
+                    <span class="rp-param-view__label">{{ param.label }}</span>
+                    <code class="rp-param__key d-block mt-1">{{ param.key }}</code>
+                  </td>
+                  <td><span class="rp-param__kind">{{ param.kind }}</span></td>
                   <td class="text-end">
-                    <span class="pill pill--default">{{ formatParamValue(param.key, featureDef.defaultParams?.[param.key] ?? param.defaultValue) }}</span>
+                    <span class="rp-value-pill rp-value-pill--default">
+                      {{ formatParamValue(param.key, featureDef.defaultParams[param.key] ?? param.defaultValue) }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-      </div>
 
-      <!-- ── Sidebar ──────────────────────────────────────────── -->
-      <div class="layout-grid__sidebar">
-        <!-- Actions card -->
-        <div class="side-card">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">bolt</mat-icon>
+      </div><!-- /main -->
+
+      <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+      <aside class="rp__sidebar">
+
+        <!-- Actions -->
+        <div class="rp-side">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">bolt</mat-icon>
             <span>Actions</span>
           </div>
-          <div class="side-card__body">
-            <button mat-flat-button color="primary" class="action-btn action-btn--primary" (click)="editFeature()">
+          <div class="rp-side__body">
+            <button mat-flat-button color="primary" class="rp-btn rp-btn--primary" (click)="editFeature()">
               <mat-icon>edit</mat-icon> Edit Rule
             </button>
-            <button mat-stroked-button class="action-btn" (click)="backToList()">
+            <button mat-stroked-button class="rp-btn" (click)="backToList()">
               <mat-icon>arrow_back</mat-icon> Back to List
             </button>
           </div>
         </div>
 
-        <!-- Status summary card -->
-        <div class="side-card">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">monitor_heart</mat-icon>
+        <!-- Status -->
+        <div class="rp-side">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">monitor_heart</mat-icon>
             <span>Status</span>
           </div>
-          <div class="side-card__body side-card__body--rows">
-            <div class="meta-row">
-              <span class="meta-row__label">Engine</span>
-              <span class="status-chip" [class.status-chip--ok]="getCurrentConfig().enabled" [class.status-chip--off]="!getCurrentConfig().enabled">
+          <div class="rp-side__rows">
+            <div class="rp-meta">
+              <span class="rp-meta__label">Engine</span>
+              <span class="rp-chip"
+                [class.rp-chip--ok]="getCurrentConfig().enabled"
+                [class.rp-chip--off]="!getCurrentConfig().enabled">
                 <mat-icon>{{ getCurrentConfig().enabled ? 'check_circle' : 'cancel' }}</mat-icon>
                 {{ getCurrentConfig().enabled ? 'Enabled' : 'Disabled' }}
               </span>
             </div>
-            <div class="meta-row">
-              <span class="meta-row__label">Alert Score</span>
-              <span class="score-badge" [ngClass]="getScoreClass(getCurrentConfig().score)">
-                <mat-icon class="score-badge__icon">speed</mat-icon>
-                {{ getCurrentConfig().score }}
+            <div class="rp-meta">
+              <span class="rp-meta__label">Alert Score</span>
+              <span class="rp__score-chip" [ngClass]="getScoreClass(getCurrentConfig().score)">
+                <mat-icon>speed</mat-icon>{{ getCurrentConfig().score }}
               </span>
             </div>
-            <div class="meta-row">
-              <span class="meta-row__label">Risk Level</span>
-              <span class="meta-row__value fw-semibold">{{ getScoreLabel(getCurrentConfig().score) }}</span>
+            <div class="rp-meta">
+              <span class="rp-meta__label">Risk Level</span>
+              <span class="rp-meta__value fw-semibold">{{ getScoreLabel(getCurrentConfig().score) }}</span>
             </div>
-            <div class="meta-row">
-              <span class="meta-row__label">History</span>
-              <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+            <div class="rp-meta">
+              <span class="rp-meta__label">History</span>
+              <span class="rp-chip"
+                [class.rp-chip--warn]="featureDef.needsHistory"
+                [class.rp-chip--ok]="!featureDef.needsHistory">
                 <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
                 {{ featureDef.needsHistory ? 'Required' : 'Not Needed' }}
               </span>
@@ -222,20 +268,21 @@
           </div>
         </div>
 
-        <!-- About card -->
-        <div class="side-card side-card--info">
-          <div class="side-card__header">
-            <mat-icon class="side-card__header-icon">lightbulb</mat-icon>
+        <!-- About -->
+        <div class="rp-side rp-side--info">
+          <div class="rp-side__header">
+            <mat-icon class="rp-side__header-icon">lightbulb</mat-icon>
             <span>About This Rule</span>
           </div>
-          <div class="side-card__body">
-            <p class="side-card__note">
+          <div class="rp-side__body">
+            <p class="rp-side__note">
               When this rule triggers, it adds <strong>{{ getCurrentConfig().score }} points</strong>
-              to the transaction's total risk score. If the total exceeds the alert threshold, an alert is generated.
+              to the transaction's risk score. If the total exceeds the alert threshold, an alert is generated.
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+
+      </aside>
+    </div><!-- /layout -->
+  </div><!-- /body -->
 </div>

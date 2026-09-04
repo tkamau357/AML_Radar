@@ -6,8 +6,7 @@ import { Case } from './case/case';
 import { ViewCase } from './view-case/view-case';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'entries', pathMatch: 'full' },
-  { path: 'case', component: Case, canActivate: [AuthGuard] },
+  { path: '', component: Case, canActivate: [AuthGuard] },
   { path: 'add', component: AddCase, canActivate: [AuthGuard] },
   { path: 'view/:id', component: ViewCase, canActivate: [AuthGuard] },
   { path: 'edit/:id', component: AddCase, canActivate: [AuthGuard] },

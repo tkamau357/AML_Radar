@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, EngineConfigRules } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-engine-config',
@@ -19,8 +20,9 @@ export class EngineConfig implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
+    private router: Router,
     private rulesService: RulesService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
   ) {
     this.configForm = this.fb.group({
       rawSubEngineEnabled: [true],
@@ -69,6 +71,7 @@ export class EngineConfig implements OnInit, OnDestroy {
         next: (response) => {
           this.snackbar.alertSuccess('Engine config updated successfully');
           this.engineConfig = response.result;
+          this.router.navigate(['/admin/assessments/rules']);
           this.isLoading = false;
         },
         error: (err) => {

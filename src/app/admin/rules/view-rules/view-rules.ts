@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, RawFeatureDef, EngineConfigRules } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-view-rules',
@@ -22,7 +22,7 @@ export class ViewRules implements OnInit, OnDestroy {
     private rulesService: RulesService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -111,33 +111,13 @@ export class ViewRules implements OnInit, OnDestroy {
     return String(value);
   }
 
-   // Add to add-rules.ts
+  // Options are served directly by the catalog's allowedValues — no hardcoding needed.
   getEnumOptions(param: any): string[] {
-    switch (param.key) {
-      case 'operator':
-        return ['GTE', 'GT'];
-      case 'groupBy':
-        return ['customerId', 'accountId', 'deviceId'];
-      case 'mode':
-        return ['NON_BASE', 'FLAGGED_LIST'];
-      case 'onMissing':
-        return ['SKIP', 'FLAG'];
-      default:
-        return [];
-    }
+    return param.allowedValues ?? [];
   }
 
   getStringListOptions(param: any): string[] {
-    switch (param.key) {
-      case 'riskProfiles':
-        return ['DIGITAL', 'CARD_PRESENT', 'IN_PERSON', 'LOW_BANDWIDTH_DIGITAL'];
-      case 'applyToTypes':
-        return ['CASH_DEPOSIT', 'CASH_WITHDRAWAL', 'TRANSFER', 'PAYMENT', 'MOBILE_MONEY', 'CARD_TRANSACTION', 'LOAN_DISBURSEMENT', 'LOAN_REPAYMENT'];
-      case 'applyToChannels':
-        return ['MOBILE_BANKING', 'INTERNET_BANKING', 'BRANCH', 'ATM', 'POS', 'USSD', 'AGENT_BANKING', 'MOBILE_MONEY', 'API'];
-      default:
-        return [];
-    }
+    return param.allowedValues ?? [];
   }
 
   getScoreClass(score: number): string {

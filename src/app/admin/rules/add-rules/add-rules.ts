@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, RawFeatureDef } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-add-rules',
@@ -18,6 +18,8 @@ export class AddRules implements OnInit, OnDestroy {
   isLoading = false;
   featureId: string | null = null;
 
+  // No custom dropdown state — mat-select handles multi-select natively
+
   private subs: Subscription[] = [];
 
   constructor(
@@ -25,7 +27,7 @@ export class AddRules implements OnInit, OnDestroy {
     private rulesService: RulesService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {
     this.featureForm = this.fb.group({
@@ -90,7 +92,14 @@ export class AddRules implements OnInit, OnDestroy {
             const paramsGroup = this.featureForm.get('params') as FormGroup;
             Object.keys(featureConfig.params || {}).forEach(key => {
               if (paramsGroup.contains(key)) {
-                paramsGroup.get(key)?.patchValue(featureConfig.params[key]);
+                // For STRING_LIST, ensure the value is an array
+                const paramDef = this.featureDef?.params?.find(p => p.key === key);
+                if (paramDef?.kind === 'STRING_LIST') {
+                  const value = featureConfig.params[key];
+                  paramsGroup.get(key)?.patchValue(Array.isArray(value) ? value : []);
+                } else {
+                  paramsGroup.get(key)?.patchValue(featureConfig.params[key]);
+                }
               }
             });
           }
@@ -106,7 +115,13 @@ export class AddRules implements OnInit, OnDestroy {
     const paramsGroup = this.fb.group({});
     
     featureDef.params.forEach(param => {
-      const defaultValue = featureDef.defaultParams?.[param.key] ?? param.defaultValue;
+      let defaultValue = featureDef.defaultParams?.[param.key] ?? param.defaultValue;
+      
+      // Ensure STRING_LIST default is an array
+      if (param.kind === 'STRING_LIST' && !Array.isArray(defaultValue)) {
+        defaultValue = defaultValue ? [defaultValue] : [];
+      }
+      
       paramsGroup.addControl(
         param.key,
         this.fb.control(defaultValue, param.kind === 'DECIMAL' || param.kind === 'NUMBER' ? Validators.required : [])
@@ -162,33 +177,18 @@ export class AddRules implements OnInit, OnDestroy {
     }
   }
 
-  // Add to add-rules.ts
+  // Multi-select methods — no longer needed with mat-select
+  getParamDef(paramKey: string): any {
+    return this.featureDef?.params?.find(p => p.key === paramKey);
+  }
+
+  /** Options driven directly from the catalog's allowedValues — no hardcoding. */
   getEnumOptions(param: any): string[] {
-    switch (param.key) {
-      case 'operator':
-        return ['GTE', 'GT'];
-      case 'groupBy':
-        return ['customerId', 'accountId', 'deviceId'];
-      case 'mode':
-        return ['NON_BASE', 'FLAGGED_LIST'];
-      case 'onMissing':
-        return ['SKIP', 'FLAG'];
-      default:
-        return [];
-    }
+    return Array.isArray(param?.allowedValues) ? param.allowedValues : [];
   }
 
   getStringListOptions(param: any): string[] {
-    switch (param.key) {
-      case 'riskProfiles':
-        return ['DIGITAL', 'CARD_PRESENT', 'IN_PERSON', 'LOW_BANDWIDTH_DIGITAL'];
-      case 'applyToTypes':
-        return ['CASH_DEPOSIT', 'CASH_WITHDRAWAL', 'TRANSFER', 'PAYMENT', 'MOBILE_MONEY', 'CARD_TRANSACTION', 'LOAN_DISBURSEMENT', 'LOAN_REPAYMENT'];
-      case 'applyToChannels':
-        return ['MOBILE_BANKING', 'INTERNET_BANKING', 'BRANCH', 'ATM', 'POS', 'USSD', 'AGENT_BANKING', 'MOBILE_MONEY', 'API'];
-      default:
-        return [];
-    }
+    return Array.isArray(param?.allowedValues) ? param.allowedValues : [];
   }
 
   getScoreClass(score: number): string {
@@ -261,6 +261,12 @@ export class AddRules implements OnInit, OnDestroy {
 
   getCurrentScore(): number {
     return this.featureForm.get('score')?.value || this.featureDef?.defaultScore || 0;
+  }
+
+  formatParamValue(key: string, value: any): string {
+    if (value == null) return '—';
+    if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
+    return String(value);
   }
 
   getScoreColorClass(score: number): string {

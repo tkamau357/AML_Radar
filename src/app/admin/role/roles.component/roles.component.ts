@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RolesService, RoleResponse } from '../roles.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteConfirmationDialog } from '../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-roles',
@@ -59,7 +59,7 @@ export class RolesComponent implements OnInit, OnDestroy {
 
   constructor(
     private rolesService: RolesService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private router: Router,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,

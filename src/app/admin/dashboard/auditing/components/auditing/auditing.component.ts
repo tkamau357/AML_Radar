@@ -12,9 +12,9 @@ import { MatPaginator } from "@angular/material/paginator";
 import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSort } from "@angular/material/sort";
-import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { ViewAuditDetailsComponent } from "../view-audit-details/view-audit-details.component";
 import { TokenStorageService } from "../../../../../core/service/token-storage.service";
+import { NotificationToastService } from "../../../../../data/services/notification-toast.service";
 
 @Component({
   selector: "app-auditing",
@@ -76,7 +76,7 @@ export class AuditingComponent implements OnInit, OnDestroy {
     private _datePipe: DatePipe,
     private _tokenStorage: TokenStorageService,
     public dialog: MatDialog,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {}
 

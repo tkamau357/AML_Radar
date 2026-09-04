@@ -46,8 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         // Restore sound functionality
-        document.addEventListener('click', this.restoreSound);
-        document.addEventListener('keydown', this.restoreSound);
+        // document.addEventListener('click', this.restoreSound);
+        // document.addEventListener('keydown', this.restoreSound);
 
         // Subscribe to authentication state
         this.authService.isAuthenticated$
@@ -74,19 +74,19 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        document.removeEventListener('click', this.restoreSound);
-        document.removeEventListener('keydown', this.restoreSound);
+        // document.removeEventListener('click', this.restoreSound);
+        // document.removeEventListener('keydown', this.restoreSound);
         this.destroy$.next();
         this.destroy$.complete();
     }
 
-    private readonly restoreSound = (): void => {
-        if (this.notificationToast.isSoundEnabled) {
-            this.notificationToast.unlockAudio();
-        }
-        document.removeEventListener('click', this.restoreSound);
-        document.removeEventListener('keydown', this.restoreSound);
-    };
+    // private readonly restoreSound = (): void => {
+    //     if (this.notificationToast.isSoundEnabled) {
+    //         this.notificationToast.unlockAudio();
+    //     }
+    //     document.removeEventListener('click', this.restoreSound);
+    //     document.removeEventListener('keydown', this.restoreSound);
+    // };
 
     /**
      * Validate token on app initialization

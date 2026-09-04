@@ -6,7 +6,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Subscription, finalize } from 'rxjs';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import {
   ScreeningService,
   ScreeningResponse,
@@ -21,6 +20,7 @@ import {
 } from '../screening.service';
 import { ScreeningDialog } from '../screening-dialog/screening-dialog';
 import { SanctionListSourceInfo, SanctionsService } from '../../sanctions/sanctions.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-screening',
@@ -35,7 +35,7 @@ export class Screening implements OnInit, OnDestroy {
   // Screening Results
   screeningHistory: ScreeningResponse[] = [];
   screeningDataSource!: MatTableDataSource<ScreeningResponse>;
-  displayedColumns: string[] = ['searchedName', 'matchCount', 'status', 'thresholdUsed', 'sourcesSearched', 'timestamp', 'actions'];
+  displayedColumns: string[] = ['searchedName', 'matchCount', 'status', 'thresholdUsed', 'timestamp', 'actions'];
 
   // Config
   screeningConfig!: ScreeningConfigResponse;
@@ -46,7 +46,12 @@ export class Screening implements OnInit, OnDestroy {
   isLoadingHistory = false;
   isLoadingConfig = false;
 
-  sanctionSources = Object.values(SanctionListSource);
+  availableSources = [
+    'OFAC_SDN', 'OFAC_CONSOLIDATED', 'UN_CONSOLIDATED', 'EU_CONSOLIDATED', 'UK_HMT', 'INTERPOL',
+    'KRA_TAX_DEFAULTERS', 'KRA_DEREGISTERED', 'CBK_DEBARRED', 'CBK_FOREX_BUREAUS',
+    'FRC_WATCHLIST', 'PPRA_DEBARRED', 'DCI_WANTED', 'EACC_CASES', 'NSE_SUSPENDED', 'IRA_DEREGISTERED',
+    'EAC_WATCHLIST', 'AU_SANCTIONS', 'PEP', 'PEP_INTERNATIONAL', 'ADVERSE_MEDIA', 'CUSTOM'
+  ];
   screeningCategories = Object.values(ScreeningCategory);
   riskLevels = Object.values(RiskLevel);
   matchTypes = Object.values(MatchType);
@@ -65,7 +70,7 @@ export class Screening implements OnInit, OnDestroy {
     private screeningService: ScreeningService,
     private dialog: MatDialog,
     private fb: FormBuilder,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private sanctionsService: SanctionsService,
     private cdr: ChangeDetectorRef
   ) {}

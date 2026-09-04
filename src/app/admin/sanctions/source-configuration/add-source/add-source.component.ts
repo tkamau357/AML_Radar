@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SanctionsService, SourceConfigResponse, SourceConfigRequest, AcquisitionMode, SyncStrategyType } from '../../sanctions.service';
-import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { LoadingService } from '../../../../core/service/loading.service';
+import { NotificationToastService } from '../../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-add-source',
@@ -49,7 +49,7 @@ export class AddSourceComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private service: SanctionsService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,

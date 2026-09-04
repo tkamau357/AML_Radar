@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { UsersService, UserResponse, CreateUserRequest, UpdateUserRequest } from '../users.service';
 import { RolesService, RoleResponse } from '../../role/roles.service';
 import { BranchService, BranchResponse } from '../../branch/branch.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-add-users',
@@ -31,7 +31,7 @@ export class AddUsersComponent implements OnInit, OnDestroy {
     private users: UsersService,
     private rolesSvc: RolesService,
     private branchSvc: BranchService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,

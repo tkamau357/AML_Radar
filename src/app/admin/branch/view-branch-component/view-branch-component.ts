@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BranchService, BranchResponse } from '../branch.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-view-branch',
@@ -20,7 +20,7 @@ export class ViewBranchComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private service: BranchService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {}
 

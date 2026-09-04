@@ -1,7 +1,7 @@
 import { ErrorHandler, Injectable, NgZone, Injector } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { SnackbarService } from "./snackbar.service";
 import { LoadingService } from "../../core/service/loading.service";
+import { NotificationToastService } from "../../data/services/notification-toast.service";
 
 /**
  * Global error handler that catches all uncaught errors.
@@ -21,7 +21,7 @@ export class GlobalErrorHandlerService extends ErrorHandler {
   constructor(
     private dialog: MatDialog, 
     private ngZone: NgZone, 
-    private snackBarService: SnackbarService,
+    private snackBarService: NotificationToastService,
     private injector: Injector
   ) {
     super();

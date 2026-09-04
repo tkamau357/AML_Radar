@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { SanctionListSourceInfo, SanctionsService, SanctionEntryResponse, ManualEntryRequest } from '../../sanctions.service';
+import { NotificationToastService } from '../../../../data/services/notification-toast.service';
 
 interface BulkEntry {
   id: number;
@@ -73,7 +73,7 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private service: SanctionsService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,

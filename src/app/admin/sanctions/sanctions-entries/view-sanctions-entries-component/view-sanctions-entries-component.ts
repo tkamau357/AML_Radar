@@ -1,10 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { SanctionEntryResponse, SanctionsService } from '../../sanctions.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { NotificationToastService } from '../../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-view-sanctions-entries-component',
@@ -23,7 +22,7 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private service: SanctionsService,
-    private snack: SnackbarService,
+    private snack: NotificationToastService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
   ) {}
