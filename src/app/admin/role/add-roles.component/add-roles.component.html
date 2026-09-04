@@ -108,17 +108,13 @@
           <div *ngFor="let group of groupedPermissions" class="perm-group">
             <!-- Group header -->
             <div class="perm-group-header" [class.perm-group-header--collapsed]="
-                isGroupCollapsed(group.category)
-              ">
-
+              isGroupCollapsed(group.category)">
               <!-- Selection checkbox -->
               <input
                 type="checkbox"
                 class="perm-checkbox"
                 [checked]="isGroupSelected(group.perms)"
-                [indeterminate]="
-                  isGroupIndeterminate(group.perms)
-                "
+                [indeterminate]="isGroupIndeterminate(group.perms)"
                 (change)="toggleGroup(group.perms)"
                 (click)="$event.stopPropagation()"
               />
@@ -134,37 +130,18 @@
               </span>
 
               <!-- Collapse button -->
-              <button
-                type="button"
-                class="perm-collapse-btn"
-                [attr.aria-label]="
-                  isGroupCollapsed(group.category)
-                    ? 'Expand ' + group.category
-                    : 'Collapse ' + group.category
-                "
-                (click)="toggleGroupCollapse(group.category)">
-
+              <button type="button" class="perm-collapse-btn"
+                [attr.aria-label]="isGroupCollapsed(group.category) ? 'Expand ' + group.category
+                  : 'Collapse ' + group.category" (click)="toggleGroupCollapse(group.category)">
                 <mat-icon>
-                  {{
-                    isGroupCollapsed(group.category)
-                      ? 'expand_more'
-                      : 'expand_less'
-                  }}
+                  {{ isGroupCollapsed(group.category) ? 'expand_more' : 'expand_less' }}
                 </mat-icon>
-
               </button>
-
             </div>
 
             <!-- Permission items -->
-            <div
-              *ngIf="!isGroupCollapsed(group.category)"
-              class="perm-items">
-
-              <label
-                *ngFor="let p of group.perms"
-                class="perm-item">
-
+            <div *ngIf="!isGroupCollapsed(group.category)" class="perm-items">
+              <label *ngFor="let p of group.perms" class="perm-item">
                 <input
                   type="checkbox"
                   class="perm-checkbox"
@@ -173,7 +150,6 @@
                 />
 
                 <div class="perm-item-info">
-
                   <span class="perm-item-name">
                     {{ p.name || p.code }}
                   </span>
@@ -181,17 +157,11 @@
                   <code class="perm-item-code">
                     {{ p.code }}
                   </code>
-
                 </div>
-
               </label>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
 
@@ -199,23 +169,15 @@
     <div class="form-aside">
       <div class="form-card form-card--actions">
         <div class="form-card-body">
-          <button
-            type="submit"
-            class="action-btn action-btn--primary"
+          <button type="submit" class="action-btn action-btn--primary"
             [disabled]="form.invalid || isSubmitting">
             <mat-icon *ngIf="!isSubmitting">
               {{ isEditMode ? 'edit' : 'save' }}
             </mat-icon>
 
-            <div
-              *ngIf="isSubmitting"
-              class="spinner-sm spinner-sm--white">
-            </div>
+            <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
 
-            {{ isSubmitting
-              ? 'Saving…'
-              : (isEditMode ? 'Update Role' : 'Create Role')
-            }}
+            {{ isSubmitting ? 'Saving…' : (isEditMode ? 'Update Role' : 'Create Role') }}
           </button>
           <button type="button" class="action-btn action-btn--ghost" (click)="cancel()">
             Cancel
@@ -223,6 +185,5 @@
         </div>
       </div>
     </div>
-
   </form>
 </div>

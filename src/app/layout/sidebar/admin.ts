@@ -87,7 +87,7 @@ export const admin: RouteInfo[] = [
     title: "Case Manager",
     moduleName: "cases",
     iconType: "feather",
-    icon: "user",
+    icon: "inbox",
     class: "",
     groupTitle: false,
     badge: "",

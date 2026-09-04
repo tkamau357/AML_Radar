@@ -25,10 +25,8 @@ const document: any = window.document;
   styleUrls: ["./header.component.scss"],
   standalone: false,
 })
-export class HeaderComponent
-  extends UnsubscribeOnDestroyAdapter
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class HeaderComponent extends UnsubscribeOnDestroyAdapter
+  implements OnInit, AfterViewInit, OnDestroy {
   public config: any = {};
   isNavbarCollapsed = false;
   isFullscreen: boolean = false;

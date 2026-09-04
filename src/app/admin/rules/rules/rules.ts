@@ -1,10 +1,9 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, RawFeatureDef } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-rules',
@@ -64,9 +63,8 @@ export class Rules implements OnInit, OnDestroy {
 
   constructor(
     private rulesService: RulesService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private router: Router,
-    private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
   ) {}
 

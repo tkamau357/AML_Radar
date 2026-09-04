@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, RawFeatureDef } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-add-rules',
@@ -25,7 +25,7 @@ export class AddRules implements OnInit, OnDestroy {
     private rulesService: RulesService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {
     this.featureForm = this.fb.group({

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/service/auth.service';
 import { TokenStorageService } from '../../core/service/token-storage.service';
-import { SnackbarService } from '../../shared/services/snackbar.service';
+import { NotificationToastService } from '../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-change-password',
@@ -31,7 +31,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private tokenStorage: TokenStorageService,
     private router: Router,
-    private snackbar: SnackbarService
+    private snackbar: NotificationToastService
   ) {}
 
   ngOnInit(): void {

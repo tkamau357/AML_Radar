@@ -4,9 +4,9 @@ import { AuthService } from "../../core/service/auth.service";
 import { Router } from "@angular/router";
 import { TokenStorageService } from "../../core/service/token-storage.service";
 import { firstValueFrom, Subscription } from "rxjs";
-import { SnackbarService } from "../../shared/services/snackbar.service";
 import { RolesService } from "../../admin/role/roles.service";
 import { UsersService } from "../../admin/user/users.service";
+import { NotificationToastService } from "../../data/services/notification-toast.service";
 
 @Component({
   selector: "app-otp",
@@ -30,9 +30,6 @@ export class OtpComponent implements OnInit, OnDestroy, AfterViewInit {
   otpDigits: string[] = ['', '', '', '', '', ''];
   currentIndex = 0;
 
-  // ==========================
-  // Countdown Timer Variables
-  // ==========================
   resendTimer: number = 180; // Default fallback
   canResend: boolean = false;
   resendInterval: any = null;
@@ -46,7 +43,7 @@ export class OtpComponent implements OnInit, OnDestroy, AfterViewInit {
     private _tokenStorage: TokenStorageService,
     private _rolesService: RolesService, // ✅ Inject RolesService
     private _usersService: UsersService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
   ) { }
 
   ngOnInit(): void {

@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { RulesService, RawFeatureDef, EngineConfigRules } from '../rules.service';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-view-rules',
@@ -22,7 +22,7 @@ export class ViewRules implements OnInit, OnDestroy {
     private rulesService: RulesService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private cdr: ChangeDetectorRef,
   ) {}
 

@@ -3,9 +3,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-/* ── CSS custom-property overrides for Angular Material 17+ (MDC) ──────────
-   These must be set at :root so they cascade into the cdk-overlay-container
-   which is appended to <body> outside any component scope.              */
 :root {
   /* Select panel */
   --mat-select-panel-background-color: #ffffff;

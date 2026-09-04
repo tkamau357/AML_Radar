@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { SanctionsService, SourceConfigResponse } from '../sanctions.service';
-import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { LoadingService } from '../../../core/service/loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
   selector: 'app-source-configuration',
@@ -82,7 +82,7 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
 
   constructor(
     private sanctionsService: SanctionsService,
-    private snackbar: SnackbarService,
+    private snackbar: NotificationToastService,
     private router: Router,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
