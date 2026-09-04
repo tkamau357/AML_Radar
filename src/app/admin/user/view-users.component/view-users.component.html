@@ -1,5 +1,4 @@
 <div class="form-page">
-
   <div class="form-page-header">
     <button class="back-btn" (click)="back()" type="button">
       <mat-icon>arrow_back</mat-icon>
@@ -16,9 +15,7 @@
   </div>
 
   <div *ngIf="!isLoading && user" class="form-layout">
-
     <div class="form-main">
-
       <!-- Profile card -->
       <div class="detail-card">
         <div class="detail-card-header">
@@ -65,7 +62,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Aside actions -->
@@ -77,24 +73,6 @@
         <div class="detail-body">
           <button class="action-btn action-btn--primary" (click)="editUser()" type="button">
             <mat-icon>edit</mat-icon> Edit User
-          </button>
-          <button
-            *ngIf="!isActive"
-            class="action-btn action-btn--success"
-            (click)="changeStatus('ACTIVE')"
-            [disabled]="isChanging"
-            type="button"
-          >
-            <mat-icon>check_circle</mat-icon> Activate
-          </button>
-          <button
-            *ngIf="isActive"
-            class="action-btn action-btn--danger"
-            (click)="changeStatus('INACTIVE')"
-            [disabled]="isChanging"
-            type="button"
-          >
-            <mat-icon>block</mat-icon> Deactivate
           </button>
           <button class="action-btn action-btn--ghost" (click)="back()" type="button">
             Back to list

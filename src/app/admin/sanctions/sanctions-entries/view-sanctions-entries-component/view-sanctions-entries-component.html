@@ -1,6 +1,4 @@
-<!-- view-sanctions-entries-component.html -->
 <div class="form-page">
-
   <!-- Header -->
   <div class="form-page-header">
     <button class="back-btn" (click)="back()" type="button">
@@ -19,10 +17,8 @@
   </div>
 
   <div *ngIf="!isLoading && entry" class="form-layout">
-
     <!-- Main column -->
     <div class="form-main">
-
       <!-- Details card -->
       <div class="detail-card">
         <div class="detail-card-header">
@@ -118,9 +114,6 @@
         <div class="detail-body">
           <button class="action-btn action-btn--primary" (click)="editEntry()" type="button">
             <mat-icon>edit</mat-icon> Edit Entry
-          </button>
-          <button *ngIf="entry.active" class="action-btn action-btn--warning" (click)="deactivateEntry()" type="button">
-            <mat-icon>block</mat-icon> Deactivate
           </button>
           <button class="action-btn action-btn--ghost" (click)="back()" type="button">
             <mat-icon>arrow_back</mat-icon> Back to list

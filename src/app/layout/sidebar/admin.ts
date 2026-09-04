@@ -146,7 +146,7 @@ export const admin: RouteInfo[] = [
     groupTitle: false,
     badge: "",
     badgeClass: "",
-    permissions: ["SANCTIONS_LIST_VIEW"],
+    permissions: ["SANCTION_SOURCES_VIEW"],
     submenu: [],
   },
 
@@ -178,7 +178,7 @@ export const admin: RouteInfo[] = [
     submenu: [],
   },
   {
-    path: "/admin/user-management/roles",
+    path: "/admin/role-management/roles",
     title: "Roles & Permissions",
     moduleName: "roles",
     iconType: "feather",

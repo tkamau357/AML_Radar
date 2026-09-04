@@ -35,10 +35,7 @@
               <label class="field-label" for="source">
                 Source Type <span class="required">*</span>
               </label>
-              <mat-select
-                id="source"
-                formControlName="source"
-                class="field-select-trigger"
+              <mat-select id="source" formControlName="source" class="field-select-trigger"
                 [class.field-select-trigger--error]="err('source')"
                 panelClass="field-select-panel">
                 <mat-option value="" disabled>Select source type…</mat-option>
@@ -102,11 +99,8 @@
               <label class="field-label" for="acquisitionMode">
                 Acquisition Mode <span class="required">*</span>
               </label>
-              <mat-select
-                id="acquisitionMode"
-                formControlName="acquisitionMode"
-                class="field-select-trigger"
-                panelClass="field-select-panel">
+              <mat-select id="acquisitionMode" formControlName="acquisitionMode"
+                class="field-select-trigger" panelClass="field-select-panel">
                 <mat-option value="" disabled>Select mode…</mat-option>
                 <mat-option *ngFor="let mode of acquisitionModes" [value]="mode.value">
                   {{ mode.label }}
@@ -143,11 +137,8 @@
             <div class="field-row">
               <div class="field-group">
                 <label class="field-label" for="apiFormat">Response Format</label>
-              <mat-select
-                id="apiFormat"
-                formControlName="apiFormat"
-                class="field-select-trigger"
-                panelClass="field-select-panel">
+              <mat-select id="apiFormat" formControlName="apiFormat"
+                class="field-select-trigger" panelClass="field-select-panel">
                 <mat-option value="" disabled>Select format…</mat-option>
                 <mat-option value="JSON">JSON</mat-option>
                 <mat-option value="XML">XML</mat-option>
@@ -319,11 +310,8 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="syncStrategy">Strategy</label>
-              <mat-select
-                id="syncStrategy"
-                formControlName="syncStrategy"
-                class="field-select-trigger"
-                panelClass="field-select-panel">
+              <mat-select id="syncStrategy" formControlName="syncStrategy"
+                class="field-select-trigger" panelClass="field-select-panel">
                 <mat-option value="" disabled>Select strategy…</mat-option>
                 <mat-option *ngFor="let s of syncStrategies" [value]="s.value">{{ s.label }}</mat-option>
               </mat-select>
@@ -509,9 +497,7 @@
           <span class="form-card-title">Actions</span>
         </div>
         <div class="form-card-body">
-          <button
-            type="submit"
-            class="action-btn action-btn--primary"
+          <button type="submit" class="action-btn action-btn--primary"
             [disabled]="form.invalid || isSubmitting">
             <div *ngIf="isSubmitting" class="spinner-sm spinner-sm--white"></div>
             <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>

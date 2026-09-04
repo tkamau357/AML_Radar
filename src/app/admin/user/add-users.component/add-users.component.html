@@ -1,5 +1,4 @@
 <div class="form-page">
-
   <div class="form-page-header">
     <button class="back-btn" (click)="cancel()" type="button">
       <mat-icon>arrow_back</mat-icon>
@@ -19,9 +18,7 @@
   </div>
 
   <form *ngIf="!isLoadingRefs" [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
-
     <div class="form-main">
-
       <!-- Personal details -->
       <div class="form-card">
         <div class="form-card-header">
@@ -61,16 +58,11 @@
           <span class="form-card-title">Account Setup</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Role <span class="required">*</span></label>
-              <mat-select
-                id="roleId"
-                formControlName="roleId"
-                class="field-select-trigger"
-                [class.field-select-trigger--error]="err('roleId')"
-                panelClass="field-select-panel">
+              <mat-select id="roleId" formControlName="roleId" class="field-select-trigger"
+                [class.field-select-trigger--error]="err('roleId')" panelClass="field-select-panel">
                 <mat-option [value]="" disabled>Select a role…</mat-option>
                 <mat-option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</mat-option>
               </mat-select>
@@ -79,11 +71,8 @@
 
             <div class="field-group">
               <label class="field-label">Branch <span class="required">*</span></label>
-              <mat-select
-                formControlName="branchCode"
-                class="field-select-trigger"
-                [class.field-select-trigger--error]="err('branchCode')"
-                panelClass="field-select-panel">
+              <mat-select formControlName="branchCode" class="field-select-trigger"
+                [class.field-select-trigger--error]="err('branchCode')" panelClass="field-select-panel">
                 <mat-option [value]="null" disabled>Select a branch…</mat-option>
                 <mat-option *ngFor="let b of branches" [value]="b.branchCode">
                   {{ b.branchName }} ({{ b.branchCode }})
@@ -99,7 +88,6 @@
               <span>A temporary password will be auto-generated and sent to the user's email address. They will be required to change it on first login.</span>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -121,6 +109,5 @@
         </div>
       </div>
     </div>
-
   </form>
 </div>

@@ -33,7 +33,7 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id || isNaN(id)) {
-      this.router.navigate(['/admin/user-management/roles']);
+      this.router.navigate(['/admin/role-management/roles']);
       return;
     }
     this.loadRole(id);
@@ -57,7 +57,7 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load role');
-        this.router.navigate(['/admin/user-management/roles']);
+        this.router.navigate(['/admin/role-management/roles']);
       },
     });
     this.subs.push(s);
@@ -150,11 +150,11 @@ export class ViewRolesComponent implements OnInit, OnDestroy {
 
   editRole(): void {
     if (this.role?.id) {
-      this.router.navigate(['/admin/user-management/roles/edit', this.role.id]);
+      this.router.navigate(['/admin/role-management/roles/edit', this.role.id]);
     }
   }
 
   back(): void {
-    this.router.navigate(['/admin/user-management/roles']);
+    this.router.navigate(['/admin/role-management/roles']);
   }
 }

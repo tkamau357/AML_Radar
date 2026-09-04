@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
 import { Subscription, finalize } from 'rxjs';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
@@ -30,9 +29,6 @@ import { SanctionListSourceInfo, SanctionsService } from '../../sanctions/sancti
   styleUrl: './screening.scss',
 })
 export class Screening implements OnInit, OnDestroy {
-
-  // ========== PROPERTIES ==========
-
   // Filter Form
   screeningForm!: FormGroup;
 
@@ -50,22 +46,13 @@ export class Screening implements OnInit, OnDestroy {
   isLoadingHistory = false;
   isLoadingConfig = false;
 
-  // Sanction List Sources
   sanctionSources = Object.values(SanctionListSource);
-
-  // Screening Categories
   screeningCategories = Object.values(ScreeningCategory);
-
-  // Risk Levels
   riskLevels = Object.values(RiskLevel);
-
-  // Match Types
   matchTypes = Object.values(MatchType);
 
-  // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  // Table references
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -98,8 +85,6 @@ export class Screening implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  // ========== FORM INITIALIZATION ==========
-
   private initializeForm(): void {
     this.screeningForm = this.fb.group({
       name: [''],
@@ -118,12 +103,6 @@ export class Screening implements OnInit, OnDestroy {
     const sub = this.sanctionsService.getSources().subscribe({
       next: (sources: any) => {
         this.sources = sources;
-        
-        // Build source filter options for dynamic table
-        // this.sourceFilterOptions = sources.map(source => ({
-        //   value: source.source,
-        //   label: source.displayName
-        // }));
         
         this.cdr.detectChanges();
       },
@@ -158,8 +137,6 @@ export class Screening implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  // ========== SCREENING HISTORY ==========
-
   loadScreeningHistory(): void {
     this.isLoadingHistory = true;
     // Note: No endpoint provided for history retrieval in the controller,
@@ -168,11 +145,6 @@ export class Screening implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // ========== SCREENING OPERATIONS ==========
-
-  /**
-   * Execute a screening based on form values
-   */
   onScreen(): void {
     if (this.screeningForm.invalid) {
       this.snackbar.alertError('Please fill in required fields');
@@ -198,9 +170,6 @@ export class Screening implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  /**
-   * Build ScreeningRequest from form values
-   */
   private buildScreeningRequest(): ScreeningRequest {
     const formValues = this.screeningForm.value;
     return {
@@ -244,13 +213,9 @@ export class Screening implements OnInit, OnDestroy {
     });
     this.subscriptions.push(sub);
 
-    // Show success message
     this.snackbar.alertSuccess(`Screening completed: ${response.matchCount} matches found`);
   }
 
-  /**
-   * Reset screening form
-   */
   onReset(): void {
     this.screeningForm.reset({
       name: '',
@@ -264,17 +229,12 @@ export class Screening implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Clear search in table
-   */
   onClearSearch(): void {
     this.screeningForm.patchValue({ searchTerm: '' });
     if (this.screeningDataSource) {
       this.screeningDataSource.filter = '';
     }
   }
-
-  // ========== NAVIGATION ==========
 
   private navigateToMatchDetails(match: MatchResult): void {
     // Navigate to match details route or open detail view
@@ -286,11 +246,6 @@ export class Screening implements OnInit, OnDestroy {
     this.snackbar.alertInfo('Opening full results view');
   }
 
-  // ========== TABLE ACTIONS ==========
-
-  /**
-   * View screening result
-   */
   viewScreeningResult(row: ScreeningResponse): void {
     const dialogRef = this.dialog.open(ScreeningDialog, {
       width: '800px',
@@ -309,9 +264,6 @@ export class Screening implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  /**
-   * Delete screening record
-   */
   deleteScreening(row: ScreeningResponse): void {
     // Only remove from local history since no delete endpoint is provided
     const index = this.screeningHistory.indexOf(row);
@@ -326,11 +278,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  // ========== HELPER METHODS ==========
-
-  /**
-   * Get status icon for display
-   */
   getStatusIcon(status: ScreeningStatus): string {
     switch (status) {
       case ScreeningStatus.COMPLETED:
@@ -346,9 +293,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get status color class
-   */
   getStatusClass(status: ScreeningStatus): string {
     switch (status) {
       case ScreeningStatus.COMPLETED:
@@ -364,28 +308,15 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Format timestamp for display
-   */
   formatTimestamp(timestamp: string): string {
     return new Date(timestamp).toLocaleString();
   }
 
-  /**
-   * Get source badges
-   */
   getSourceBadges(sources: string[]): string[] {
     return sources || [];
   }
 
-  /**
-   * Handle table action click
-   * Note: TableAction might have different structure - check the actual interface
-   */
   onTableAction(action: TableAction): void {
-    // The TableAction type might have different properties
-    // Based on the error, it doesn't have 'action' and 'row' directly
-    // Let's handle it based on what properties it actually has
     if (action && typeof action === 'object') {
       // Try to access properties defensively
       const actionType = (action as any).action || (action as any).type;
@@ -407,9 +338,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle header action click
-   */
   onHeaderAction(action: HeaderAction): void {
     // HeaderAction might have different structure
     if (action && typeof action === 'object') {
@@ -428,9 +356,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Export screening result (mock implementation)
-   */
   exportScreeningResult(row: ScreeningResponse): void {
     const data = JSON.stringify(row, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -445,11 +370,6 @@ export class Screening implements OnInit, OnDestroy {
     this.snackbar.alertSuccess('Screening result exported');
   }
 
-  // ========== SOURCE HELPERS ==========
-
-  /**
-   * Get available sources based on category selection
-   */
   getSourcesForCategory(category: ScreeningCategory): SanctionListSource[] {
     switch (category) {
       case ScreeningCategory.PEP:
@@ -467,9 +387,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get risk label
-   */
   getRiskLabel(risk: RiskLevel): string {
     const labels: Record<RiskLevel, string> = {
       [RiskLevel.HIGH]: 'High Risk',
@@ -480,11 +397,6 @@ export class Screening implements OnInit, OnDestroy {
     return labels[risk] || risk;
   }
 
-  // ========== SEARCH & FILTER ==========
-
-  /**
-   * Apply filter to table
-   */
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     if (this.screeningDataSource) {
@@ -492,9 +404,6 @@ export class Screening implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Check if form has active filters
-   */
   hasActiveFilters(): boolean {
     const values = this.screeningForm.value;
     return !!(values.name ||  (values.sources && values.sources.length > 0) || 

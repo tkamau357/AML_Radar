@@ -1,4 +1,3 @@
-// view-sanctions-entries-component.ts
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -14,7 +13,6 @@ import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/conf
   styleUrl: './view-sanctions-entries-component.scss',
 })
 export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
-
   entry: SanctionEntryResponse | null = null;
   isLoading = false;
   entryId: number | null = null;
@@ -70,37 +68,6 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
     if (this.entry?.id) {
       this.router.navigate(['/admin/sanctions/entries/edit', this.entry.id]);
     }
-  }
-
-  deactivateEntry(): void {
-    if (!this.entry) return;
-
-    const dialogRef = this.dialog.open(ConfirmDialog, {
-      width: '460px',
-      maxWidth: 'calc(100vw - 32px)',
-      data: {
-        title: 'Deactivate Sanction Entry',
-        message: `Are you sure you want to deactivate the sanction entry "${this.entry.fullName}"? The entry will no longer be used in screening.`,
-        confirmText: 'Deactivate',
-        cancelText: 'Cancel',
-      },
-    });
-
-    const sub = dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-
-      const s = this.service.deactivateEntry(this.entry!.id).subscribe({
-        next: () => {
-          this.snack.alertSuccess('Entry deactivated successfully');
-          this.loadEntry(this.entry!.id);
-        },
-        error: (err) => {
-          this.snack.alertError(err?.error?.message || 'Failed to deactivate entry');
-        },
-      });
-      this.subs.push(s);
-    });
-    this.subs.push(sub);
   }
 
   back(): void {

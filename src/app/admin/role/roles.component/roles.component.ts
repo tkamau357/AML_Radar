@@ -5,7 +5,6 @@ import { RolesService, RoleResponse } from '../roles.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { DeleteConfirmationDialog } from '../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
 
 @Component({
@@ -20,7 +19,7 @@ export class RolesComponent implements OnInit, OnDestroy {
 
   totalElements = 0;
   pageIndex = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   columns = [
     { label: '#',          field: 'index',       type: 'index'  },
@@ -93,15 +92,15 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
-    this.router.navigate(['admin/user-management/roles/add']);
+    this.router.navigate(['admin/role-management/roles/add']);
   }
 
   viewRole(role: RoleResponse): void {
-    this.router.navigate(['admin/user-management/roles/view', role.id]);
+    this.router.navigate(['admin/role-management/roles/view', role.id]);
   }
 
   editRole(role: RoleResponse): void {
-    this.router.navigate(['admin/user-management/roles/edit', role.id]);
+    this.router.navigate(['admin/role-management/roles/edit', role.id]);
   }
 
   deleteRole(role: RoleResponse): void {

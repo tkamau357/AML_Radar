@@ -1,5 +1,4 @@
 <div class="rules-page">
-
   <!-- Page Header -->
   <div class="rules-page__header">
     <div class="rules-page__header-inner">
@@ -16,10 +15,8 @@
   <!-- Body -->
   <div class="rules-page__body">
     <div class="layout-grid">
-
       <!-- ── Main column ─────────────────────────────────────── -->
       <div class="layout-grid__main">
-
         <!-- Engine identity card -->
         <div class="rule-card">
           <div class="rule-card__hero">
@@ -42,7 +39,6 @@
         </div>
 
         <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
-
           <!-- Sub-engine toggle card -->
           <div class="rule-card">
             <div class="form-section__header">
@@ -162,13 +158,11 @@
               </div>
             </div>
           </div>
-
         </form>
       </div>
 
       <!-- ── Sidebar ──────────────────────────────────────────── -->
       <div class="layout-grid__sidebar">
-
         <!-- Actions card -->
         <div class="side-card">
           <div class="side-card__header">
@@ -176,12 +170,8 @@
             <span>Actions</span>
           </div>
           <div class="side-card__body">
-            <button
-              mat-flat-button
-              color="primary"
-              type="submit"
-              class="action-btn action-btn--primary"
-              [disabled]="isLoading || configForm.invalid"
+            <button mat-flat-button color="primary" type="submit"
+              class="action-btn action-btn--primary" [disabled]="isLoading || configForm.invalid"
               (click)="onSubmit()">
               <mat-icon>{{ isLoading ? 'hourglass_top' : 'save' }}</mat-icon>
               {{ isLoading ? 'Saving…' : 'Save Configuration' }}
@@ -235,7 +225,6 @@
             </p>
           </div>
         </div>
-
       </div>
     </div>
   </div>

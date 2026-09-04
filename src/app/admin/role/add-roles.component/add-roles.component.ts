@@ -69,9 +69,6 @@ export class AddRolesComponent implements OnInit, OnDestroy {
 
     const sub = this.roles.getRoleById(id).subscribe({
       next: role => {
-        console.log('Role data received:', role);
-        console.log('Role permissions:', role.permissions);
-        
         // Autofill role details
         this.form.patchValue({
           name: role.name || '',
@@ -85,7 +82,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.cdr.detectChanges();
         this.snack.alertError(err?.error?.message || 'Failed to load role');
-        this.router.navigate(['/admin/user-management/roles']);
+        this.router.navigate(['/admin/role-management/roles']);
       },
     });
 
@@ -98,15 +95,12 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   private loadAllPermissions(role?: RoleResponse): void {
     const sub = this.roles.getAllPermissions().subscribe({
       next: perms => {
-        console.log('All permissions loaded:', perms);
         this.allPermissions = perms;
         this.buildGroups(perms);
 
         // If editing, select the permissions already assigned
         if (role && role.permissions) {
-          console.log('Setting selected permissions from role:', role.permissions);
           this.setSelectedPermissions(role.permissions);
-          console.log('Selected permissions after set:', Array.from(this.selectedPermissions));
         }
 
         this.isLoading = false;
@@ -136,7 +130,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
     });
   }
 
-  private permissionCode(permission: any): string {
+  permissionCode(permission: any): string {
     const code = typeof permission === 'string'
       ? permission
       : permission?.code || permission?.name || permission?.permission || permission?.permissionCode || permission?.key || '';
@@ -145,43 +139,45 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Build permission groups (mirrored from view component)
+  // Build permission groups by domain prefix (e.g. ALERT, BRANCH)
+  // Codes follow the pattern DOMAIN_ACTION (e.g. ALERT_VIEW).
+  // We split on the first underscore to extract the domain.
+  // Colon-separated codes (e.g. branch:delete) are also supported
+  // as a fallback. The HTTP method field is intentionally ignored
+  // so groups mirror the view-roles component.
   // ─────────────────────────────────────────────────────────────
   private buildGroups(perms: PermissionResponse[]): void {
     const map = new Map<string, PermissionResponse[]>();
 
     perms.forEach(p => {
-      // Try to get category from method first
-      let category = p.method?.toUpperCase() || 'General';
-      
-      // If no method, try to extract from code
-      if (!p.method && p.code) {
-        const parts = p.code.split(':');
-        if (parts.length > 1) {
-          // Use the first part as category (e.g., "BRANCH" from "branch:delete")
-          category = parts[0].toUpperCase();
+      let category = 'General';
+
+      if (p.code) {
+        const code = p.code.trim().toUpperCase();
+
+        if (code.includes('_')) {
+          // e.g. "ALERT_VIEW" → "ALERT"
+          category = code.split('_')[0];
+        } else if (code.includes(':')) {
+          // e.g. "alert:view" → "ALERT"
+          category = code.split(':')[0];
         } else {
-          // If no colon, use the whole code as category
-          category = p.code.toUpperCase();
+          category = code;
         }
       }
-      
+
       if (!map.has(category)) {
         map.set(category, []);
       }
       map.get(category)!.push(p);
     });
 
-    // Sort categories alphabetically
     this.groupedPermissions = Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([category, ps]) => ({
         category,
-        // Sort permissions by name or code within each category
-        perms: ps.sort((a, b) => (a.name || a.code).localeCompare(b.name || b.code))
+        perms: ps.sort((a, b) => (a.name || a.code).localeCompare(b.name || b.code)),
       }));
-    
-    console.log('Grouped permissions:', this.groupedPermissions);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -269,8 +265,6 @@ export class AddRolesComponent implements OnInit, OnDestroy {
       permissions: Array.from(this.selectedPermissions)
     };
 
-    console.log('Submitting payload:', payload);
-
     if (this.isEditMode && this.roleId) {
       // EDIT
       const sub = this.roles.updateRole(this.roleId, payload).subscribe({
@@ -278,7 +272,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.cdr.detectChanges();
           this.snack.alertSuccess('Role updated successfully');
-          this.router.navigate(['/admin/user-management/roles']);
+          this.router.navigate(['/admin/role-management/roles']);
         },
         error: err => {
           this.isSubmitting = false;
@@ -294,7 +288,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.cdr.detectChanges();
           this.snack.alertSuccess('Role created successfully');
-          this.router.navigate(['/admin/user-management/roles']);
+          this.router.navigate(['/admin/role-management/roles']);
         },
         error: err => {
           this.isSubmitting = false;
@@ -307,6 +301,6 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate(['/admin/user-management/roles']);
+    this.router.navigate(['/admin/role-management/roles']);
   }
 }

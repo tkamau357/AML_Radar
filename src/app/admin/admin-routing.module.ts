@@ -40,7 +40,7 @@ const routes: Routes = [
       import("./transactions/transactions.module").then((m) => m.TransactionsModule),
   },
   {
-    path: "user-management/roles",
+    path: "role-management/roles",
     loadChildren: () =>
       import("./role/roles.module").then((m) => m.RolesModule),
   },

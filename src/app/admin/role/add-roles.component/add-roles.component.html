@@ -1,5 +1,4 @@
 <div class="form-page">
-
   <!-- Page header -->
   <div class="form-page-header">
     <button class="back-btn" (click)="cancel()" type="button">
@@ -20,7 +19,6 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="form-layout">
-
     <!-- Left column: basic info -->
     <div class="form-main">
       <div class="form-card">
@@ -29,7 +27,6 @@
           <span class="form-card-title">Role Details</span>
         </div>
         <div class="form-card-body">
-
           <div class="field-group">
             <label class="field-label" for="roleName">
               Role Name <span class="required">*</span>
@@ -57,15 +54,12 @@
               placeholder="Describe what this role is responsible for…"
             ></textarea>
           </div>
-
         </div>
       </div>
 
       <!-- Permissions card -->
       <div class="form-card">
-
         <div class="form-card-header">
-
           <mat-icon class="form-card-icon">
             lock_open
           </mat-icon>
@@ -75,21 +69,13 @@
           </span>
 
           <!-- Selected count next to title -->
-          <span
-            class="perm-badge"
-            *ngIf="selectedCount > 0">
-
+          <span class="perm-badge" *ngIf="selectedCount > 0">
             {{ selectedCount }} selected
-
           </span>
 
           <!-- Collapse / expand all -->
-          <button
-            *ngIf="groupedPermissions.length > 0"
-            type="button"
-            class="perm-collapse-all"
-            (click)="toggleAllGroups()">
-
+          <button *ngIf="groupedPermissions.length > 0" type="button"
+            class="perm-collapse-all" (click)="toggleAllGroups()">
             <mat-icon>
               {{ allGroupsCollapsed ? 'unfold_more' : 'unfold_less' }}
             </mat-icon>
@@ -97,30 +83,17 @@
             <span>
               {{ allGroupsCollapsed ? 'Expand all' : 'Collapse all' }}
             </span>
-
           </button>
-
         </div>
 
         <!-- Loading -->
-        <div
-          *ngIf="isLoading"
-          class="perm-loading">
-
+        <div *ngIf="isLoading" class="perm-loading">
           <div class="spinner-sm"></div>
-
           <span>Loading permissions…</span>
-
         </div>
 
         <!-- No permissions -->
-        <div
-          *ngIf="
-            !isLoading &&
-            groupedPermissions.length === 0
-          "
-          class="perm-empty">
-
+        <div *ngIf=" !isLoading && groupedPermissions.length === 0" class="perm-empty">
           <mat-icon>
             info_outline
           </mat-icon>
@@ -128,25 +101,13 @@
           <span>
             Permissions will be assigned after the role is created.
           </span>
-
         </div>
 
         <!-- Permission groups -->
-        <div
-          *ngIf="
-            !isLoading &&
-            groupedPermissions.length > 0
-          "
-          class="perm-list">
-
-          <div
-            *ngFor="let group of groupedPermissions"
-            class="perm-group">
-
+        <div *ngIf=" !isLoading && groupedPermissions.length > 0" class="perm-list">
+          <div *ngFor="let group of groupedPermissions" class="perm-group">
             <!-- Group header -->
-            <div
-              class="perm-group-header"
-              [class.perm-group-header--collapsed]="
+            <div class="perm-group-header" [class.perm-group-header--collapsed]="
                 isGroupCollapsed(group.category)
               ">
 
@@ -207,16 +168,14 @@
                 <input
                   type="checkbox"
                   class="perm-checkbox"
-                  [checked]="
-                    selectedPermissions.has(p.name)
-                  "
-                  (change)="togglePermission(p.name)"
+                  [checked]="selectedPermissions.has(permissionCode(p.code))"
+                  (change)="togglePermission(p.code)"
                 />
 
                 <div class="perm-item-info">
 
                   <span class="perm-item-name">
-                    {{ p.name }}
+                    {{ p.name || p.code }}
                   </span>
 
                   <code class="perm-item-code">

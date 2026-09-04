@@ -5,7 +5,6 @@ import { BranchService, BranchResponse } from '../branch.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { DeleteConfirmationDialog } from '../../../shared/components/delete-confirmation-dialog/delete-confirmation-dialog';
 
 @Component({
@@ -21,7 +20,7 @@ export class BranchComponent implements OnInit, OnDestroy {
   // Pagination
   totalElements = 0;
   pageIndex = 0;
-  pageSize = 20;
+  pageSize = 10;
 
   columns = [
     { label: '#',            field: 'index'                        },

@@ -137,7 +137,6 @@
     <!-- Results Table -->
     <div class="results-table" *ngIf="!isScreening && screeningHistory.length > 0">
       <table mat-table [dataSource]="screeningDataSource" matSort class="screening-table">
-
         <!-- Searched Name Column -->
         <ng-container matColumnDef="searchedName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Name Screened</th>

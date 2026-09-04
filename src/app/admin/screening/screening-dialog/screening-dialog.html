@@ -92,14 +92,13 @@
 
       <div class="matches-container" *ngIf="data.matches && data.matches.length > 0; else noMatches">
         <div class="match-item" *ngFor="let match of data.matches" 
-             [class.match-hit]="match.matchType === 'HIT'"
-             [class.match-potential]="match.matchType === 'POTENTIAL'"
-             [class.match-review]="match.matchType === 'REVIEW'"
-             (click)="viewMatch(match)">
+          [class.match-hit]="match.matchType === 'HIT'"
+          [class.match-potential]="match.matchType === 'POTENTIAL'"
+          [class.match-review]="match.matchType === 'REVIEW'" (click)="viewMatch(match)">
           <div class="match-left">
             <div class="match-type-indicator" [class.indicator-hit]="match.matchType === 'HIT'"
-                 [class.indicator-potential]="match.matchType === 'POTENTIAL'"
-                 [class.indicator-review]="match.matchType === 'REVIEW'">
+              [class.indicator-potential]="match.matchType === 'POTENTIAL'"
+              [class.indicator-review]="match.matchType === 'REVIEW'">
             </div>
             <div class="match-info">
               <div class="match-name">{{ match.fullName }}</div>
@@ -120,8 +119,8 @@
               </div>
             </div>
             <div class="match-type-badge" [class.badge-hit]="match.matchType === 'HIT'"
-                 [class.badge-potential]="match.matchType === 'POTENTIAL'"
-                 [class.badge-review]="match.matchType === 'REVIEW'">
+              [class.badge-potential]="match.matchType === 'POTENTIAL'"
+              [class.badge-review]="match.matchType === 'REVIEW'">
               {{ match.matchType }}
             </div>
           </div>
