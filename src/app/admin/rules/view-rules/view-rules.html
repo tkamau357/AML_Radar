@@ -1,97 +1,250 @@
-<div class="container-fluid p-4">
-  <div class="row">
-    <div class="col-12">
-      <mat-card *ngIf="featureDef" class="view-card">
-        <mat-card-header>
-          <mat-card-title>{{ featureDef.label }}</mat-card-title>
-          <mat-card-subtitle>{{ featureDef.id }}</mat-card-subtitle>
-        </mat-card-header>
+<div class="rules-page">
 
-        <mat-card-content>
-          <div class="feature-description mb-4">
-            <p>{{ featureDef.blurb }}</p>
-          </div>
+  <!-- Page Header -->
+  <div class="rules-page__header">
+    <div class="rules-page__header-inner">
+      <button class="btn-back" (click)="backToList()" type="button" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="rules-page__header-text">
+        <h1 class="rules-page__title">Rule Details</h1>
+        <p class="rules-page__subtitle">Read-only view of rule configuration</p>
+      </div>
+    </div>
+  </div>
 
-          <div class="row">
-            <div class="col-md-6">
-              <h4>Basic Information</h4>
-              <table class="table table-striped">
-                <tbody>
-                  <tr>
-                    <th>Feature ID</th>
-                    <td><code>{{ featureDef.id }}</code></td>
-                  </tr>
-                  <tr>
-                    <th>Label</th>
-                    <td>{{ featureDef.label }}</td>
-                  </tr>
-                  <tr>
-                    <th>Default Score</th>
-                    <td>
-                      <span class="badge" [ngClass]="getScoreClass(getCurrentConfig().score)">
-                        {{ getCurrentConfig().score }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Enabled</th>
-                    <td>
-                      <span class="badge" [ngClass]="getCurrentConfig().enabled ? 'bg-success' : 'bg-secondary'">
-                        {{ getCurrentConfig().enabled ? 'Enabled' : 'Disabled' }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Needs History</th>
-                    <td>{{ featureDef.needsHistory ? 'Yes' : 'No' }}</td>
-                  </tr>
-                  <tr>
-                    <th>Reads Fields</th>
-                    <td>{{ featureDef.readsFields.join(', ') }}</td>
-                  </tr>
-                </tbody>
-              </table>
+  <!-- Body -->
+  <div class="rules-page__body">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading && !featureDef" class="state-panel">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="state-panel__text">Loading rule details…</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !featureDef" class="state-panel">
+      <div class="state-panel__icon-wrap">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <h4 class="state-panel__heading">Rule Not Found</h4>
+      <p class="state-panel__text">The requested rule could not be loaded.</p>
+      <button mat-flat-button color="primary" (click)="backToList()" class="mt-3">Back to Rules</button>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="featureDef" class="layout-grid">
+
+      <!-- ── Main column ─────────────────────────────────────── -->
+      <div class="layout-grid__main">
+
+        <!-- Identity card -->
+        <div class="rule-card">
+          <div class="rule-card__hero">
+            <div class="rule-card__icon-wrap">
+              <mat-icon class="rule-card__icon">{{ getFeatureIcon(featureDef.id) }}</mat-icon>
             </div>
-
-            <div class="col-md-6">
-              <h4>Current Parameters</h4>
-              <table class="table table-striped">
-                <tbody>
-                  <tr *ngFor="let param of featureDef.params">
-                    <th>{{ param.label }}</th>
-                    <td>{{ formatParamValue(param.key, getCurrentConfig().params[param.key]) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <h4 class="mt-4">Default Parameters</h4>
-              <table class="table table-striped">
-                <tbody>
-                  <tr *ngFor="let param of featureDef.params">
-                    <th>{{ param.label }}</th>
-                    <td>{{ formatParamValue(param.key, featureDef.defaultParams?.[param.key] ?? param.defaultValue) }}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="rule-card__identity">
+              <span class="rule-card__name">{{ featureDef.label }}</span>
+              <code class="rule-card__id">{{ featureDef.id }}</code>
+            </div>
+            <div class="ms-auto">
+              <span class="status-chip" [class.status-chip--ok]="getCurrentConfig().enabled" [class.status-chip--off]="!getCurrentConfig().enabled">
+                <mat-icon>{{ getCurrentConfig().enabled ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ getCurrentConfig().enabled ? 'Active' : 'Inactive' }}
+              </span>
             </div>
           </div>
-        </mat-card-content>
 
-        <mat-card-actions class="d-flex justify-content-end gap-2 p-3">
-          <button mat-button (click)="backToList()">Back to List</button>
-          <button mat-raised-button color="primary" (click)="editFeature()">
-            <mat-icon>edit</mat-icon> Edit Feature
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card *ngIf="!featureDef && isLoading">
-        <mat-card-content>
-          <div class="d-flex justify-content-center p-5">
-            <mat-spinner diameter="50"></mat-spinner>
+          <!-- Description banner -->
+          <div class="desc-banner">
+            <mat-icon class="desc-banner__icon">info</mat-icon>
+            <div class="desc-banner__body">
+              <span class="desc-banner__label">Description</span>
+              <p class="desc-banner__text">{{ featureDef.blurb }}</p>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+
+        <!-- Score + Basic Info card -->
+        <div class="rule-card">
+          <div class="form-section__header">
+            <mat-icon class="form-section__icon">analytics</mat-icon>
+            <span class="form-section__title">Risk Score &amp; Info</span>
+          </div>
+
+          <div class="score-info-grid">
+            <!-- Score widget -->
+            <div class="score-widget">
+              <div class="score-ring" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
+                <svg class="score-ring__svg" viewBox="0 0 80 80">
+                  <circle class="score-ring__track" cx="40" cy="40" r="33"/>
+                  <circle
+                    class="score-ring__fill"
+                    cx="40" cy="40" r="33"
+                    [style.stroke-dashoffset]="207 - (207 * getCurrentConfig().score / 100)"
+                  />
+                </svg>
+                <span class="score-ring__value">{{ getCurrentConfig().score }}</span>
+              </div>
+              <span class="score-widget__label">{{ getScoreLabel(getCurrentConfig().score) }}</span>
+            </div>
+
+            <!-- Info grid -->
+            <div class="basic-info">
+              <div class="info-item">
+                <span class="info-item__label">Feature ID</span>
+                <code class="rule-card__id">{{ featureDef.id }}</code>
+              </div>
+              <div class="info-item">
+                <span class="info-item__label">History Required</span>
+                <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+                  <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
+                  {{ featureDef.needsHistory ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-item__label">Reads Fields</span>
+                <div class="pill-list">
+                  <span class="pill" *ngFor="let field of featureDef.readsFields">{{ field }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <span class="info-item__label">Default Score</span>
+                <span class="info-item__value fw-bold">{{ featureDef.defaultScore }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Parameters card -->
+        <div class="rule-card" *ngIf="featureDef.params?.length">
+          <div class="form-section__header">
+            <mat-icon class="form-section__icon">settings_input_component</mat-icon>
+            <span class="form-section__title">Current Parameters</span>
+            <span class="form-section__count">{{ featureDef.params.length }}</span>
+          </div>
+
+          <div class="params-table-wrap">
+            <table class="params-table" aria-label="Current parameters">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th class="text-end">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let param of featureDef.params">
+                  <td class="params-table__name">{{ param.label }}</td>
+                  <td class="text-end">
+                    <span class="pill pill--value">{{ formatParamValue(param.key, getCurrentConfig().params[param.key]) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Default Parameters card -->
+        <div class="rule-card" *ngIf="featureDef.params?.length">
+          <div class="form-section__header">
+            <mat-icon class="form-section__icon">restore</mat-icon>
+            <span class="form-section__title">Default Parameters</span>
+          </div>
+
+          <div class="params-table-wrap">
+            <table class="params-table" aria-label="Default parameters">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th class="text-end">Default Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let param of featureDef.params">
+                  <td class="params-table__name">{{ param.label }}</td>
+                  <td class="text-end">
+                    <span class="pill pill--default">{{ formatParamValue(param.key, featureDef.defaultParams?.[param.key] ?? param.defaultValue) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Sidebar ──────────────────────────────────────────── -->
+      <div class="layout-grid__sidebar">
+
+        <!-- Actions card -->
+        <div class="side-card">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">bolt</mat-icon>
+            <span>Actions</span>
+          </div>
+          <div class="side-card__body">
+            <button mat-flat-button color="primary" class="action-btn action-btn--primary" (click)="editFeature()">
+              <mat-icon>edit</mat-icon> Edit Rule
+            </button>
+            <button mat-stroked-button class="action-btn" (click)="backToList()">
+              <mat-icon>arrow_back</mat-icon> Back to List
+            </button>
+          </div>
+        </div>
+
+        <!-- Status summary card -->
+        <div class="side-card">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">monitor_heart</mat-icon>
+            <span>Status</span>
+          </div>
+          <div class="side-card__body side-card__body--rows">
+            <div class="meta-row">
+              <span class="meta-row__label">Engine</span>
+              <span class="status-chip" [class.status-chip--ok]="getCurrentConfig().enabled" [class.status-chip--off]="!getCurrentConfig().enabled">
+                <mat-icon>{{ getCurrentConfig().enabled ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ getCurrentConfig().enabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Alert Score</span>
+              <span class="score-badge" [ngClass]="getScoreClass(getCurrentConfig().score)">
+                <mat-icon class="score-badge__icon">speed</mat-icon>
+                {{ getCurrentConfig().score }}
+              </span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Risk Level</span>
+              <span class="meta-row__value fw-semibold">{{ getScoreLabel(getCurrentConfig().score) }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">History</span>
+              <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+                <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
+                {{ featureDef.needsHistory ? 'Required' : 'Not Needed' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- About card -->
+        <div class="side-card side-card--info">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">lightbulb</mat-icon>
+            <span>About This Rule</span>
+          </div>
+          <div class="side-card__body">
+            <p class="side-card__note">
+              When this rule triggers, it adds <strong>{{ getCurrentConfig().score }} points</strong>
+              to the transaction's total risk score. If the total exceeds the alert threshold, an alert is generated.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>

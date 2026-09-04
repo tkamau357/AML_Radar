@@ -1,99 +1,237 @@
-<div class="container-fluid p-4">
-  <div class="row">
-    <div class="col-12">
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <mat-card-title>
-            {{ isEdit ? 'Edit Rule' : 'Add Rule' }}
-          </mat-card-title>
-          <mat-card-subtitle *ngIf="featureDef">
-            {{ featureDef.label }} ({{ featureDef.id }})
-          </mat-card-subtitle>
-        </mat-card-header>
+<div class="rules-page">
 
-        <mat-card-content *ngIf="featureDef">
-          <div class="feature-info mb-4">
-            <p class="text-muted">{{ featureDef.blurb }}</p>
-            <div class="d-flex gap-3 flex-wrap">
-              <span class="badge bg-info">Score: {{ featureDef.defaultScore }}</span>
-              <span class="badge bg-secondary">History: {{ featureDef.needsHistory ? 'Yes' : 'No' }}</span>
-              <span class="badge bg-secondary">Fields: {{ featureDef.readsFields.join(', ') }}</span>
+  <!-- Page Header -->
+  <div class="rules-page__header">
+    <div class="rules-page__header-inner">
+      <button class="btn-back" (click)="onCancel()" type="button" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="rules-page__header-text">
+        <h1 class="rules-page__title">{{ isEdit ? 'Edit Rule' : 'Add Rule' }}</h1>
+        <p class="rules-page__subtitle">{{ isEdit ? 'Update rule configuration' : 'Configure a new rule' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="rules-page__body">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading && !featureDef" class="state-panel">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="state-panel__text">Loading feature definition…</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !featureDef" class="state-panel state-panel--error">
+      <div class="state-panel__icon-wrap">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <h4 class="state-panel__heading">Feature Not Found</h4>
+      <p class="state-panel__text">The requested feature could not be loaded.</p>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="featureDef" class="layout-grid">
+
+      <!-- ── Main column ─────────────────────────────────────── -->
+      <div class="layout-grid__main">
+
+        <!-- Feature identity card -->
+        <div class="rule-card">
+          <div class="rule-card__hero">
+            <div class="rule-card__icon-wrap">
+              <mat-icon class="rule-card__icon">{{ getFeatureIcon(featureDef.id) }}</mat-icon>
+            </div>
+            <div class="rule-card__identity">
+              <span class="rule-card__name">{{ featureDef.label || 'Loading…' }}</span>
+              <code class="rule-card__id">{{ featureDef.id }}</code>
+            </div>
+            <div class="ms-auto">
+              <span class="score-badge" [ngClass]="getScoreClass(getCurrentScore())">
+                <mat-icon class="score-badge__icon">speed</mat-icon>
+                Score {{ getCurrentScore() }}
+              </span>
             </div>
           </div>
 
-          <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Enabled</mat-label>
-                  <mat-slide-toggle formControlName="enabled" color="primary">
-                    {{ featureForm.get('enabled')?.value ? 'Enabled' : 'Disabled' }}
-                  </mat-slide-toggle>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Score</mat-label>
-                  <input matInput type="number" formControlName="score" min="0" max="100">
-                  <mat-hint>Alert threshold: 0-100</mat-hint>
-                </mat-form-field>
-              </div>
+          <!-- Description banner -->
+          <div class="desc-banner">
+            <mat-icon class="desc-banner__icon">info</mat-icon>
+            <div class="desc-banner__body">
+              <span class="desc-banner__label">Description</span>
+              <p class="desc-banner__text">{{ featureDef.blurb }}</p>
             </div>
+          </div>
+        </div>
 
-            <div class="row">
-              <div class="col-12 mb-3">
-                <h4 class="mt-3 mb-2">Parameters</h4>
-                <div formGroupName="params">
-                  <div class="row" *ngFor="let param of featureDef.params">
-                    <div class="col-md-6 mb-3">
-                      <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>{{ param.label }}</mat-label>
-                        
-                        <ng-container [ngSwitch]="param.kind">
-                          <mat-select *ngSwitchCase="'ENUM'" [formControlName]="param.key">
-                            <mat-option *ngFor="let option of getEnumOptions(param)" [value]="option">
-                              {{ option }}
-                            </mat-option>
-                          </mat-select>
+        <!-- Configuration form card -->
+        <div class="rule-card rule-card--form">
+          <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
 
-                          <input *ngSwitchCase="'NUMBER'" matInput type="number" [formControlName]="param.key">
-                          <input *ngSwitchCase="'DECIMAL'" matInput type="number" step="0.01" [formControlName]="param.key">
-                          <input *ngSwitchCase="'STRING'" matInput type="text" [formControlName]="param.key">
-                          
-                          <mat-select *ngSwitchCase="'STRING_LIST'" [formControlName]="param.key" multiple>
-                            <mat-option *ngFor="let option of getStringListOptions(param)" [value]="option">
-                              {{ option }}
-                            </mat-option>
-                          </mat-select>
-                          
-                          <input *ngSwitchDefault matInput type="text" [formControlName]="param.key">
-                        </ng-container>
+            <!-- Rule Configuration section -->
+            <div class="form-section">
+              <div class="form-section__header">
+                <mat-icon class="form-section__icon">tune</mat-icon>
+                <span class="form-section__title">Rule Configuration</span>
+              </div>
 
-                        <mat-hint *ngIf="param.hint">{{ param.hint }}</mat-hint>
-                      </mat-form-field>
+              <div class="form-section__body">
+                <div class="row g-4">
+                  <!-- Enabled toggle -->
+                  <div class="col-md-6">
+                    <div class="field-group">
+                      <label class="field-label">Status</label>
+                      <div class="toggle-row">
+                        <input type="checkbox" formControlName="enabled" id="enabled" class="toggle-input" />
+                        <label for="enabled" class="toggle-track" aria-label="Enable or disable rule">
+                          <span class="toggle-thumb"></span>
+                        </label>
+                        <span class="toggle-value" [class.toggle-value--on]="featureForm.get('enabled')?.value">
+                          {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Score input -->
+                  <div class="col-md-6">
+                    <div class="field-group">
+                      <label class="field-label" for="score">Alert Score</label>
+                      <div class="score-input-wrap">
+                        <input
+                          id="score"
+                          type="number"
+                          formControlName="score"
+                          class="form-control score-input"
+                          min="0"
+                          max="100"
+                          [class.is-invalid]="featureForm.get('score')?.invalid && featureForm.get('score')?.touched"
+                        />
+                        <span class="score-input__scale">0 – 100</span>
+                      </div>
+                      <span class="field-hint">Higher value = more risky</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-4">
-              <button mat-button type="button" (click)="onCancel()">Cancel</button>
-              <button mat-button type="button" (click)="onReset()">Reset</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || featureForm.invalid">
-                {{ isLoading ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
+            <!-- Parameters section -->
+            <div class="form-section" *ngIf="featureDef.params?.length">
+              <div class="form-section__header">
+                <mat-icon class="form-section__icon">settings_input_component</mat-icon>
+                <span class="form-section__title">Parameters</span>
+                <span class="form-section__count">{{ featureDef.params.length }}</span>
+              </div>
 
-        <mat-card-content *ngIf="!featureDef && isLoading">
-          <div class="d-flex justify-content-center p-5">
-            <mat-spinner diameter="50"></mat-spinner>
+              <div class="form-section__body">
+                <div class="row g-3" formGroupName="params">
+                  <div class="col-md-6" *ngFor="let param of featureDef.params">
+                    <div class="field-group">
+                      <label class="field-label">{{ param.label }}</label>
+
+                      <ng-container [ngSwitch]="param.kind">
+                        <select *ngSwitchCase="'ENUM'" class="form-select" [formControlName]="param.key">
+                          <option value="" disabled>Select option…</option>
+                          <option *ngFor="let option of getEnumOptions(param)" [value]="option">{{ option }}</option>
+                        </select>
+
+                        <input *ngSwitchCase="'NUMBER'" type="number" class="form-control" [formControlName]="param.key" />
+                        <input *ngSwitchCase="'DECIMAL'" type="number" step="0.01" class="form-control" [formControlName]="param.key" />
+                        <input *ngSwitchCase="'STRING'" type="text" class="form-control" [formControlName]="param.key" />
+
+                        <select *ngSwitchCase="'STRING_LIST'" class="form-select form-select--multi" [formControlName]="param.key" multiple>
+                          <option *ngFor="let option of getStringListOptions(param)" [value]="option">{{ option }}</option>
+                        </select>
+
+                        <input *ngSwitchDefault type="text" class="form-control" [formControlName]="param.key" />
+                      </ng-container>
+
+                      <span class="field-hint" *ngIf="param.hint">{{ param.hint }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Sidebar ──────────────────────────────────────────── -->
+      <div class="layout-grid__sidebar">
+
+        <!-- Actions card -->
+        <div class="side-card">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">bolt</mat-icon>
+            <span>Actions</span>
           </div>
-        </mat-card-content>
-      </mat-card>
+          <div class="side-card__body">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              class="action-btn action-btn--primary"
+              [disabled]="isLoading || featureForm.invalid"
+              (click)="onSubmit()">
+              <mat-icon>{{ isLoading ? 'hourglass_top' : 'save' }}</mat-icon>
+              {{ isLoading ? 'Saving…' : 'Save Changes' }}
+            </button>
+            <button mat-stroked-button type="button" class="action-btn" (click)="onReset()">
+              <mat-icon>restart_alt</mat-icon> Reset
+            </button>
+            <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+              <mat-icon>arrow_back</mat-icon> Back to List
+            </button>
+          </div>
+        </div>
+
+        <!-- Metadata card -->
+        <div class="side-card" *ngIf="featureDef">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">info</mat-icon>
+            <span>Metadata</span>
+          </div>
+          <div class="side-card__body side-card__body--rows">
+            <div class="meta-row">
+              <span class="meta-row__label">History Required</span>
+              <span class="status-chip" [class.status-chip--warn]="featureDef.needsHistory" [class.status-chip--ok]="!featureDef.needsHistory">
+                <mat-icon>{{ featureDef.needsHistory ? 'warning' : 'check_circle' }}</mat-icon>
+                {{ featureDef.needsHistory ? 'Required' : 'Not Needed' }}
+              </span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Fields Read</span>
+              <div class="pill-list">
+                <span class="pill" *ngFor="let f of featureDef.readsFields">{{ f }}</span>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-row__label">Default Score</span>
+              <span class="meta-row__value fw-bold">{{ featureDef.defaultScore }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- How It Works card -->
+        <div class="side-card side-card--info">
+          <div class="side-card__header">
+            <mat-icon class="side-card__header-icon">lightbulb</mat-icon>
+            <span>How It Works</span>
+          </div>
+          <div class="side-card__body">
+            <p class="side-card__note">
+              When this rule triggers, its score is added to the transaction's total risk score.
+              If the total exceeds the alert threshold, an alert is generated.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>

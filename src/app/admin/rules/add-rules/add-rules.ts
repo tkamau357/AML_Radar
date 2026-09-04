@@ -61,7 +61,7 @@ export class AddRules implements OnInit, OnDestroy {
             this.loadCurrentConfig(id);
           } else {
             this.snackbar.alertError('Feature not found in catalog');
-            this.router.navigate(['/rules']);
+            this.router.navigate(['/admin/assessments/rules']);
           }
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -138,7 +138,7 @@ export class AddRules implements OnInit, OnDestroy {
       this.rulesService.patchFeature(this.featureId, body).subscribe({
         next: (response) => {
           this.snackbar.alertSuccess(`Feature ${this.featureId} updated successfully`);
-          this.router.navigate(['/rules']);
+          this.router.navigate(['/admin/assessments/rules']);
         },
         error: (err) => {
           this.snackbar.alertError('Failed to update feature');
@@ -149,7 +149,7 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/rules']);
+    this.router.navigate(['/admin/assessments/rules']);
   }
 
   onReset(): void {
@@ -197,5 +197,77 @@ export class AddRules implements OnInit, OnDestroy {
     if (score >= 60) return 'bg-info';
     if (score >= 30) return 'bg-primary';
     return 'bg-secondary';
+  }
+
+  getFeatureIcon(featureId?: string): string {
+    const iconMap: Record<string, string> = {
+      'AMOUNT_ABSOLUTE': 'payments',
+      'AMOUNT_JUST_BELOW': 'trending_down',
+      'AMOUNT_ROUND': 'circle',
+      'VELOCITY_COUNT': 'speed',
+      'VELOCITY_VOLUME': 'swap_vert',
+      'STRUCTURING': 'call_split',
+      'OFF_HOURS': 'schedule',
+      'WEEKEND': 'event_available',
+      'CHANNEL_RISK': 'router',
+      'TYPE_RISK': 'category',
+      'CURRENCY_UNUSUAL': 'currency_exchange',
+      'NARRATION_KEYWORDS': 'text_fields',
+      'NEW_DEVICE': 'devices_other',
+      'HIGH_RISK_COUNTRY': 'public',
+      'RAPID_TURNOVER': 'swap_horiz'
+    };
+    return iconMap[featureId || ''] || 'rule';
+  }
+
+  getParamIcon(paramKey: string): string {
+    const iconMap: Record<string, string> = {
+      'operator': 'compare_arrows',
+      'threshold': 'attach_money',
+      'currency': 'currency_exchange',
+      'applyToTypes': 'category',
+      'applyToChannels': 'router',
+      'windowMinutes': 'schedule',
+      'maxCount': 'numbers',
+      'maxVolume': 'swap_vert',
+      'groupBy': 'group',
+      'onMissing': 'error_outline',
+      'keywords': 'search',
+      'reportingThreshold': 'flag',
+      'bandPct': 'percent',
+      'divisor': 'divide',
+      'minAmount': 'money_off',
+      'startHour': 'timer',
+      'endHour': 'timer',
+      'timezone': 'public',
+      'riskProfiles': 'shield',
+      'channels': 'router',
+      'types': 'category',
+      'countries': 'public',
+      'baseCurrency': 'currency_exchange',
+      'mode': 'tune',
+      'flaggedCurrencies': 'flag',
+      'proximityPct': 'close',
+      'windowHours': 'schedule',
+      'minCount': 'numbers',
+      'amountTolerancePct': 'percent',
+      'deviceId': 'devices',
+      'ipAddress': 'language',
+      'sessionId': 'fingerprint',
+      'newDevice': 'smartphone'
+    };
+    return iconMap[paramKey] || '';
+  }
+
+  getCurrentScore(): number {
+    return this.featureForm.get('score')?.value || this.featureDef?.defaultScore || 0;
+  }
+
+  getScoreColorClass(score: number): string {
+    if (score >= 90) return 'score-critical';
+    if (score >= 75) return 'score-high';
+    if (score >= 60) return 'score-medium';
+    if (score >= 30) return 'score-low';
+    return 'score-clear';
   }
 }

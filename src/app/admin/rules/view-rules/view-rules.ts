@@ -32,7 +32,7 @@ export class ViewRules implements OnInit, OnDestroy {
       this.loadData(this.featureId);
     } else {
       this.snackbar.alertError('No feature ID provided');
-      this.router.navigate(['/rules']);
+      this.router.navigate(['/admin/assessments/rules']);
     }
   }
 
@@ -51,7 +51,7 @@ export class ViewRules implements OnInit, OnDestroy {
           this.featureDef = catalog.find(f => f.id === id) || null;
           if (!this.featureDef) {
             this.snackbar.alertError('Feature not found');
-            this.router.navigate(['/rules']);
+            this.router.navigate(['/admin/assessments/rules']);
           }
           this.checkLoadingComplete();
         },
@@ -98,12 +98,12 @@ export class ViewRules implements OnInit, OnDestroy {
 
   editFeature(): void {
     if (this.featureId) {
-      this.router.navigate(['/rules/edit', this.featureId]);
+      this.router.navigate(['/admin/assessments/rules/edit', this.featureId]);
     }
   }
 
   backToList(): void {
-    this.router.navigate(['/rules']);
+    this.router.navigate(['/admin/assessments/rules']);
   }
 
   formatParamValue(key: string, value: any): string {
@@ -146,5 +146,42 @@ export class ViewRules implements OnInit, OnDestroy {
     if (score >= 60) return 'bg-info';
     if (score >= 30) return 'bg-primary';
     return 'bg-secondary';
+  }
+
+  getFeatureIcon(featureId?: string): string {
+    const iconMap: Record<string, string> = {
+      'AMOUNT_ABSOLUTE': 'payments',
+      'AMOUNT_JUST_BELOW': 'trending_down',
+      'AMOUNT_ROUND': 'circle',
+      'VELOCITY_COUNT': 'speed',
+      'VELOCITY_VOLUME': 'swap_vert',
+      'STRUCTURING': 'call_split',
+      'OFF_HOURS': 'schedule',
+      'WEEKEND': 'event_available',
+      'CHANNEL_RISK': 'router',
+      'TYPE_RISK': 'category',
+      'CURRENCY_UNUSUAL': 'currency_exchange',
+      'NARRATION_KEYWORDS': 'text_fields',
+      'NEW_DEVICE': 'devices_other',
+      'HIGH_RISK_COUNTRY': 'public',
+      'RAPID_TURNOVER': 'swap_horiz'
+    };
+    return iconMap[featureId || ''] || 'rule';
+  }
+
+  getScoreColorClass(score: number): string {
+    if (score >= 90) return 'score-critical';
+    if (score >= 75) return 'score-high';
+    if (score >= 60) return 'score-medium';
+    if (score >= 30) return 'score-low';
+    return 'score-clear';
+  }
+
+  getScoreLabel(score: number): string {
+    if (score >= 90) return 'CRITICAL RISK';
+    if (score >= 75) return 'HIGH RISK';
+    if (score >= 60) return 'MEDIUM RISK';
+    if (score >= 30) return 'LOW RISK';
+    return 'NO RISK';
   }
 }
