@@ -37,8 +37,8 @@
               </label>
               <mat-select id="source" formControlName="source" class="field-select-trigger"
                 [class.field-select-trigger--error]="err('source')"
-                panelClass="field-select-panel">
-                <mat-option value="" disabled>Select source type…</mat-option>
+                panelClass="field-select-panel" placeholder="Select source type">
+                <!-- <mat-option value="" disabled>Select source type…</mat-option> -->
                 <mat-option *ngFor="let s of availableSources" [value]="s">{{ s }}</mat-option>
               </mat-select>
               <span class="field-error" *ngIf="err('source')">Source type is required</span>

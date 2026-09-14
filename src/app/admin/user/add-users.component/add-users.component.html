@@ -61,9 +61,8 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Role <span class="required">*</span></label>
-              <mat-select id="roleId" formControlName="roleId" class="field-select-trigger"
+              <mat-select id="roleId" formControlName="roleId" class="field-select-trigger" placeholder="Select role"
                 [class.field-select-trigger--error]="err('roleId')" panelClass="field-select-panel">
-                <mat-option [value]="" disabled>Select a role…</mat-option>
                 <mat-option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</mat-option>
               </mat-select>
               <span class="field-error" *ngIf="err('roleId')">Role is required</span>
@@ -71,9 +70,8 @@
 
             <div class="field-group">
               <label class="field-label">Branch <span class="required">*</span></label>
-              <mat-select formControlName="branchCode" class="field-select-trigger"
+              <mat-select formControlName="branchCode" class="field-select-trigger" placeholder="Select branch"
                 [class.field-select-trigger--error]="err('branchCode')" panelClass="field-select-panel">
-                <mat-option [value]="null" disabled>Select a branch…</mat-option>
                 <mat-option *ngFor="let b of branches" [value]="b.branchCode">
                   {{ b.branchName }} ({{ b.branchCode }})
                 </mat-option>
