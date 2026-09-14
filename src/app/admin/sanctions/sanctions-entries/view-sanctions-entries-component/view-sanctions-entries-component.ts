@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SanctionEntryResponse, SanctionsService } from '../../sanctions.service';
-import { MatDialog } from '@angular/material/dialog';
 import { NotificationToastService } from '../../../../data/services/notification-toast.service';
 
 @Component({
@@ -23,7 +22,6 @@ export class ViewSanctionsEntriesComponent implements OnInit, OnDestroy {
     private router: Router,
     private service: SanctionsService,
     private snack: NotificationToastService,
-    private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
   ) {}
 

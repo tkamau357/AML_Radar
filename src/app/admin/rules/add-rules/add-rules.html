@@ -1,5 +1,4 @@
 <div class="rp">
-
   <!-- ═══ STICKY HEADER ══════════════════════════════════════════════════════ -->
   <header class="rp__header">
     <div class="rp__header-inner">
@@ -41,7 +40,6 @@
 
   <!-- ═══ BODY ════════════════════════════════════════════════════════════════ -->
   <div class="rp__body">
-
     <!-- Loading -->
     <div *ngIf="isLoading && !featureConfig" class="rp__state">
       <div class="rp__state-spinner">
@@ -61,12 +59,9 @@
 
     <!-- Content -->
     <div *ngIf="featureConfig" class="rp__layout">
-
       <!-- ── MAIN COLUMN ─────────────────────────────────────────────────── -->
       <div class="rp__main">
-
         <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
-
           <!-- ── Rule Settings ──────────────────────────────────────────── -->
           <div class="rp-card">
             <div class="rp-card__header">
@@ -75,7 +70,6 @@
             </div>
             <div class="rp-card__body">
               <div class="row g-4">
-
                 <!-- Status toggle -->
                 <div class="col-md-6">
                   <div class="rp-field">
@@ -112,7 +106,6 @@
                     <span class="rp-field__hint">Higher score = higher risk weight</span>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -125,11 +118,8 @@
               <span class="rp-card__header-count">{{ paramEntries.length }}</span>
             </div>
             <div class="rp-card__params" formGroupName="params">
-
-              <div class="rp-param"
-                *ngFor="let param of paramEntries; let last = last"
+              <div class="rp-param" *ngFor="let param of paramEntries; let last = last"
                 [class.rp-param--last]="last">
-
                 <!-- left: label + input -->
                 <div class="rp-param__left">
                   <div class="rp-param__header">
@@ -141,7 +131,6 @@
                   </div>
 
                   <div class="rp-param__control">
-
                     <!-- Boolean → toggle -->
                     <ng-container *ngIf="param.kind === 'boolean'">
                       <div class="rp-toggle">
@@ -169,7 +158,6 @@
                     <ng-container *ngIf="param.kind === 'array'">
                       <div class="rp-tag-input"
                         [class.rp-tag-input--empty]="tagLists[param.key]?.length === 0">
-
                         <!-- Existing tags as chips -->
                         <span
                           *ngFor="let tag of tagLists[param.key]; let ti = index"
@@ -204,7 +192,6 @@
                         [formControlName]="param.key"
                         [id]="'param_' + param.key" />
                     </ng-container>
-
                   </div>
 
                   <span class="rp-field__hint" *ngIf="getParamHint(param)">
@@ -222,10 +209,9 @@
                     {{ formatParamValue(param) }}
                   </span>
                 </div>
-
-              </div><!-- /rp-param -->
-            </div><!-- /rp-card__params -->
-          </div><!-- /params card -->
+              </div>
+            </div>
+          </div>
 
           <!-- No params notice -->
           <div class="rp-card rp-card--muted" *ngIf="paramEntries.length === 0">
@@ -235,13 +221,11 @@
             </div>
             <p class="rp-card__note">This feature has no configurable parameters.</p>
           </div>
-
         </form>
-      </div><!-- /main -->
+      </div>
 
       <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
       <aside class="rp__sidebar">
-
         <!-- Actions -->
         <div class="rp-side">
           <div class="rp-side__header">
@@ -312,15 +296,13 @@
               <span class="rp-gauge__value">{{ getCurrentScore() }}</span>
             </div>
             <span class="rp-gauge__label" [ngClass]="getScoreColorClass(getCurrentScore())">
-              {{ getCurrentScore() >= 90 ? 'CRITICAL RISK' :
-                 getCurrentScore() >= 75 ? 'HIGH RISK'     :
-                 getCurrentScore() >= 60 ? 'MEDIUM RISK'   :
-                 getCurrentScore() >= 30 ? 'LOW RISK'      : 'NO RISK' }}
+              {{ getCurrentScore() >= 90 ? 'CRITICAL RISK' : getCurrentScore() >= 75 ? 'HIGH RISK'     :
+               getCurrentScore() >= 60 ? 'MEDIUM RISK' : getCurrentScore() >= 30 ? 'LOW RISK' 
+               : 'NO RISK' }}
             </span>
           </div>
         </div>
-
       </aside>
-    </div><!-- /layout -->
-  </div><!-- /body -->
+    </div>
+  </div>
 </div>

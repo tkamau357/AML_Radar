@@ -1,5 +1,4 @@
 <div class="rp">
-
   <!-- ═══ STICKY HEADER ══════════════════════════════════════════════════════ -->
   <header class="rp__header">
     <div class="rp__header-inner">
@@ -40,7 +39,6 @@
 
   <!-- ═══ BODY ════════════════════════════════════════════════════════════════ -->
   <div class="rp__body">
-
     <!-- Loading -->
     <div *ngIf="isLoading && !featureDef" class="rp__state">
       <div class="rp__state-spinner">
@@ -61,10 +59,8 @@
 
     <!-- Content -->
     <div *ngIf="featureDef" class="rp__layout">
-
       <!-- ── MAIN COLUMN ─────────────────────────────────────────────────── -->
       <div class="rp__main">
-
         <!-- Blurb banner -->
         <div class="rp__blurb">
           <div class="rp__blurb-icon"><mat-icon>lightbulb</mat-icon></div>
@@ -78,7 +74,6 @@
             <span class="rp-card__header-title">Risk Score &amp; Info</span>
           </div>
           <div class="rp-score-info">
-
             <!-- Gauge -->
             <div class="rp-score-info__gauge">
               <div class="rp-gauge" [ngClass]="getScoreColorClass(getCurrentConfig().score)">
@@ -120,7 +115,6 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -134,7 +128,6 @@
 
           <div class="rp-param-view" *ngFor="let param of featureDef.params; let last = last"
             [class.rp-param-view--last]="last">
-
             <!-- top row: name + live value -->
             <div class="rp-param-view__top">
               <div class="rp-param-view__title-row">
@@ -172,7 +165,6 @@
                 <span class="rp-detail__val rp-detail__val--muted">{{ param.emptyValueMeaning }}</span>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -208,12 +200,10 @@
             </table>
           </div>
         </div>
-
-      </div><!-- /main -->
+      </div>
 
       <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
       <aside class="rp__sidebar">
-
         <!-- Actions -->
         <div class="rp-side">
           <div class="rp-side__header">
@@ -281,8 +271,7 @@
             </p>
           </div>
         </div>
-
       </aside>
-    </div><!-- /layout -->
-  </div><!-- /body -->
+    </div>
+  </div>
 </div>

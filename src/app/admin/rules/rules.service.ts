@@ -107,7 +107,6 @@ export class RulesService {
   constructor(private http: HttpClient) {}
 
   // ============ Catalog & Config ============
-
   getCatalog(): Observable<ApiResponse<RawFeatureDef[]>> {
     return this.http.get<ApiResponse<RawFeatureDef[]>>(`${this.baseUrl}/catalog`);
   }
@@ -117,7 +116,6 @@ export class RulesService {
   }
 
   // ============ Patch Operations ============
-
   patchSubEngine(body: { enabled?: boolean; alertThreshold?: number }): Observable<ApiResponse<EngineConfigRules>> {
     return this.http.patch<ApiResponse<EngineConfigRules>>(`${this.baseUrl}/raw`, body);
   }
@@ -130,13 +128,11 @@ export class RulesService {
   }
 
   // ============ Ingest Mapping ============
-
   replaceFinacleMapping(mapping: Record<string, string>): Observable<ApiResponse<EngineConfigRules>> {
     return this.http.put<ApiResponse<EngineConfigRules>>(`${this.baseUrl}/ingest/mapping`, mapping);
   }
 
   // ============ Screening ============
-
   screenTransaction(req: ScreenRequest): Observable<ApiResponse<ScreenResult>> {
     return this.http.post<ApiResponse<ScreenResult>>(`${this.baseUrl}/screen`, req);
   }

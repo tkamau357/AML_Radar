@@ -75,7 +75,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Load ──────────────────────────────────────────────────────────────────
-
   loadFeature(id: string): void {
     this.isLoading = true;
     this.subs.push(
@@ -105,7 +104,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Form builders ─────────────────────────────────────────────────────────
-
   private buildParamEntries(params: Record<string, any>): ParamEntry[] {
     return Object.entries(params).map(([key, value]) => ({
       key,
@@ -146,7 +144,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Tag-input API ─────────────────────────────────────────────────────────
-
   /**
    * Add the current typed text as a new tag.
    * Called on Enter, comma, or Tab keypress.
@@ -196,7 +193,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
-
   onSubmit(): void {
     if (this.featureForm.invalid || !this.featureId) {
       this.snackbar.alertError('Please fill in all required fields');
@@ -242,7 +238,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
-
   onCancel(): void {
     this.router.navigate(['/admin/assessments/rules']);
   }
@@ -254,7 +249,6 @@ export class AddRules implements OnInit, OnDestroy {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
   getCurrentScore(): number {
     return this.featureForm.get('score')?.value ?? 0;
   }
