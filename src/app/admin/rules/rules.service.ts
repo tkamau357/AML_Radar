@@ -31,16 +31,50 @@ export interface ParamDef {
   emptyValueMeaning: string;
 }
 
-export interface EngineConfigRules {
-  rawSubEngineEnabled: boolean;
-  alertThreshold: number;
+export interface SubEngineSection {
+  enabled: boolean;
+  note?: string;
+  features?: Record<string, FeatureConfig>;
+}
+
+export interface RawTransactionSection {
+  enabled: boolean;
   features: Record<string, FeatureConfig>;
+}
+
+export interface EngineConfigRules {
+  alertThreshold: number;
+  rawTransaction: RawTransactionSection;
+  party?: SubEngineSection;
+  channel?: SubEngineSection;
+  device?: SubEngineSection;
+  geo?: SubEngineSection;
+  beneficiary?: SubEngineSection;
+  finacleMapping?: {
+    canonicalToSource: Record<string, string>;
+  };
+  /** @deprecated kept for backward compat — real shape uses rawTransaction.features */
+  rawSubEngineEnabled?: boolean;
+  /** @deprecated kept for backward compat */
+  features?: Record<string, FeatureConfig>;
 }
 
 export interface FeatureConfig {
   enabled: boolean;
   score: number;
   params: Record<string, any>;
+}
+
+/** A flat row derived from EngineConfigRules.rawTransaction.features for display in the table. */
+export interface EngineFeatureRow {
+  featureName: string;
+  enabled: boolean;
+  score: number;
+  params: Record<string, any>;
+  /** UI state: whether the params panel is expanded */
+  _expanded?: boolean;
+  /** UI state: whether to show the params panel at all (configurable) */
+  showParams?: boolean;
 }
 
 export interface ScreenResult {

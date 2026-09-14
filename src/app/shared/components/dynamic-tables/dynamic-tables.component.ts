@@ -127,6 +127,16 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   @Input() ModuleTypefilter = '';
 
   @Input() maxVisibleActions: number = 2;
+
+  /**
+   * When true, a chevron is rendered on the left of the first column cell.
+   * Clicking it toggles a sub-row that displays all key/value pairs from
+   * `row.params` (Record<string, any>).
+   * Each row can additionally control its own visibility via `row.showParams`.
+   * When `row.showParams` is false the chevron is hidden for that row.
+   */
+  @Input() expandableParams = false;
+
   @Input() customFilters: CustomFilterOption[] = [];
   @Input() customFilterLabel = 'Filter by Approval Status';
   @Output() customFilterChange = new EventEmitter<any>();
@@ -1228,5 +1238,42 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
         this.selection.deselect(row);
       }
     });
+  }
+
+  // ── Expandable params row ──────────────────────────────────────────────────
+
+  /**
+   * Toggle the params sub-row open/closed for a given data row.
+   * Only fires when expandableParams is true and row.showParams !== false.
+   */
+  toggleParamsRow(row: any, event: MouseEvent): void {
+    event.stopPropagation();
+    row._expanded = !row._expanded;
+  }
+
+  /**
+   * Returns the params object of a row as an array of { key, value } pairs,
+   * formatting arrays and objects into readable strings.
+   */
+  getParamEntries(row: any): { key: string; value: string }[] {
+    const params = row?.params;
+    if (!params || typeof params !== 'object') return [];
+    return Object.entries(params).map(([key, val]) => ({
+      key,
+      value: Array.isArray(val)
+        ? (val.length ? val.join(', ') : '—')
+        : val === null || val === undefined || val === ''
+          ? '—'
+          : typeof val === 'object'
+            ? JSON.stringify(val)
+            : String(val),
+    }));
+  }
+
+  /** Total column span including the optional expand chevron column and actions column. */
+  get totalColSpan(): number {
+    return this.columns.length
+      + (this.expandableParams ? 1 : 0)
+      + (this.hasAnyVisibleActions() ? 1 : 0);
   }
 }

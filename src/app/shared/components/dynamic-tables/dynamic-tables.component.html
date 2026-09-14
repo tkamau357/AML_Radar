@@ -144,6 +144,9 @@
       <!-- Head -->
       <thead>
         <tr class="dt-thead-row">
+          <!-- Expand chevron header (shown only when expandableParams is on) -->
+          <th *ngIf="expandableParams" class="dt-th dt-th--expand"></th>
+
           <th
             *ngFor="let col of columns"
             class="dt-th"
@@ -176,7 +179,7 @@
       <tbody>
         <!-- Loading -->
         <tr *ngIf="effectiveLoading">
-          <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
+          <td [colSpan]="totalColSpan" class="dt-state-cell">
             <div class="dt-loading">
               <div class="dt-spinner"></div>
               <span class="dt-state-text">Loading records…</span>
@@ -186,7 +189,7 @@
 
         <!-- Empty -->
         <tr *ngIf="!effectiveLoading && pagedData.length === 0">
-          <td [colSpan]="columns.length + (hasAnyVisibleActions() ? 1 : 0)" class="dt-state-cell">
+          <td [colSpan]="totalColSpan" class="dt-state-cell">
             <div class="dt-empty">
               <mat-icon class="dt-empty-icon">inbox</mat-icon>
               <span class="dt-state-text">{{ searchText ? 'No results match your search.' : noRecordsMessage }}</span>
@@ -197,9 +200,25 @@
 
         <!-- Data rows -->
         <ng-container *ngIf="!effectiveLoading && pagedData.length > 0">
+          <ng-container *ngFor="let row of pagedData; let i = index">
           <tr
-            *ngFor="let row of pagedData; let i = index"
-            class="dt-row">
+            class="dt-row"
+            [class.dt-row--expanded]="expandableParams && row._expanded">
+
+            <!-- Expand chevron cell -->
+            <td *ngIf="expandableParams" class="dt-td dt-td--expand">
+              <button
+                *ngIf="row.showParams !== false"
+                class="dt-expand-btn"
+                [class.dt-expand-btn--open]="row._expanded"
+                (click)="toggleParamsRow(row, $event)"
+                [attr.aria-label]="row._expanded ? 'Collapse params' : 'Expand params'"
+                [attr.aria-expanded]="row._expanded"
+                type="button">
+                <mat-icon class="dt-expand-icon">chevron_right</mat-icon>
+              </button>
+            </td>
+
             <td
               *ngFor="let col of columns"
               class="dt-td"
@@ -292,6 +311,30 @@
               </div>
             </td>
           </tr>
+
+          <!-- ── Params sub-row ──────────────────────────────────────────── -->
+          <tr
+            *ngIf="expandableParams && row.showParams !== false && row._expanded"
+            class="dt-params-row">
+            <td [colSpan]="totalColSpan" class="dt-params-cell">
+              <div class="dt-params-panel">
+                <ng-container *ngIf="getParamEntries(row).length > 0; else noParams">
+                  <div class="dt-params-grid">
+                    <div
+                      *ngFor="let entry of getParamEntries(row)"
+                      class="dt-param-item">
+                      <span class="dt-param-key">{{ entry.key }}</span>
+                      <span class="dt-param-value">{{ entry.value }}</span>
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-template #noParams>
+                  <span class="dt-param-empty">No parameters configured.</span>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+          </ng-container><!-- /ngFor row -->
         </ng-container>
       </tbody>
     </table>

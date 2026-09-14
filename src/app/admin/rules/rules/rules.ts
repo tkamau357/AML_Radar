@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, Subscription } from 'rxjs';
-import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { RulesService, RawFeatureDef, EngineConfigRules } from '../rules.service';
+import { Subscription } from 'rxjs';
+import { HeaderAction, TableAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { RulesService, EngineConfigRules, EngineFeatureRow, RawFeatureDef } from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
@@ -12,20 +12,18 @@ import { NotificationToastService } from '../../../data/services/notification-to
   styleUrl: './rules.scss',
 })
 export class Rules implements OnInit, OnDestroy {
-  features: RawFeatureDef[] = [];
+  featureRows: EngineFeatureRow[] = [];
   config: EngineConfigRules | null = null;
   isLoading = false;
-  totalElements = 0;
-  currentPage = 0;
-  pageSize = 10;
+
+  /** Controls whether the params expandable panel is available on rows. */
+  showParamsExpand = true;
 
   columns = [
-    { label: '#',            field: 'index'                        },
-    { label: 'Feature ID',   field: 'id'                           },
-    { label: 'Label',        field: 'label'                        },
-    { label: 'Score',        field: 'defaultScore', type: 'badge'  },
-    { label: 'Enabled',      field: 'enabledByDefault', type: 'badge' },
-    { label: 'History',      field: 'needsHistory', type: 'badge'  },
+    { label: '#', field: 'index' },
+    { label: 'Feature Name', field: 'featureName' },
+    { label: 'Enabled', field: 'enabled', type: 'badge' },
+    { label: 'Default Score', field: 'score', type: 'badge' },
   ];
 
   actions: TableAction<RawFeatureDef>[] = [
@@ -50,7 +48,7 @@ export class Rules implements OnInit, OnDestroy {
     {
       icon: 'refresh',
       tooltip: 'Refresh',
-      onClick: () => this.loadCatalog(),
+      onClick: () => this.loadConfig(),
     },
     {
       icon: 'settings',
@@ -69,64 +67,55 @@ export class Rules implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadCatalog();
+    this.loadConfig();
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
-  loadCatalog(): void {
+  loadConfig(): void {
     this.isLoading = true;
     this.subs.push(
-      forkJoin({
-        catalog: this.rulesService.getCatalog(),
-        config:  this.rulesService.getConfig(),
-      }).subscribe({
-        next: ({ catalog, config }) => {
-          this.features = catalog.result || [];
-          this.config   = config.result;
+      this.rulesService.getConfig().subscribe({
+        next: (response) => {
+          this.config = response.result;
+          this.featureRows = this.buildFeatureRows(this.config);
           this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.snackbar.alertError('Failed to load feature catalog');
+          this.snackbar.alertError('Failed to load engine config');
           this.isLoading = false;
         },
-      })
+      }),
     );
   }
 
-  viewFeature(row: RawFeatureDef): void {
-    this.router.navigate(['/admin/assessments/rules/view', row.id]);
+  /** Maps `rawTransaction.features` record into a flat array of display rows. */
+  private buildFeatureRows(config: EngineConfigRules | null): EngineFeatureRow[] {
+    const features = config?.rawTransaction?.features;
+    if (!features) return [];
+
+    return Object.entries(features).map(([name, cfg]) => ({
+      featureName: name,
+      enabled:     cfg.enabled,
+      score:       cfg.score,
+      params:      cfg.params ?? {},
+      _expanded:   false,
+      showParams:  this.showParamsExpand,
+    }));
   }
 
-  editFeature(row: RawFeatureDef): void {
-    this.router.navigate(['/admin/assessments/rules/edit', row.id]);
+  viewFeature(row: any): void {
+    this.router.navigate(['/admin/assessments/rules/view', row.featureName]);
   }
 
-  toggleFeature(row: RawFeatureDef): void {
-    const currentEnabled = this.getFeatureEnabled(row.id);
-    this.subs.push(
-      this.rulesService.patchFeature(row.id, { enabled: !currentEnabled }).subscribe({
-        next: (response) => {
-          this.config = response.result;
-          this.snackbar.alertSuccess(`${row.label} ${!currentEnabled ? 'enabled' : 'disabled'}`);
-          this.loadCatalog();
-        },
-        error: (err) => {
-          this.snackbar.alertError('Failed to toggle feature');
-        },
-      })
-    );
+  editFeature(row: any): void {
+    this.router.navigate(['/admin/assessments/rules/edit', row.featureName]);
   }
 
   openConfig(): void {
     this.router.navigate(['/admin/assessments/rules/config']);
-  }
-
-  private getFeatureEnabled(featureId: string): boolean {
-    return this.config?.features?.[featureId]?.enabled ?? 
-      this.features.find(f => f.id === featureId)?.enabledByDefault ?? false;
   }
 }

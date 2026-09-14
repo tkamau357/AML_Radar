@@ -934,3 +934,116 @@ $shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.06);
   font-weight: 600;
   color: $brand;
 }
+
+// ── Expandable params row ─────────────────────────────────────────────────────
+
+// Narrow header / cell for the chevron toggle
+.dt-th--expand,
+.dt-td--expand {
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  padding: 0 4px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+// Chevron toggle button
+.dt-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: $text-muted;
+  transition: color 0.15s, background 0.15s, transform 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $brand;
+    background: $brand-light;
+  }
+
+  // Rotate icon when expanded
+  &--open .dt-expand-icon {
+    transform: rotate(90deg);
+  }
+}
+
+.dt-expand-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+// Row highlight when expanded
+.dt-row--expanded {
+  background: #f8fafd;
+}
+
+// Params sub-row
+.dt-params-row {
+  background: #f4f7fc;
+  border-bottom: 1px solid $border;
+}
+
+.dt-params-cell {
+  padding: 0;
+}
+
+.dt-params-panel {
+  padding: 14px 20px 16px 52px; // left indent aligns with first column content
+  border-top: 1px solid #e2eaf5;
+}
+
+// Grid of param key/value chips
+.dt-params-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dt-param-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 10px;
+  border: 1px solid #d1ddf5;
+  border-radius: 20px;
+  background: #ffffff;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dt-param-key {
+  font-weight: 600;
+  color: $brand;
+  white-space: nowrap;
+
+  // Subtle separator
+  &::after {
+    content: ':';
+    margin-left: 1px;
+    color: $text-muted;
+    font-weight: 400;
+  }
+}
+
+.dt-param-value {
+  color: $text-primary;
+  word-break: break-all;
+  max-width: 280px;
+}
+
+.dt-param-empty {
+  font-size: 12px;
+  color: $text-muted;
+  font-style: italic;
+}
