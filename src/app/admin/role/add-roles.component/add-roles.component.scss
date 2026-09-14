@@ -84,6 +84,36 @@ $radius-sm:    6px;
 
   white-space: nowrap;
 }
+
+.perm-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  
+  padding: 4px 10px;
+  border-radius: $radius-sm;
+  
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-primary;
+  
+  cursor: pointer;
+  transition: background .14s;
+  
+  &:hover {
+    background: $brand-light;
+  }
+  
+  input[type="checkbox"] {
+    cursor: pointer;
+    margin: 0;
+  }
+  
+  span {
+    user-select: none;
+  }
+}
+
 .perm-collapse-all {
   margin-left: auto;
 

@@ -20,6 +20,10 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   selectedPermissions = new Set<string>();
   collapsedGroups = new Set<string>();
 
+  // Maps normalized key (e.g. "user_list") → original name from the API (e.g. "USER_LIST")
+  // Used to build the correct payload on submit.
+  private permNameMap = new Map<string, string>();
+
   isLoading = false;
   isSubmitting = false;
   isEditMode = false;
@@ -29,7 +33,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private roles: RolesService,
+    private rolesService: RolesService,
     private snack: NotificationToastService,
     private router: Router,
     private route: ActivatedRoute,
@@ -67,7 +71,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   private loadRole(id: number): void {
     this.isLoading = true;
 
-    const sub = this.roles.getRoleById(id).subscribe({
+    const sub = this.rolesService.getRoleById(id).subscribe({
       next: role => {
         // Autofill role details
         this.form.patchValue({
@@ -75,7 +79,7 @@ export class AddRolesComponent implements OnInit, OnDestroy {
           description: role.description || '',
         });
 
-        // Load all available permissions
+        // Load all available permissions, passing the role to pre-select
         this.loadAllPermissions(role);
       },
       error: err => {
@@ -93,14 +97,21 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   // Load all available permissions
   // ─────────────────────────────────────────────────────────────
   private loadAllPermissions(role?: RoleResponse): void {
-    const sub = this.roles.getAllPermissions().subscribe({
+    const sub = this.rolesService.getAllPermissions().subscribe({
       next: perms => {
         this.allPermissions = perms;
+
+        // Build the normalized-key → original-name lookup
+        this.permNameMap.clear();
+        perms.forEach(p => {
+          this.permNameMap.set(this.permissionCode(p), p.name);
+        });
+
         this.buildGroups(perms);
 
-        // If editing, select the permissions already assigned
+        // If editing, select the permissions already assigned to the role
         if (role && role.permissions) {
-          this.setSelectedPermissions(role.permissions);
+          this.setSelectedPermissions(role.permissions, perms);
         }
 
         this.isLoading = false;
@@ -117,52 +128,78 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Set permissions assigned to the existing role
+  // Set permissions assigned to the existing role.
+  //
+  // The role endpoint returns permissions as colon-separated strings
+  // e.g. "user:list", "role:update", "dashboard:view".
+  // The all-permissions endpoint returns objects whose .name is
+  // underscore-separated e.g. "USER_LIST", "ROLE_UPDATE".
+  //
+  // We normalize both to lowercase-underscore ("user_list") for
+  // comparison, then store that same key in selectedPermissions so
+  // the [checked] bindings match.
   // ─────────────────────────────────────────────────────────────
-  private setSelectedPermissions(permissions: any[]): void {
+  private setSelectedPermissions(rolePermissions: any[], allPerms: PermissionResponse[]): void {
     this.selectedPermissions.clear();
 
-    permissions.forEach(permission => {
-      const code = this.permissionCode(permission);
-      if (code) {
-        this.selectedPermissions.add(code);
+    // Build a lookup: normalizedKey → canonical key stored in the set
+    const permKeyMap = new Map<string, string>();
+    allPerms.forEach(p => {
+      const canonical = this.permissionCode(p);           // e.g. "user_list"
+      const normalized = this.normalizeKey(p.name || p.code);  // same thing
+      permKeyMap.set(normalized, canonical);
+    });
+
+    rolePermissions.forEach(rp => {
+      const normalized = this.normalizeKey(
+        typeof rp === 'string' ? rp : (rp?.code || rp?.name || '')
+      );
+      const canonical = permKeyMap.get(normalized);
+      if (canonical) {
+        this.selectedPermissions.add(canonical);
       }
     });
   }
 
-  permissionCode(permission: any): string {
-    const code = typeof permission === 'string'
-      ? permission
-      : permission?.code || permission?.name || permission?.permission || permission?.permissionCode || permission?.key || '';
+  /**
+   * Normalizes any permission identifier to lowercase-underscore.
+   *  "user:list"   → "user_list"
+   *  "USER_LIST"   → "user_list"
+   *  "dashboard:view" → "dashboard_view"
+   */
+  private normalizeKey(value: string): string {
+    return String(value).trim().toLowerCase().replace(/[:\-\s]+/g, '_');
+  }
 
-    return String(code).trim().toLowerCase();
+  /**
+   * Returns the canonical key used in selectedPermissions for a given
+   * PermissionResponse. Uses the name field (lowercased + underscored).
+   */
+  permissionCode(permission: any): string {
+    const raw = typeof permission === 'string'
+      ? permission
+      : (permission?.name || permission?.code || '');
+    return this.normalizeKey(raw);
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Build permission groups by domain prefix (e.g. ALERT, BRANCH)
-  // Codes follow the pattern DOMAIN_ACTION (e.g. ALERT_VIEW).
-  // We split on the first underscore to extract the domain.
-  // Colon-separated codes (e.g. branch:delete) are also supported
-  // as a fallback. The HTTP method field is intentionally ignored
-  // so groups mirror the view-roles component.
+  // Build permission groups by domain prefix
   // ─────────────────────────────────────────────────────────────
   private buildGroups(perms: PermissionResponse[]): void {
     const map = new Map<string, PermissionResponse[]>();
 
     perms.forEach(p => {
       let category = 'General';
+      const identifier = p.name || p.code;
 
-      if (p.code) {
-        const code = p.code.trim().toUpperCase();
-
-        if (code.includes('_')) {
-          // e.g. "ALERT_VIEW" → "ALERT"
-          category = code.split('_')[0];
-        } else if (code.includes(':')) {
-          // e.g. "alert:view" → "ALERT"
-          category = code.split(':')[0];
+      if (identifier) {
+        const upper = identifier.trim().toUpperCase();
+        if (upper.includes('_')) {
+          category = upper.split('_')[0];
+        } else if (upper.includes(':')) {
+          category = upper.split(':')[0];
         } else {
-          category = code;
+          category = upper;
         }
       }
 
@@ -183,35 +220,61 @@ export class AddRolesComponent implements OnInit, OnDestroy {
   // ─────────────────────────────────────────────────────────────
   // Permission toggle methods
   // ─────────────────────────────────────────────────────────────
-  togglePermission(code: string): void {
-    const normalizedCode = this.permissionCode(code);
-    if (this.selectedPermissions.has(normalizedCode)) {
-      this.selectedPermissions.delete(normalizedCode);
+  togglePermission(name: string): void {
+    const normalizedName = name.trim();
+    if (this.selectedPermissions.has(normalizedName)) {
+      this.selectedPermissions.delete(normalizedName);
     } else {
-      this.selectedPermissions.add(normalizedCode);
+      this.selectedPermissions.add(normalizedName);
     }
   }
 
   toggleGroup(perms: PermissionResponse[]): void {
-    const allSelected = perms.every(p => this.selectedPermissions.has(this.permissionCode(p.code)));
-    perms.forEach(p =>
-      allSelected
-        ? this.selectedPermissions.delete(this.permissionCode(p.code))
-        : this.selectedPermissions.add(this.permissionCode(p.code))
-    );
+    const allSelected = perms.every(p => this.selectedPermissions.has(this.permissionCode(p)));
+    
+    perms.forEach(p => {
+      const name = this.permissionCode(p);
+      if (allSelected) {
+        this.selectedPermissions.delete(name);
+      } else {
+        this.selectedPermissions.add(name);
+      }
+    });
   }
 
   isGroupSelected(perms: PermissionResponse[]): boolean {
-    return perms.length > 0 && perms.every(p => this.selectedPermissions.has(this.permissionCode(p.code)));
+    return perms.length > 0 && perms.every(p => this.selectedPermissions.has(this.permissionCode(p)));
   }
 
   isGroupIndeterminate(perms: PermissionResponse[]): boolean {
-    const count = perms.filter(p => this.selectedPermissions.has(this.permissionCode(p.code))).length;
+    const count = perms.filter(p => this.selectedPermissions.has(this.permissionCode(p))).length;
     return count > 0 && count < perms.length;
   }
 
   get selectedCount(): number {
     return this.selectedPermissions.size;
+  }
+
+  get allPermissionsSelected(): boolean {
+    return this.allPermissions.length > 0 &&
+      this.allPermissions.every(p => this.selectedPermissions.has(this.permissionCode(p.name)));
+  }
+
+  get somePermissionsSelected(): boolean {
+    return this.selectedPermissions.size > 0 &&
+      this.selectedPermissions.size < this.allPermissions.length;
+  }
+
+  toggleAllPermissions(): void {
+    if (this.allPermissionsSelected) {
+      // Deselect all
+      this.selectedPermissions.clear();
+    } else {
+      // Select all
+      this.allPermissions.forEach(p => {
+        this.selectedPermissions.add(this.permissionCode(p.name));
+      });
+    }
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -258,17 +321,21 @@ export class AddRolesComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
 
-    // Send permissions as an array of strings
+    // Resolve normalized keys back to the original permission names from the API
+    // e.g. "user_list" → "USER_LIST" (or whatever the all-permissions API returned)
+    const permissions = Array.from(this.selectedPermissions)
+      .map(key => this.permNameMap.get(key) ?? key)
+      .filter(Boolean);
+
     const payload = {
       name: this.form.value.name.trim(),
       description: this.form.value.description?.trim() || '',
-      permissions: Array.from(this.selectedPermissions)
+      permissions,
     };
 
     if (this.isEditMode && this.roleId) {
-      // EDIT
-      const sub = this.roles.updateRole(this.roleId, payload).subscribe({
-        next: (response) => {
+      const sub = this.rolesService.updateRole(this.roleId, payload).subscribe({
+        next: () => {
           this.isSubmitting = false;
           this.cdr.detectChanges();
           this.snack.alertSuccess('Role updated successfully');
@@ -282,9 +349,8 @@ export class AddRolesComponent implements OnInit, OnDestroy {
       });
       this.subs.push(sub);
     } else {
-      // CREATE
-      const sub = this.roles.createRole(payload).subscribe({
-        next: (response) => {
+      const sub = this.rolesService.createRole(payload).subscribe({
+        next: () => {
           this.isSubmitting = false;
           this.cdr.detectChanges();
           this.snack.alertSuccess('Role created successfully');

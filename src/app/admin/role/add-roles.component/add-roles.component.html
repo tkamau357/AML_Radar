@@ -73,6 +73,18 @@
             {{ selectedCount }} selected
           </span>
 
+          <!-- Select All checkbox -->
+          <label *ngIf="allPermissions.length > 0" class="perm-select-all">
+            <input
+              type="checkbox"
+              class="perm-checkbox"
+              [checked]="allPermissionsSelected"
+              [indeterminate]="somePermissionsSelected"
+              (change)="toggleAllPermissions()"
+            />
+            <span>Select All</span>
+          </label>
+
           <!-- Collapse / expand all -->
           <button *ngIf="groupedPermissions.length > 0" type="button"
             class="perm-collapse-all" (click)="toggleAllGroups()">
@@ -145,8 +157,8 @@
                 <input
                   type="checkbox"
                   class="perm-checkbox"
-                  [checked]="selectedPermissions.has(permissionCode(p.code))"
-                  (change)="togglePermission(p.code)"
+                  [checked]="selectedPermissions.has(permissionCode(p.name))"
+                  (change)="togglePermission(p.name)"
                 />
 
                 <div class="perm-item-info">
@@ -154,9 +166,9 @@
                     {{ p.name || p.code }}
                   </span>
 
-                  <code class="perm-item-code">
+                  <!-- <code class="perm-item-code">
                     {{ p.code }}
-                  </code>
+                  </code> -->
                 </div>
               </label>
             </div>
