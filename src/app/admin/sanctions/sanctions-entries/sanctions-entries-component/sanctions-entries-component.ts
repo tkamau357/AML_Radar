@@ -17,7 +17,7 @@ import { NotificationToastService } from '../../../../data/services/notification
 export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   entries: SanctionEntryResponse[] = [];
   sources: SanctionListSourceInfo[] = [];
-  selectedSource: string | null = null;
+  selectedSource: string = 'OFAC_SDN';
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
@@ -25,7 +25,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
 
   // Source filter options for dynamic table
   sourceFilterOptions: CustomFilterOption[] = [];
-  selectedSourceFilter: string | null = null;
+  selectedSourceFilter: string = '';
 
   columns = [
     { label: '#', field: 'index' },
@@ -99,15 +99,14 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
           value: source.source,
           label: source.displayName
         }));
-        
-        // Add "All Sources" option
-        this.sourceFilterOptions.unshift({
-          value: null,
-          label: 'All Sources'
-        });
 
         if (sources.length > 0) {
-          this.selectedSource = null; // Start with "All Sources"
+          // Keep 'OFAC_SDN' as default; fall back to first source if not found
+          const defaultExists = sources.some(s => s.source === this.selectedSource);
+          if (!defaultExists) {
+            this.selectedSource = sources[0].source;
+            this.selectedSourceFilter = this.selectedSource;
+          }
           this.loadEntries();
         }
         this.cdr.detectChanges();
@@ -120,8 +119,8 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   }
 
   onSourceFilterChange(sourceValue: string | null): void {
-    this.selectedSource = sourceValue;
-    this.selectedSourceFilter = sourceValue;
+    this.selectedSource = sourceValue ?? 'OFAC_SDN';
+    this.selectedSourceFilter = this.selectedSource;
     this.currentPage = 0;
     this.loadEntries();
   }
@@ -129,10 +128,7 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   loadEntries(): void {
     this.isLoading = true;
 
-    // Use selected source, fall back to first available source, then default
-    this.selectedSourceFilter = 'OFAC_SDN';
-
-    const sub = this.sanctionsService.getEntries(this.selectedSourceFilter, this.currentPage, this.pageSize).subscribe({
+    const sub = this.sanctionsService.getEntries(this.selectedSource, this.currentPage, this.pageSize).subscribe({
       next: (page: PageResponse<SanctionEntryResponse>) => {
         this.entries = page.content || [];
         this.totalElements = page.totalElements || 0;

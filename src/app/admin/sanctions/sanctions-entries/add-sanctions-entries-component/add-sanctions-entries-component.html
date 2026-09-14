@@ -479,9 +479,6 @@
         <mat-icon class="form-card-icon">table_chart</mat-icon>
         <span class="form-card-title">Bulk Entries ({{ bulkEntries.length }})</span>
         <span *ngIf="isEditingBulkEntry" class="editing-badge">Editing Entry #{{ editingBulkEntryId }}</span>
-        <button type="button" class="btn-icon" (click)="toggleBulkMode()" title="Close table">
-          <mat-icon>close</mat-icon>
-        </button>
       </div>
       <div class="form-card-body" style="padding: 0; overflow-x: auto;">
         <table class="bulk-table">

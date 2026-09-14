@@ -144,11 +144,6 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   @Input() selectedCustomFilter: any = null;
   filteredCustomFilters: CustomFilterOption[] = [];
 
-  private allCustomFilterOption: CustomFilterOption = {
-    value: null,
-    label: 'All records'
-  };
-
   private isSelectingCustomFilter = false;
 
   customFilterControl = new FormControl<CustomFilterOption | string | null>(null);
@@ -240,9 +235,7 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   ) {
     this.moduleControl.setValue(this.allOption, { emitEvent: false });
     this.filteredModuleTypes = [this.allOption];
-    
-    this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
-    this.filteredCustomFilters = [this.allCustomFilterOption, ...this.customFilters];
+    this.filteredCustomFilters = [...this.customFilters];
   }
 
   ngOnInit(): void {
@@ -537,7 +530,7 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private updateFilteredCustomFilters(): void {
-    this.filteredCustomFilters = [this.allCustomFilterOption, ...(this.customFilters || [])];
+    this.filteredCustomFilters = [...(this.customFilters || [])];
   }
 
   private syncSelectedCustomFilter(): void {
@@ -546,8 +539,11 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
       this.selectedCustomFilter === undefined ||
       this.selectedCustomFilter === ''
     ) {
-      this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
-
+      // No pre-selection — pick the first option
+      const first = this.customFilters[0];
+      if (first) {
+        this.customFilterControl.setValue(first, { emitEvent: false });
+      }
       return;
     }
 
@@ -559,7 +555,11 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
       this.customFilterControl.setValue(selected, { emitEvent: false });
       this.cdr.detectChanges();
     } else {
-      this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
+      // Requested value not in list — fall back to first option
+      const first = this.customFilters[0];
+      if (first) {
+        this.customFilterControl.setValue(first, { emitEvent: false });
+      }
     }
   }
 
@@ -580,34 +580,22 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
     const baseList = this.customFilters || [];
 
     if (inputValue) {
-      this.filteredCustomFilters = [this.allCustomFilterOption, ...baseList.filter(filter =>
+      this.filteredCustomFilters = baseList.filter(filter =>
         filter.label.toLowerCase().includes(inputValue)
-      )];
+      );
     } else {
-      this.filteredCustomFilters = [this.allCustomFilterOption, ...baseList];
+      this.filteredCustomFilters = [...baseList];
     }
   }
 
   onCustomFilterSelected(event: any): void {
-    console.log('Custom filter selected:', event.option.value);
-
     this.isSelectingCustomFilter = true;
 
-    const selected = event.option.value as CustomFilterOption | null;
+    const selected = event.option.value as CustomFilterOption;
 
-    if (!selected || selected.value === null) {
-      this.selectedCustomFilter = null;
-
-      this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
-
-      this.customFilterChange.emit(null);
-    } else {
-      this.selectedCustomFilter = selected.value;
-
-      this.customFilterControl.setValue(selected, { emitEvent: false });
-
-      this.customFilterChange.emit(selected.value);
-    }
+    this.selectedCustomFilter = selected.value;
+    this.customFilterControl.setValue(selected, { emitEvent: false });
+    this.customFilterChange.emit(selected.value);
 
     setTimeout(() => {
       this.isSelectingCustomFilter = false;
@@ -621,14 +609,8 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
       this.isSelectingCustomFilter = true;
 
       this.customFilterControl.setValue(first, { emitEvent: false });
-
-      if (first.value === null) {
-        this.selectedCustomFilter = null;
-        this.customFilterChange.emit(null);
-      } else {
-        this.selectedCustomFilter = first.value;
-        this.customFilterChange.emit(first.value);
-      }
+      this.selectedCustomFilter = first.value;
+      this.customFilterChange.emit(first.value);
 
       event.preventDefault();
 
@@ -671,25 +653,29 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
 
         this.customFilterChange.emit(matched.value);
       } else {
-        this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
-
-        this.selectedCustomFilter = null;
-        this.customFilterChange.emit(null);
+        // No match — restore the currently selected option
+        const current = this.customFilters.find(
+          f => String(f.value) === String(this.selectedCustomFilter)
+        ) ?? this.customFilters[0];
+        if (current) {
+          this.customFilterControl.setValue(current, { emitEvent: false });
+        }
       }
     }
   }
 
   isSelectedCustomFilter(): boolean {
     const value = this.customFilterControl.value;
-
-    return !!(value &&typeof value === 'object' && (value as CustomFilterOption).value !== null);
+    return !!(value && typeof value === 'object');
   }
 
   clearCustomFilter(): void {
-    this.customFilterControl.setValue(this.allCustomFilterOption, { emitEvent: false });
-
-    this.selectedCustomFilter = null;
-    this.customFilterChange.emit(null);
+    const first = this.customFilters[0];
+    if (first) {
+      this.customFilterControl.setValue(first, { emitEvent: false });
+      this.selectedCustomFilter = first.value;
+      this.customFilterChange.emit(first.value);
+    }
   }
 
 
