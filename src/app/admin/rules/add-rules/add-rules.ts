@@ -1,9 +1,17 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RulesService, RawFeatureDef } from '../rules.service';
+import { RulesService, EngineConfigRules, FeatureConfig } from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
+
+/** A single editable param entry derived from the live engine config. */
+export interface ParamEntry {
+  key: string;
+  value: any;
+  /** Inferred input type: 'number' | 'boolean' | 'array' | 'text' */
+  kind: 'number' | 'boolean' | 'array' | 'text';
+}
 
 @Component({
   selector: 'app-add-rules',
@@ -13,12 +21,28 @@ import { NotificationToastService } from '../../../data/services/notification-to
 })
 export class AddRules implements OnInit, OnDestroy {
   featureForm: FormGroup;
-  featureDef: RawFeatureDef | null = null;
+
+  /** The live FeatureConfig for the selected feature, loaded from getConfig(). */
+  featureConfig: FeatureConfig | null = null;
+
+  /** Param definitions derived from featureConfig.params for template rendering. */
+  paramEntries: ParamEntry[] = [];
+
+  /**
+   * Live tag lists for array-kind params.
+   * Key = param.key, value = current list of string tags being edited.
+   * Kept in sync with the corresponding FormControl (which holds a string[]).
+   */
+  tagLists: Record<string, string[]> = {};
+
+  /**
+   * Per-param transient text in the tag text field before it is committed.
+   */
+  tagInputValues: Record<string, string> = {};
+
+  featureId: string | null = null;
   isEdit = false;
   isLoading = false;
-  featureId: string | null = null;
-
-  // No custom dropdown state — mat-select handles multi-select natively
 
   private subs: Subscription[] = [];
 
@@ -32,17 +56,17 @@ export class AddRules implements OnInit, OnDestroy {
   ) {
     this.featureForm = this.fb.group({
       enabled: [true],
-      score: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      params: this.fb.group({}),
+      score:   [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      params:  this.fb.group({}),
     });
   }
 
   ngOnInit(): void {
     this.featureId = this.route.snapshot.paramMap.get('id');
-    this.isEdit = !!this.featureId;
-    
+    this.isEdit    = !!this.featureId;
+
     if (this.isEdit) {
-      this.loadFeatureDef(this.featureId!);
+      this.loadFeature(this.featureId!);
     }
   }
 
@@ -50,90 +74,128 @@ export class AddRules implements OnInit, OnDestroy {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
-  loadFeatureDef(id: string): void {
-    this.isLoading = true;
-    this.subs.push(
-      this.rulesService.getCatalog().subscribe({
-        next: (response) => {
-          const catalog = response.result || [];
-          this.featureDef = catalog.find(f => f.id === id) || null;
-          
-          if (this.featureDef) {
-            this.populateForm(this.featureDef);
-            this.loadCurrentConfig(id);
-          } else {
-            this.snackbar.alertError('Feature not found in catalog');
-            this.router.navigate(['/admin/assessments/rules']);
-          }
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          this.snackbar.alertError('Failed to load feature definitions');
-          this.isLoading = false;
-        },
-      })
-    );
-  }
+  // ── Load ──────────────────────────────────────────────────────────────────
 
-  loadCurrentConfig(id: string): void {
+  loadFeature(id: string): void {
+    this.isLoading = true;
     this.subs.push(
       this.rulesService.getConfig().subscribe({
         next: (response) => {
-          const config = response.result;
-          const featureConfig = config?.features?.[id];
-          
-          if (featureConfig) {
-            this.featureForm.patchValue({
-              enabled: featureConfig.enabled,
-              score: featureConfig.score,
-            });
-            
-            const paramsGroup = this.featureForm.get('params') as FormGroup;
-            Object.keys(featureConfig.params || {}).forEach(key => {
-              if (paramsGroup.contains(key)) {
-                // For STRING_LIST, ensure the value is an array
-                const paramDef = this.featureDef?.params?.find(p => p.key === key);
-                if (paramDef?.kind === 'STRING_LIST') {
-                  const value = featureConfig.params[key];
-                  paramsGroup.get(key)?.patchValue(Array.isArray(value) ? value : []);
-                } else {
-                  paramsGroup.get(key)?.patchValue(featureConfig.params[key]);
-                }
-              }
-            });
+          const config: EngineConfigRules = response.result;
+          const feature = config?.rawTransaction?.features?.[id] ?? null;
+
+          if (!feature) {
+            this.snackbar.alertError(`Feature "${id}" not found in engine config`);
+            this.router.navigate(['/admin/assessments/rules']);
+            return;
           }
+
+          this.featureConfig = feature;
+          this.paramEntries  = this.buildParamEntries(feature.params ?? {});
+          this.buildForm(feature);
+          this.isLoading = false;
+          this.cdr.detectChanges();
         },
-        error: (err) => {
-          this.snackbar.alertError('Failed to load current config');
+        error: () => {
+          this.snackbar.alertError('Failed to load engine config');
+          this.isLoading = false;
         },
-      })
+      }),
     );
   }
 
-  populateForm(featureDef: RawFeatureDef): void {
+  // ── Form builders ─────────────────────────────────────────────────────────
+
+  private buildParamEntries(params: Record<string, any>): ParamEntry[] {
+    return Object.entries(params).map(([key, value]) => ({
+      key,
+      value,
+      kind: this.inferKind(value),
+    }));
+  }
+
+  private inferKind(value: any): ParamEntry['kind'] {
+    if (Array.isArray(value))       return 'array';
+    if (typeof value === 'boolean') return 'boolean';
+    if (typeof value === 'number')  return 'number';
+    return 'text';
+  }
+
+  private buildForm(feature: FeatureConfig): void {
     const paramsGroup = this.fb.group({});
-    
-    featureDef.params.forEach(param => {
-      let defaultValue = featureDef.defaultParams?.[param.key] ?? param.defaultValue;
-      
-      // Ensure STRING_LIST default is an array
-      if (param.kind === 'STRING_LIST' && !Array.isArray(defaultValue)) {
-        defaultValue = defaultValue ? [defaultValue] : [];
+    this.tagLists      = {};
+    this.tagInputValues = {};
+
+    Object.entries(feature.params ?? {}).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        // Store as a real array in the form control
+        const tags = [...value];
+        paramsGroup.addControl(key, new FormControl(tags));
+        this.tagLists[key]       = tags;
+        this.tagInputValues[key] = '';
+      } else {
+        paramsGroup.addControl(key, new FormControl(value));
       }
-      
-      paramsGroup.addControl(
-        param.key,
-        this.fb.control(defaultValue, param.kind === 'DECIMAL' || param.kind === 'NUMBER' ? Validators.required : [])
-      );
     });
-    
+
     this.featureForm.setControl('params', paramsGroup);
     this.featureForm.patchValue({
-      enabled: featureDef.enabledByDefault,
-      score: featureDef.defaultScore,
+      enabled: feature.enabled,
+      score:   feature.score,
     });
   }
+
+  // ── Tag-input API ─────────────────────────────────────────────────────────
+
+  /**
+   * Add the current typed text as a new tag.
+   * Called on Enter, comma, or Tab keypress.
+   */
+  addTag(paramKey: string): void {
+    const raw = (this.tagInputValues[paramKey] ?? '').trim();
+    if (!raw) return;
+
+    // Split by comma so pasting "a, b, c" works in one go
+    const newTags = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && !this.tagLists[paramKey].includes(s));
+
+    if (newTags.length === 0) {
+      this.tagInputValues[paramKey] = '';
+      return;
+    }
+
+    this.tagLists[paramKey] = [...this.tagLists[paramKey], ...newTags];
+    this.tagInputValues[paramKey] = '';
+    this.syncTagControl(paramKey);
+  }
+
+  /** Remove a tag by index. */
+  removeTag(paramKey: string, index: number): void {
+    this.tagLists[paramKey] = this.tagLists[paramKey].filter((_, i) => i !== index);
+    this.syncTagControl(paramKey);
+  }
+
+  /** Handle keydown in the tag text field. */
+  onTagKeydown(event: KeyboardEvent, paramKey: string): void {
+    if (event.key === 'Enter' || event.key === ',' || event.key === 'Tab') {
+      event.preventDefault();
+      this.addTag(paramKey);
+      return;
+    }
+    // Backspace on empty input removes the last tag
+    if (event.key === 'Backspace' && !this.tagInputValues[paramKey] && this.tagLists[paramKey].length > 0) {
+      this.removeTag(paramKey, this.tagLists[paramKey].length - 1);
+    }
+  }
+
+  private syncTagControl(paramKey: string): void {
+    const ctrl = (this.featureForm.get('params') as FormGroup).get(paramKey);
+    ctrl?.setValue([...this.tagLists[paramKey]]);
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   onSubmit(): void {
     if (this.featureForm.invalid || !this.featureId) {
@@ -141,54 +203,60 @@ export class AddRules implements OnInit, OnDestroy {
       return;
     }
 
-    const formValue = this.featureForm.value;
+    const raw = this.featureForm.value;
+
+    const params: Record<string, any> = {};
+    Object.entries(raw.params as Record<string, any>).forEach(([key, val]) => {
+      const original = this.featureConfig?.params?.[key];
+      if (Array.isArray(original)) {
+        // Value is already a string[] from the form control
+        params[key] = Array.isArray(val) ? val : [];
+      } else if (typeof original === 'number') {
+        params[key] = val === '' || val === null ? null : Number(val);
+      } else if (typeof original === 'boolean') {
+        params[key] = Boolean(val);
+      } else {
+        params[key] = val;
+      }
+    });
+
     const body = {
-      enabled: formValue.enabled,
-      score: formValue.score,
-      params: formValue.params,
+      enabled: raw.enabled,
+      score:   raw.score,
+      params,
     };
 
     this.isLoading = true;
     this.subs.push(
       this.rulesService.patchFeature(this.featureId, body).subscribe({
-        next: (response) => {
+        next: () => {
           this.snackbar.alertSuccess(`Feature ${this.featureId} updated successfully`);
           this.router.navigate(['/admin/assessments/rules']);
         },
-        error: (err) => {
+        error: () => {
           this.snackbar.alertError('Failed to update feature');
           this.isLoading = false;
         },
-      })
+      }),
     );
   }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
 
   onCancel(): void {
     this.router.navigate(['/admin/assessments/rules']);
   }
 
   onReset(): void {
-    if (this.featureDef) {
-      this.populateForm(this.featureDef);
-      this.featureForm.patchValue({
-        enabled: this.featureDef.enabledByDefault,
-        score: this.featureDef.defaultScore,
-      });
+    if (this.featureConfig) {
+      this.buildForm(this.featureConfig);
     }
   }
 
-  // Multi-select methods — no longer needed with mat-select
-  getParamDef(paramKey: string): any {
-    return this.featureDef?.params?.find(p => p.key === paramKey);
-  }
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
-  /** Options driven directly from the catalog's allowedValues — no hardcoding. */
-  getEnumOptions(param: any): string[] {
-    return Array.isArray(param?.allowedValues) ? param.allowedValues : [];
-  }
-
-  getStringListOptions(param: any): string[] {
-    return Array.isArray(param?.allowedValues) ? param.allowedValues : [];
+  getCurrentScore(): number {
+    return this.featureForm.get('score')?.value ?? 0;
   }
 
   getScoreClass(score: number): string {
@@ -199,81 +267,84 @@ export class AddRules implements OnInit, OnDestroy {
     return 'bg-secondary';
   }
 
-  getFeatureIcon(featureId?: string): string {
-    const iconMap: Record<string, string> = {
-      'AMOUNT_ABSOLUTE': 'payments',
-      'AMOUNT_JUST_BELOW': 'trending_down',
-      'AMOUNT_ROUND': 'circle',
-      'VELOCITY_COUNT': 'speed',
-      'VELOCITY_VOLUME': 'swap_vert',
-      'STRUCTURING': 'call_split',
-      'OFF_HOURS': 'schedule',
-      'WEEKEND': 'event_available',
-      'CHANNEL_RISK': 'router',
-      'TYPE_RISK': 'category',
-      'CURRENCY_UNUSUAL': 'currency_exchange',
-      'NARRATION_KEYWORDS': 'text_fields',
-      'NEW_DEVICE': 'devices_other',
-      'HIGH_RISK_COUNTRY': 'public',
-      'RAPID_TURNOVER': 'swap_horiz'
-    };
-    return iconMap[featureId || ''] || 'rule';
-  }
-
-  getParamIcon(paramKey: string): string {
-    const iconMap: Record<string, string> = {
-      'operator': 'compare_arrows',
-      'threshold': 'attach_money',
-      'currency': 'currency_exchange',
-      'applyToTypes': 'category',
-      'applyToChannels': 'router',
-      'windowMinutes': 'schedule',
-      'maxCount': 'numbers',
-      'maxVolume': 'swap_vert',
-      'groupBy': 'group',
-      'onMissing': 'error_outline',
-      'keywords': 'search',
-      'reportingThreshold': 'flag',
-      'bandPct': 'percent',
-      'divisor': 'divide',
-      'minAmount': 'money_off',
-      'startHour': 'timer',
-      'endHour': 'timer',
-      'timezone': 'public',
-      'riskProfiles': 'shield',
-      'channels': 'router',
-      'types': 'category',
-      'countries': 'public',
-      'baseCurrency': 'currency_exchange',
-      'mode': 'tune',
-      'flaggedCurrencies': 'flag',
-      'proximityPct': 'close',
-      'windowHours': 'schedule',
-      'minCount': 'numbers',
-      'amountTolerancePct': 'percent',
-      'deviceId': 'devices',
-      'ipAddress': 'language',
-      'sessionId': 'fingerprint',
-      'newDevice': 'smartphone'
-    };
-    return iconMap[paramKey] || '';
-  }
-
-  getCurrentScore(): number {
-    return this.featureForm.get('score')?.value || this.featureDef?.defaultScore || 0;
-  }
-
-  formatParamValue(key: string, value: any): string {
-    if (value == null) return '—';
-    if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
-    return String(value);
-  }
-
   getScoreColorClass(score: number): string {
     if (score >= 90) return 'score-critical';
     if (score >= 75) return 'score-high';
     if (score >= 60) return 'score-medium';
     if (score >= 30) return 'score-low';
     return 'score-clear';
+  }
+
+  getFeatureIcon(featureId?: string): string {
+    const iconMap: Record<string, string> = {
+      AMOUNT_ABSOLUTE:    'payments',
+      AMOUNT_JUST_BELOW:  'trending_down',
+      AMOUNT_ROUND:       'circle',
+      VELOCITY_COUNT:     'speed',
+      VELOCITY_VOLUME:    'swap_vert',
+      STRUCTURING:        'call_split',
+      OFF_HOURS:          'schedule',
+      WEEKEND:            'event_available',
+      CHANNEL_RISK:       'router',
+      TYPE_RISK:          'category',
+      CURRENCY_UNUSUAL:   'currency_exchange',
+      NARRATION_KEYWORDS: 'text_fields',
+      NEW_DEVICE:         'devices_other',
+      HIGH_RISK_COUNTRY:  'public',
+      RAPID_TURNOVER:     'swap_horiz',
+    };
+    return iconMap[featureId ?? ''] || 'rule';
+  }
+
+  getParamIcon(key: string): string {
+    const iconMap: Record<string, string> = {
+      operator:            'compare_arrows',
+      threshold:           'attach_money',
+      currency:            'currency_exchange',
+      applyToTypes:        'category',
+      applyToChannels:     'router',
+      windowMinutes:       'schedule',
+      windowHours:         'schedule',
+      maxCount:            'numbers',
+      maxVolume:           'swap_vert',
+      groupBy:             'group',
+      onMissing:           'error_outline',
+      keywords:            'search',
+      reportingThreshold:  'flag',
+      bandPct:             'percent',
+      divisor:             'calculate',
+      minAmount:           'money_off',
+      startHour:           'timer',
+      endHour:             'timer',
+      timezone:            'public',
+      riskProfiles:        'shield',
+      channels:            'router',
+      types:               'category',
+      countries:           'public',
+      baseCurrency:        'currency_exchange',
+      mode:                'tune',
+      flaggedCurrencies:   'flag',
+      proximityPct:        'close',
+      minCount:            'numbers',
+      amountTolerancePct:  'percent',
+    };
+    return iconMap[key] || 'settings';
+  }
+
+  getParamHint(entry: ParamEntry): string {
+    switch (entry.kind) {
+      case 'array':   return 'Press Enter, Tab or comma to add a value · Backspace to remove last';
+      case 'number':  return 'Numeric value';
+      case 'boolean': return 'Toggle on / off';
+      default:        return '';
+    }
+  }
+
+  /** Template-safe display of a param's original value. */
+  formatParamValue(entry: ParamEntry): string {
+    const v = entry.value;
+    if (Array.isArray(v))                          return v.length ? v.join(', ') : '—';
+    if (v === null || v === undefined || v === '') return '—';
+    return String(v);
   }
 }

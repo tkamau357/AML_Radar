@@ -784,3 +784,95 @@ $radius-sm:    7px;
     &[disabled] { opacity: 0.55; }
   }
 }
+
+// ── Tag chip input ────────────────────────────────────────────────────────
+.rp-tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-height: 42px;
+  padding: 5px 10px;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  background: $surface;
+  cursor: text;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within {
+    border-color: $brand;
+    box-shadow: 0 0 0 3px $brand-glow;
+  }
+
+  &--empty .rp-tag__field::placeholder { color: $text-3; }
+}
+
+// Individual chip
+.rp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.775rem;
+  font-weight: 500;
+  color: $brand;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 2px 8px 2px 10px;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: #93c5fd;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s, color 0.15s;
+
+    mat-icon {
+      font-size: 11px;
+      width: 11px;
+      height: 11px;
+      line-height: 1;
+    }
+
+    &:hover {
+      background: #bfdbfe;
+      color: $brand;
+    }
+  }
+
+  // Subtle entrance animation
+  animation: tagIn 0.14s ease-out;
+}
+
+@keyframes tagIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+// The inline text field inside the tag container
+.rp-tag__field {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: $text-1;
+  padding: 2px 4px;
+  font-family: inherit;
+
+  &::placeholder { color: $text-3; font-size: 0.8rem; }
+}
