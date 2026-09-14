@@ -5,7 +5,6 @@ import { Subscription } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { NotificationToastService } from "../../data/services/notification-toast.service";
 import { AuthService } from "../../core/service/auth.service";
-import { TokenStorageService } from "../../core/service/token-storage.service";
 
 @Component({
   selector: "app-signin",

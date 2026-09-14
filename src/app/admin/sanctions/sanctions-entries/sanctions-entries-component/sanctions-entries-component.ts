@@ -28,11 +28,11 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
   selectedSourceFilter: string | null = null;
 
   columns = [
-    { label: '#',            field: 'index'                        },
-    { label: 'Full Name',    field: 'fullName'                     },
-    { label: 'Source',       field: 'sourceDisplayName'            },
-    { label: 'Entity Type',  field: 'entityType',    type: 'badge' },
-    { label: 'Listed Date',  field: 'listedDate',    type: 'date'  },
+    { label: '#', field: 'index' },
+    { label: 'Full Name', field: 'fullName' },
+    { label: 'Source', field: 'sourceDisplayName' },
+    { label: 'Entity Type', field: 'entityType', type: 'badge' },
+    { label: 'Listed Date', field: 'listedDate', type: 'date' },
   ];
 
   actions: TableAction<SanctionEntryResponse>[] = [
@@ -121,22 +121,18 @@ export class SanctionsEntriesComponent implements OnInit, OnDestroy {
 
   onSourceFilterChange(sourceValue: string | null): void {
     this.selectedSource = sourceValue;
+    this.selectedSourceFilter = sourceValue;
     this.currentPage = 0;
     this.loadEntries();
   }
 
   loadEntries(): void {
     this.isLoading = true;
-    
-    // If no source selected, load all entries (or use first source as fallback)
-    const sourceToLoad = this.selectedSource || (this.sources.length > 0 ? this.sources[0].source : '');
-    
-    if (!sourceToLoad) {
-      this.isLoading = false;
-      return;
-    }
 
-    const sub = this.sanctionsService.getEntries(sourceToLoad, this.currentPage, this.pageSize).subscribe({
+    // Use selected source, fall back to first available source, then default
+    this.selectedSourceFilter = 'OFAC_SDN';
+
+    const sub = this.sanctionsService.getEntries(this.selectedSourceFilter, this.currentPage, this.pageSize).subscribe({
       next: (page: PageResponse<SanctionEntryResponse>) => {
         this.entries = page.content || [];
         this.totalElements = page.totalElements || 0;

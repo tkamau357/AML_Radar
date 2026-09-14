@@ -141,7 +141,7 @@ export class DynamicTablesComponent implements OnChanges, OnInit, OnDestroy {
   @Input() customFilterLabel = 'Filter by Approval Status';
   @Output() customFilterChange = new EventEmitter<any>();
 
-  selectedCustomFilter: any = null;
+  @Input() selectedCustomFilter: any = null;
   filteredCustomFilters: CustomFilterOption[] = [];
 
   private allCustomFilterOption: CustomFilterOption = {
