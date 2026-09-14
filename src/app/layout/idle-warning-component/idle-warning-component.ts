@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SessionService } from '../../core/service/session.service';
 
-
 @Component({
   selector: 'app-idle-warning-component',
   standalone: false,

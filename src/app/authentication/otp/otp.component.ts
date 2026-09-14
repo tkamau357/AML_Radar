@@ -70,7 +70,6 @@ export class OtpComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // ==================== OTP Input Handling ====================
-
   onInput(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
@@ -165,57 +164,52 @@ export class OtpComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // ==================== OTP Validation ====================
-
   async validateOtp() {
-  if (this.otpForm.invalid || this.loading) {
-    return;
+    if (this.otpForm.invalid || this.loading) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    this.validateSub = this._auth.verifyOtp({otp: this.otpForm.value.otp, email: this.email})
+      .subscribe({
+        next: async (res) => {
+          // AuthService.verifyOtp already saves token, user, refresh token,
+          // token details and policies via its tap() handler.
+          // Role fetch is best-effort — a 403 must not block navigation.
+          try {
+            await this.fetchAndStoreUserRoles(res.user?.id);
+          } catch (error) {
+            // Non-fatal: user is authenticated, roles just won't be pre-fetched.
+            console.warn('Role fetch failed (non-fatal):', error);
+          }
+
+          this.snackbar.alertSuccess(res.message || 'Login successful');
+
+          // Check if user must change password
+          if (res.user?.mustChangePassword) {
+            this._router.navigate(['/auth/change-password']);
+          } else {
+            this._router.navigate(['/dashboard/home']);
+          }
+        },
+
+        error: (err) => {
+          console.error('OTP verification error:', err);
+
+          this.loading = false;
+          this.error =
+            err?.error?.message || 'OTP verification failed.';
+
+          this.snackbar.alertError(this.error);
+
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.updateOtpValue();
+          this.focusInput(0);
+        }
+      });
   }
-
-  this.loading = true;
-  this.error = '';
-
-  this.validateSub = this._auth
-    .verifyOtp({
-      otp: this.otpForm.value.otp,
-      email: this.email
-    })
-    .subscribe({
-      next: async (res) => {
-        // AuthService.verifyOtp already saves token, user, refresh token,
-        // token details and policies via its tap() handler.
-        // Role fetch is best-effort — a 403 must not block navigation.
-        try {
-          await this.fetchAndStoreUserRoles(res.user?.id);
-        } catch (error) {
-          // Non-fatal: user is authenticated, roles just won't be pre-fetched.
-          console.warn('Role fetch failed (non-fatal):', error);
-        }
-
-        this.snackbar.alertSuccess(res.message || 'Login successful');
-
-        // Check if user must change password
-        if (res.user?.mustChangePassword) {
-          this._router.navigate(['/auth/change-password']);
-        } else {
-          this._router.navigate(['/dashboard/home']);
-        }
-      },
-
-      error: (err) => {
-        console.error('OTP verification error:', err);
-
-        this.loading = false;
-        this.error =
-          err?.error?.message || 'OTP verification failed.';
-
-        this.snackbar.alertError(this.error);
-
-        this.otpDigits = ['', '', '', '', '', ''];
-        this.updateOtpValue();
-        this.focusInput(0);
-      }
-    });
-}
 
   async fetchAndStoreUserRoles(
     userId: string | number | undefined

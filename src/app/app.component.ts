@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Event, Router, NavigationStart, NavigationEnd } from "@angular/router";
 import { distinctUntilChanged, filter, Subject, takeUntil } from "rxjs";
-import { NotificationToastService } from "./data/services/notification-toast.service";
 import { AuthService } from "./core/service/auth.service";
 import { SessionService } from "./core/service/session.service";
 
@@ -19,7 +18,6 @@ export class AppComponent implements OnInit, OnDestroy {
     constructor(
         public _router: Router,
         private authService: AuthService,
-        private notificationToast: NotificationToastService,
         private sessionService: SessionService
     ) {
         // Prevent multiple tabs - existing functionality
@@ -45,10 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Restore sound functionality
-        // document.addEventListener('click', this.restoreSound);
-        // document.addEventListener('keydown', this.restoreSound);
-
         // Subscribe to authentication state
         this.authService.isAuthenticated$
             .pipe(
@@ -74,19 +68,9 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // document.removeEventListener('click', this.restoreSound);
-        // document.removeEventListener('keydown', this.restoreSound);
         this.destroy$.next();
         this.destroy$.complete();
     }
-
-    // private readonly restoreSound = (): void => {
-    //     if (this.notificationToast.isSoundEnabled) {
-    //         this.notificationToast.unlockAudio();
-    //     }
-    //     document.removeEventListener('click', this.restoreSound);
-    //     document.removeEventListener('keydown', this.restoreSound);
-    // };
 
     /**
      * Validate token on app initialization

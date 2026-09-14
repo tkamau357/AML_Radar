@@ -87,29 +87,6 @@
       </button>
     </div>
 
-    <!-- Module type filter -->
-    <div class="dt-filter-wrap" *ngIf="showModuleTypeFilter">
-      <input
-        type="text"
-        [formControl]="moduleControl"
-        [matAutocomplete]="moduleAuto"
-        (input)="onModuleInput($event)"
-        (focus)="onModuleFocus()"
-        (click)="onModuleFocus()"
-        (keydown)="onModuleKeydown($event)"
-        (blur)="onModuleBlur()"
-        placeholder="Filter by module type..."
-        class="dt-filter-input"
-      />
-      <mat-icon class="dt-filter-chevron">keyboard_arrow_down</mat-icon>
-      <button *ngIf="isSelectedModule()" (click)="clearModuleFilter(); $event.stopPropagation()" class="dt-filter-clear" type="button">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-autocomplete #moduleAuto="matAutocomplete" [displayWith]="displayModuleType" (optionSelected)="onModuleSelected($event)">
-        <mat-option *ngFor="let mod of filteredModuleTypes" [value]="mod">{{ mod.name }}</mat-option>
-      </mat-autocomplete>
-    </div>
-
     <!-- Custom filter -->
     @if(customFilters.length > 0) {
       <div class="dt-filter-wrap">
@@ -320,6 +297,9 @@
               <div class="dt-params-panel">
                 <ng-container *ngIf="getParamEntries(row).length > 0; else noParams">
                   <div class="dt-params-grid">
+                    <label class="field-label" for="source">
+                Params: 
+              </label>
                     <div
                       *ngFor="let entry of getParamEntries(row)"
                       class="dt-param-item">

@@ -10,10 +10,10 @@ import { FullLayout } from "./layout/full-layout/full-layout";
 
 const routes: Routes = [
   // === PUBLIC ROUTES (no layout shell) ===
-  { path: "auth/sign-in",        component: SigninComponent },
-  { path: "auth/verify-otp",     component: OtpComponent },
+  { path: "auth/sign-in", component: SigninComponent },
+  { path: "auth/verify-otp", component: OtpComponent },
   { path: "auth/change-password", component: ChangePasswordComponent },
-  { path: "auth/unauthorized",   component: Page403Component },
+  { path: "auth/unauthorized", component: Page403Component },
   { path: "", redirectTo: "auth/sign-in", pathMatch: "full" },
 
   // === PROTECTED ROUTES (inside FullLayout: sidebar + header) ===
