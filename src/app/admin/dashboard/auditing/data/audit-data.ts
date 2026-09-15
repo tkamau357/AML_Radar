@@ -1,5 +1,3 @@
-// src/app/admin/dashboard/auditing/data/audit-data.ts
-
 /**
  * Audit Data Interface
  * Matches the backend AuditResponse record structure

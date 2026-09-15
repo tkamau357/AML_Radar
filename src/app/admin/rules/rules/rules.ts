@@ -1,9 +1,23 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { HeaderAction, TableAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import { RulesService, EngineConfigRules, EngineFeatureRow, RawFeatureDef } from '../rules.service';
+import {
+  HeaderAction,
+  TableAction,
+} from '../../../shared/components/dynamic-tables/dynamic-tables.component';
+import { RulesService, SubEngineCatalogEntry } from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
+
+/** Flat row shape fed into the dynamic table. */
+export interface SubEngineRow {
+  label: string;
+  description: string;
+  status: string;
+  enabled: boolean;
+  note: string;
+  /** kept for action callbacks */
+  _entry: SubEngineCatalogEntry;
+}
 
 @Component({
   selector: 'app-rules',
@@ -12,43 +26,44 @@ import { NotificationToastService } from '../../../data/services/notification-to
   styleUrl: './rules.scss',
 })
 export class Rules implements OnInit, OnDestroy {
-  featureRows: EngineFeatureRow[] = [];
-  config: EngineConfigRules | null = null;
   isLoading = false;
 
-  /** Controls whether the params expandable panel is available on rows. */
-  showParamsExpand = true;
+  /** Rows shown in the sub-engine table. */
+  subEngineRows: SubEngineRow[] = [];
 
   columns = [
     { label: '#', field: 'index' },
-    { label: 'Feature Name', field: 'featureName' },
-    { label: 'Enabled', field: 'enabled', type: 'badge' },
-    { label: 'Default Score', field: 'score', type: 'badge' },
+    { label: 'Label',       field: 'label'                     },
+    { label: 'Status',      field: 'status',   type: 'badge'   },
+    { label: 'Enabled',     field: 'enabled',  type: 'badge'   },
   ];
 
-  actions: TableAction<RawFeatureDef>[] = [
-    {
-      label: 'View',
-      icon: 'visibility',
-      onClick: (row: RawFeatureDef) => this.viewFeature(row),
-    },
+  actions: TableAction<SubEngineRow>[] = [
     {
       label: 'Edit',
       icon: 'edit',
-      onClick: (row: RawFeatureDef) => this.editFeature(row),
+      onClick: (row: SubEngineRow) =>
+        this.router.navigate([
+          '/admin/assessments/rules/edit',
+          row._entry.id,
+        ]),
     },
-    // {
-    //   label: 'Toggle',
-    //   icon: 'toggle_on',
-    //   onClick: (row: RawFeatureDef) => this.toggleFeature(row),
-    // },
+    {
+      label: 'View',
+      icon: 'visibility',
+      onClick: (row: SubEngineRow) =>
+        this.router.navigate([
+          '/admin/assessments/rules/view',
+          row._entry.id,
+        ]),
+    },
   ];
 
   headerActions: HeaderAction[] = [
     {
       icon: 'refresh',
       tooltip: 'Refresh',
-      onClick: () => this.loadConfig(),
+      onClick: () => this.loadCatalog(),
     },
     {
       icon: 'settings',
@@ -63,56 +78,40 @@ export class Rules implements OnInit, OnDestroy {
     private rulesService: RulesService,
     private snackbar: NotificationToastService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadConfig();
+    this.loadCatalog();
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
-  loadConfig(): void {
+  loadCatalog(): void {
     this.isLoading = true;
     this.subs.push(
-      this.rulesService.getConfig().subscribe({
+      this.rulesService.getCatalog().subscribe({
         next: (response) => {
-          this.config = response.result;
-          this.featureRows = this.buildFeatureRows(this.config);
+          const subEngines = response.result?.subEngines ?? [];
+          this.subEngineRows = subEngines.map((s) => ({
+            label:       s.label,
+            description: s.description,
+            status:      s.status,
+            enabled:     s.enabled,
+            note:        s.note ?? '—',
+            _entry:      s,
+          }));
           this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.snackbar.alertError('Failed to load engine config');
+          this.snackbar.alertError('Failed to load engine catalog');
           this.isLoading = false;
         },
-      }),
+      })
     );
-  }
-
-  /** Maps `rawTransaction.features` record into a flat array of display rows. */
-  private buildFeatureRows(config: EngineConfigRules | null): EngineFeatureRow[] {
-    const features = config?.rawTransaction?.features;
-    if (!features) return [];
-
-    return Object.entries(features).map(([name, cfg]) => ({
-      featureName: name,
-      enabled:     cfg.enabled,
-      score:       cfg.score,
-      params:      cfg.params ?? {},
-      _expanded:   false,
-      showParams:  this.showParamsExpand,
-    }));
-  }
-
-  viewFeature(row: any): void {
-    this.router.navigate(['/admin/assessments/rules/view', row.featureName]);
-  }
-
-  editFeature(row: any): void {
-    this.router.navigate(['/admin/assessments/rules/edit', row.featureName]);
   }
 
   openConfig(): void {

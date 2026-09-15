@@ -443,7 +443,6 @@ export class AddSanctionsEntriesComponent implements OnInit, OnDestroy {
   }
 
   // ── Bulk Upload Methods ─────────────────────────────────────────────────────
-
   toggleBulkUpload(): void {
     this.bulkUploadExpanded = !this.bulkUploadExpanded;
   }

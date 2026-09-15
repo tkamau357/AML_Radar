@@ -1,0 +1,231 @@
+// ── Sub-engine summary banner ────────────────────────────────────────────
+.rp-subengine {
+  margin: 1.25rem 1.75rem 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+
+  // ── header row ──
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2a5caa 0%, #3b82f6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      color: #fff;
+      font-size: 22px;
+      height: 22px;
+      width: 22px;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  &__id {
+    font-size: 0.7rem;
+    color: #64748b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  &__desc {
+    font-size: 0.8125rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    mat-icon {
+      font-size: 13px;
+      height: 13px;
+      width: 13px;
+    }
+
+    &--active {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+
+    &--planned {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fcd34d;
+    }
+
+    &--on {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    &--off {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+  }
+
+  // ── meta grid ──
+  &__meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__meta-item {
+    padding: 0.75rem 1.25rem;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    &--wide {
+      grid-column: 1 / -1;
+      border-right: none;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 900px) {
+      &:nth-child(2n) {
+        border-right: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      border-right: none;
+      border-bottom: 1px solid #e2e8f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  &__meta-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+  }
+
+  &__meta-value {
+    font-size: 0.8125rem;
+    color: #0f172a;
+    line-height: 1.4;
+
+    &--muted {
+      color: #94a3b8;
+      font-style: italic;
+    }
+  }
+
+  &__meta-code {
+    font-size: 0.75rem;
+    color: #475569;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    align-self: flex-start;
+  }
+}
+
+// ── Loading / empty states ────────────────────────────────────────────────
+.rp-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.rp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: #94a3b8;
+
+  mat-icon {
+    font-size: 36px;
+    height: 36px;
+    width: 36px;
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}

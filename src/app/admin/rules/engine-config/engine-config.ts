@@ -66,20 +66,20 @@ export class EngineConfig implements OnInit, OnDestroy {
     const { rawSubEngineEnabled, alertThreshold } = this.configForm.value;
     this.isLoading = true;
     
-    this.subs.push(
-      this.rulesService.patchSubEngine({ enabled: rawSubEngineEnabled, alertThreshold }).subscribe({
-        next: (response) => {
-          this.snackbar.alertSuccess('Engine config updated successfully');
-          this.engineConfig = response.result;
-          this.router.navigate(['/admin/assessments/rules']);
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.snackbar.alertError('Failed to update engine config');
-          this.isLoading = false;
-        },
-      })
-    );
+    // this.subs.push(
+    //   this.rulesService.patchSubEngine({ enabled: rawSubEngineEnabled, alertThreshold }).subscribe({
+    //     next: (response) => {
+    //       this.snackbar.alertSuccess('Engine config updated successfully');
+    //       this.engineConfig = response.result;
+    //       this.router.navigate(['/admin/assessments/rules']);
+    //       this.isLoading = false;
+    //     },
+    //     error: (err) => {
+    //       this.snackbar.alertError('Failed to update engine config');
+    //       this.isLoading = false;
+    //     },
+    //   })
+    // );
   }
 
   getThresholdClass(threshold: number): string {

@@ -1,15 +1,14 @@
 <app-dynamic-tables
   pageTitle="Rules Management"
   pageSubtitle="Configure AML transaction monitoring rules"
-  TableSubtitle="Engine Feature Configuration"
+  TableSubtitle="Sub-engine Catalogue"
   [showAddButton]="false"
   [columns]="columns"
-  [data]="featureRows"
+  [data]="subEngineRows"
   [actions]="actions"
   [headerActions]="headerActions"
   [isLoading]="isLoading"
-  [expandableParams]="showParamsExpand"
-  noRecordsMessage="No features found in engine config."
   [showExcel]="true"
   [showPdf]="true"
+  noRecordsMessage="No sub-engine entries found."
 ></app-dynamic-tables>

@@ -25,7 +25,6 @@ export class SourceConfigurationComponent implements OnInit, OnDestroy {
 
   columns = [
     { label: '#', field: 'index' },
-    // { label: 'Display Name', field: 'displayName' },
     { label: 'Source', field: 'source' },
     { label: 'Acquisition Mode', field: 'acquisitionModeDisplay' },
     { label: 'Entries', field: 'entryCountDisplay' },

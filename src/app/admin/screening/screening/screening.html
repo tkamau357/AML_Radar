@@ -37,8 +37,8 @@
         <!-- Sources -->
         <div class="filter-group">
           <label class="filter-label">Sanction Sources</label>
-          <mat-select class="filter-select" formControlName="sources">
-            <mat-option value="">Select source</mat-option>
+          <mat-select class="filter-select" formControlName="sources" placeholder="Select source">
+            <!-- <mat-option value="">Select source</mat-option> -->
             <mat-option *ngFor="let source of availableSources" [value]="source">
               {{ source }}
             </mat-option>
@@ -69,8 +69,7 @@
         <!-- Entity Type -->
         <div class="filter-group">
           <label class="filter-label">Entity Type</label>
-          <mat-select class="filter-select" formControlName="entityType">
-            <mat-option value="">All Types</mat-option>
+          <mat-select class="filter-select" formControlName="entityType" placeholder="Select entity">
             <mat-option value="INDIVIDUAL">Individual</mat-option>
             <mat-option value="ENTITY">Entity</mat-option>
             <mat-option value="ORGANIZATION">Organization</mat-option>
