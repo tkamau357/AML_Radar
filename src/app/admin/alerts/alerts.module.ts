@@ -21,6 +21,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { FeatherIconsModule } from '../../shared/feather-icons.module';
+import { MatInputModule } from '@angular/material/input';
 import { AddAlerts } from './add-alerts/add-alerts';
 import { AlertsRoutingModule } from './alerts.routing.module';
 import { Alerts } from './alerts/alerts';

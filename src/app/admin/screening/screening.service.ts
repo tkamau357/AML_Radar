@@ -379,4 +379,19 @@ export class ScreeningService {
       `${this.configUrl}/screening/mappings/${templateId}`
     ).pipe(map(extractResult));
   }
+
+  offlineScreen(screenDate: string, batchSize?: number): Observable<OfflineScreenResult> {
+    const body: any = { screenDate };
+    if (batchSize) body['batchSize'] = batchSize;
+    return this.http.post<ApiResponse<OfflineScreenResult>>(
+      `${this.baseUrl}/daily-transactions/offline-screen`,
+      body
+    ).pipe(map(extractResult));
+  }
+}
+
+export interface OfflineScreenResult {
+  date: string;
+  processed: number;
+  alerts: number;
 }

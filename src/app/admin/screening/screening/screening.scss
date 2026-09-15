@@ -1600,3 +1600,111 @@
     background: #f8f9fa;
   }
 }
+
+// ══ STATS ROW ═════════════════════════════════════════════════════════════════
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+
+  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 768px)  { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border-left: 4px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    color: #718096;
+  }
+
+  &__value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1;
+  }
+
+  &--danger { border-left-color: #f44336; .stat-card__value { color: #c62828; } }
+  &--warn   { border-left-color: #ff9800; .stat-card__value { color: #e65100; } }
+  &--medium { border-left-color: #ffc107; .stat-card__value { color: #b45309; } }
+  &--ok     { border-left-color: #4caf50; .stat-card__value { color: #2e7d32; } }
+  &--info   { border-left-color: #2a5caa; .stat-card__value { color: #1a3d7a; } }
+}
+
+// ══ LAST RUN NOTICE ═══════════════════════════════════════════════════════════
+.last-run {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+
+  &__icon { font-size: 18px; width: 18px; height: 18px; color: #4caf50; }
+
+  .text-danger { color: #c62828; }
+}
+
+// ══ TABS ═══════════════════════════════════════════════════════════════════════
+.screening-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0;
+}
+
+.screening-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #718096;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+  border-radius: 8px 8px 0 0;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover { color: #2a5caa; background: #f0f4ff; }
+
+  &--active {
+    color: #2a5caa;
+    border-bottom-color: #2a5caa;
+    background: #f0f4ff;
+  }
+
+  &__count {
+    background: #e2e8f0;
+    color: #4a5568;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--danger { background: #ffebee; color: #c62828; }
+  }
+}

@@ -1,19 +1,65 @@
-<app-dynamic-tables
-  pageTitle="Alert"
-  pageSubtitle="Manage alerts received"
-  TableSubtitle="All alerts"
-  addButtonLabel="Add Source"
-  buttonPermission="SANCTIONS_SOURCE_CREATE"
-  [showAddButton]="false"
-  [columns]="columns"
-  [data]="alerts"
-  [actions]="actions"
-  [headerActions]="headerActions"
-  [isLoading]="isLoading"
-  noRecordsMessage="No alerts found."
-  [showExcel]="true"
-  [showPdf]="true"
-  [totalDataCount]="totalElements"
-  [pageIndex]="pageIndex"
-  [pageSize]="pageSize"
-></app-dynamic-tables>
+<div class="alerts-page">
+
+  <!-- ── Stats row ─────────────────────────────────────────────────────── -->
+  <div class="alerts-stats" *ngIf="stats">
+    <div class="alert-stat">
+      <span class="alert-stat__label">Total Screened</span>
+      <span class="alert-stat__value">{{ stats.totalScreened | number }}</span>
+    </div>
+    <div class="alert-stat alert-stat--danger">
+      <span class="alert-stat__label">Total Alerts</span>
+      <span class="alert-stat__value">{{ stats.totalAlerts | number }}</span>
+    </div>
+    <div class="alert-stat alert-stat--warn">
+      <span class="alert-stat__label">High / Critical</span>
+      <span class="alert-stat__value">{{ stats.totalHigh + stats.totalCritical | number }}</span>
+    </div>
+    <div class="alert-stat alert-stat--medium">
+      <span class="alert-stat__label">Medium</span>
+      <span class="alert-stat__value">{{ stats.totalMedium | number }}</span>
+    </div>
+    <div class="alert-stat alert-stat--ok">
+      <span class="alert-stat__label">Clear</span>
+      <span class="alert-stat__value">{{ stats.totalClear | number }}</span>
+    </div>
+    <div class="alert-stat alert-stat--info">
+      <span class="alert-stat__label">Alert Rate</span>
+      <span class="alert-stat__value">{{ stats.alertRate }}%</span>
+    </div>
+  </div>
+
+  <!-- ── Filter bar ─────────────────────────────────────────────────────── -->
+  <div class="alerts-filter-bar">
+    <div class="alerts-filter-bar__field">
+      <label class="alerts-filter-bar__label">Filter by Severity</label>
+      <select
+        class="alerts-filter-bar__select"
+        [value]="selectedSeverity ?? ''"
+        (change)="onSeverityChange($any($event.target).value || undefined)">
+        <option *ngFor="let opt of severityOptions" [value]="opt.value ?? ''">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────── -->
+  <app-dynamic-tables
+    pageTitle="Alerts"
+    pageSubtitle="Transaction screening alerts"
+    TableSubtitle="Flagged transactions"
+    [showAddButton]="false"
+    [columns]="columns"
+    [data]="alerts"
+    [actions]="actions"
+    [headerActions]="headerActions"
+    [isLoading]="isLoading"
+    noRecordsMessage="No alerts found."
+    [showExcel]="true"
+    [showPdf]="true"
+    [totalDataCount]="totalElements"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+  ></app-dynamic-tables>
+
+</div>

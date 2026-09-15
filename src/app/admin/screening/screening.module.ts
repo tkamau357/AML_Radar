@@ -21,6 +21,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { FeatherIconsModule } from '../../shared/feather-icons.module';
+import { RouterModule } from '@angular/router';
+import { MatInputModule } from '@angular/material/input';
 import { ScreeningRoutingModule } from './screening.routing.module';
 import { Screening } from './screening/screening';
 import { ScreeningDialog } from './screening-dialog/screening-dialog';
@@ -56,7 +58,8 @@ import { ScreeningDialog } from './screening-dialog/screening-dialog';
     MatCheckboxModule,
     MatRadioModule,
     MatProgressBarModule,
-    
+    MatInputModule,
+    RouterModule,
   ],
 })
 export class ScreeningModule {}

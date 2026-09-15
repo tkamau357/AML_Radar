@@ -1,25 +1,10 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription, finalize } from 'rxjs';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { TableAction, HeaderAction } from '../../../shared/components/dynamic-tables/dynamic-tables.component';
-import {
-  ScreeningService,
-  ScreeningResponse,
-  ScreeningRequest,
-  SanctionListSource,
-  ScreeningCategory,
-  MatchResult,
-  RiskLevel,
-  MatchType,
-  ScreeningStatus,
-  ScreeningConfigResponse
-} from '../screening.service';
-import { ScreeningDialog } from '../screening-dialog/screening-dialog';
-import { SanctionListSourceInfo, SanctionsService } from '../../sanctions/sanctions.service';
+import { ScreeningService, OfflineScreenResult } from '../screening.service';
+import { AlertsService } from '../../alerts/alerts.service';
+import { ScreeningSummary, ScreeningStats } from '../../../data/types/screening-results.model';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
@@ -29,389 +14,133 @@ import { NotificationToastService } from '../../../data/services/notification-to
   styleUrl: './screening.scss',
 })
 export class Screening implements OnInit, OnDestroy {
-  // Filter Form
-  screeningForm!: FormGroup;
 
-  // Screening Results
-  screeningHistory: ScreeningResponse[] = [];
-  screeningDataSource!: MatTableDataSource<ScreeningResponse>;
-  displayedColumns: string[] = ['searchedName', 'matchCount', 'status', 'thresholdUsed', 'timestamp', 'actions'];
+  // ── Stats ────────────────────────────────────────────────────────────────
+  stats: ScreeningStats | null = null;
 
-  // Config
-  screeningConfig!: ScreeningConfigResponse;
-  sources: SanctionListSourceInfo[] = [];
+  // ── Filter bar ───────────────────────────────────────────────────────────
+  selectedDate: string = new Date().toISOString().slice(0, 10);
+  today: string = new Date().toISOString().slice(0, 10);
+  isInitiating = false;
+  lastResult: OfflineScreenResult | null = null;
 
-  // Loading States
-  isScreening = false;
-  isLoadingHistory = false;
-  isLoadingConfig = false;
+  // ── Tabs ─────────────────────────────────────────────────────────────────
+  activeTab: 'all' | 'alerts' = 'all';
 
-  availableSources = [
-    'OFAC_SDN', 'OFAC_CONSOLIDATED', 'UN_CONSOLIDATED', 'EU_CONSOLIDATED', 'UK_HMT', 'INTERPOL',
-    'KRA_TAX_DEFAULTERS', 'KRA_DEREGISTERED', 'CBK_DEBARRED', 'CBK_FOREX_BUREAUS',
-    'FRC_WATCHLIST', 'PPRA_DEBARRED', 'DCI_WANTED', 'EACC_CASES', 'NSE_SUSPENDED', 'IRA_DEREGISTERED',
-    'EAC_WATCHLIST', 'AU_SANCTIONS', 'PEP', 'PEP_INTERNATIONAL', 'ADVERSE_MEDIA', 'CUSTOM'
-  ];
-  screeningCategories = Object.values(ScreeningCategory);
-  riskLevels = Object.values(RiskLevel);
-  matchTypes = Object.values(MatchType);
-
-  private subscriptions: Subscription[] = [];
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-
-  // Pagination
-  pageSize = 10;
-  pageIndex = 0;
+  // ── Table ────────────────────────────────────────────────────────────────
+  rows: ScreeningSummary[] = [];
+  isLoading = false;
   totalElements = 0;
+  pageIndex = 0;
+  pageSize = 20;
+
+  columns = [
+    { label: '#',             field: 'index' },
+    { label: 'Transaction ID', field: 'transactionId' },
+    { label: 'Score',          field: 'score' },
+    { label: 'Severity',       field: 'severity',  type: 'badge' },
+    { label: 'Alert',          field: 'alert',     type: 'badge' },
+    { label: 'Threshold',      field: 'alertThreshold' },
+    { label: 'Screened At',    field: 'screenedAt', type: 'date' },
+  ];
+
+  actions: TableAction<ScreeningSummary>[] = [
+    {
+      label: 'View Scores',
+      icon: 'analytics',
+      onClick: (row) => this.viewDetail(row),
+    },
+  ];
+
+  headerActions: HeaderAction[] = [
+    {
+      icon: 'refresh',
+      tooltip: 'Refresh',
+      onClick: () => this.loadData(),
+    },
+  ];
+
+  private subs: Subscription[] = [];
 
   constructor(
     private screeningService: ScreeningService,
-    private dialog: MatDialog,
-    private fb: FormBuilder,
+    private alertsService: AlertsService,
     private snackbar: NotificationToastService,
-    private sanctionsService: SanctionsService,
-    private cdr: ChangeDetectorRef
+    private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
-    this.loadSources();
-    this.loadScreeningConfig();
-    this.loadScreeningHistory();
-    // Initialize data source
-    this.screeningDataSource = new MatTableDataSource(this.screeningHistory);
-    this.screeningDataSource.paginator = this.paginator;
-    this.screeningDataSource.sort = this.sort;
+    this.loadStats();
+    this.loadData();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subs.forEach((s) => s.unsubscribe());
   }
 
-  private initializeForm(): void {
-    this.screeningForm = this.fb.group({
-      name: [''],
-      sources: [[]],
-      matchThreshold: [80],
-      maxResults: [10],
-      country: [''],
-      entityType: [''],
-      dateOfBirth: [''],
-      searchTerm: ['']
-    });
-  }
+  // ── Initiate screening ───────────────────────────────────────────────────
 
-  // ========== CONFIG LOADING ==========
-  loadSources(): void {
-    const sub = this.sanctionsService.getSources().subscribe({
-      next: (sources: any) => {
-        this.sources = sources;
-        
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.snackbar.alertError(err?.error?.message || 'Failed to load sources');
-      },
-    });
-    this.subscriptions.push(sub);
-  }
-
-  private loadScreeningConfig(): void {
-    this.isLoadingConfig = true;
-    const sub = this.screeningService.getConfig()
-      .pipe(finalize(() => {
-        this.isLoadingConfig = false;
-        this.cdr.detectChanges();
-      }))
+  initiateScreening(): void {
+    if (!this.selectedDate || this.isInitiating) return;
+    this.isInitiating = true;
+    this.lastResult = null;
+    const sub = this.screeningService
+      .offlineScreen(this.selectedDate)
+      .pipe(finalize(() => { this.isInitiating = false; this.cdr.detectChanges(); }))
       .subscribe({
-        next: (config) => {
-          this.screeningConfig = config;
-          // Apply config defaults to form
-          if (config) {
-            this.screeningForm.patchValue({
-              matchThreshold: config.thresholds?.match ?? 80
-            });
-          }
+        next: (result) => {
+          this.lastResult = result;
+          this.snackbar.alertSuccess(
+            `Screening complete — ${result.processed} transactions processed, ${result.alerts} alerts raised.`
+          );
+          this.loadStats();
+          this.loadData();
         },
         error: (err) => {
-          this.snackbar.alertError('Failed to load screening configuration');
-        }
-      });
-    this.subscriptions.push(sub);
-  }
-
-  loadScreeningHistory(): void {
-    this.isLoadingHistory = true;
-    // Note: No endpoint provided for history retrieval in the controller,
-    // so we'll store results in memory for the session
-    this.isLoadingHistory = false;
-    this.cdr.detectChanges();
-  }
-
-  onScreen(): void {
-    if (this.screeningForm.invalid) {
-      this.snackbar.alertError('Please fill in required fields');
-      return;
-    }
-
-    const request: ScreeningRequest = this.buildScreeningRequest();
-    
-    this.isScreening = true;
-    const sub = this.screeningService.screen(request)
-      .pipe(finalize(() => {
-        this.isScreening = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (response) => {
-          this.handleScreeningResponse(response);
+          this.snackbar.alertError(err?.error?.message || 'Screening failed. Please try again.');
         },
-        error: (err) => {
-          this.snackbar.alertError('Screening failed. Please try again.');
-        }
       });
-    this.subscriptions.push(sub);
+    this.subs.push(sub);
   }
 
-  private buildScreeningRequest(): ScreeningRequest {
-    const formValues = this.screeningForm.value;
-    return {
-      name: formValues.name,
-      sources: formValues.sources?.length > 0 ? formValues.sources : undefined,
-      matchThreshold: formValues.matchThreshold,
-      maxResults: formValues.maxResults,
-      country: formValues.country || undefined,
-      entityType: formValues.entityType || undefined,
-      dateOfBirth: formValues.dateOfBirth || undefined
-    };
+  // ── Tab switching ────────────────────────────────────────────────────────
+
+  switchTab(tab: 'all' | 'alerts'): void {
+    if (this.activeTab === tab) return;
+    this.activeTab = tab;
+    this.pageIndex = 0;
+    this.loadData();
   }
 
-  /**
-   * Handle screening response and open dialog
-   */
-  private handleScreeningResponse(response: ScreeningResponse): void {
-    // Add to history
-    this.screeningHistory.unshift(response);
-    this.totalElements = this.screeningHistory.length;
-    
-    // Update data source
-    this.screeningDataSource = new MatTableDataSource(this.screeningHistory);
-    this.screeningDataSource.paginator = this.paginator;
-    this.screeningDataSource.sort = this.sort;
-    
-    // Open results dialog
-    const dialogRef = this.dialog.open(ScreeningDialog, {
-      width: '800px',
-      maxWidth: '95vw',
-      data: response,
-      panelClass: 'screening-dialog-panel'
+  // ── Data loading ─────────────────────────────────────────────────────────
+
+  loadData(): void {
+    this.isLoading = true;
+    const request$ = this.activeTab === 'alerts'
+      ? this.alertsService.getAlerts(this.pageIndex, this.pageSize)
+      : this.alertsService.getAll(this.pageIndex, this.pageSize);
+
+    const sub = request$.subscribe({
+      next: (page) => {
+        this.rows = page.content;
+        this.totalElements = page.totalElements;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoading = false; },
     });
+    this.subs.push(sub);
+  }
 
-    const sub = dialogRef.afterClosed().subscribe(result => {
-      if (result?.action === 'viewMatch') {
-        this.navigateToMatchDetails(result.match);
-      } else if (result?.action === 'viewAll') {
-        this.navigateToAllMatches(response);
-      }
+  loadStats(): void {
+    const sub = this.alertsService.getStats().subscribe({
+      next: (s) => { this.stats = s; this.cdr.detectChanges(); },
     });
-    this.subscriptions.push(sub);
-
-    this.snackbar.alertSuccess(`Screening completed: ${response.matchCount} matches found`);
+    this.subs.push(sub);
   }
 
-  onReset(): void {
-    this.screeningForm.reset({
-      name: '',
-      sources: [],
-      matchThreshold: this.screeningConfig?.thresholds?.match ?? 80,
-      maxResults: 10,
-      country: '',
-      entityType: '',
-      dateOfBirth: '',
-      searchTerm: ''
-    });
-  }
-
-  onClearSearch(): void {
-    this.screeningForm.patchValue({ searchTerm: '' });
-    if (this.screeningDataSource) {
-      this.screeningDataSource.filter = '';
-    }
-  }
-
-  private navigateToMatchDetails(match: MatchResult): void {
-    // Navigate to match details route or open detail view
-    this.snackbar.alertInfo(`Viewing match details for: ${match.fullName}`);
-  }
-
-  private navigateToAllMatches(response: ScreeningResponse): void {
-    // Navigate to full results page
-    this.snackbar.alertInfo('Opening full results view');
-  }
-
-  viewScreeningResult(row: ScreeningResponse): void {
-    const dialogRef = this.dialog.open(ScreeningDialog, {
-      width: '800px',
-      maxWidth: '95vw',
-      data: row,
-      panelClass: 'screening-dialog-panel'
-    });
-
-    const sub = dialogRef.afterClosed().subscribe(result => {
-      if (result?.action === 'viewMatch') {
-        this.navigateToMatchDetails(result.match);
-      } else if (result?.action === 'viewAll') {
-        this.navigateToAllMatches(row);
-      }
-    });
-    this.subscriptions.push(sub);
-  }
-
-  deleteScreening(row: ScreeningResponse): void {
-    // Only remove from local history since no delete endpoint is provided
-    const index = this.screeningHistory.indexOf(row);
-    if (index > -1) {
-      this.screeningHistory.splice(index, 1);
-      this.totalElements = this.screeningHistory.length;
-      // Update data source
-      this.screeningDataSource = new MatTableDataSource(this.screeningHistory);
-      this.screeningDataSource.paginator = this.paginator;
-      this.screeningDataSource.sort = this.sort;
-      this.snackbar.alertSuccess('Screening record removed');
-    }
-  }
-
-  getStatusIcon(status: ScreeningStatus): string {
-    switch (status) {
-      case ScreeningStatus.COMPLETED:
-        return 'check_circle';
-      case ScreeningStatus.PARTIAL:
-        return 'warning';
-      case ScreeningStatus.FAILED:
-        return 'error';
-      case ScreeningStatus.PENDING:
-        return 'schedule';
-      default:
-        return 'info';
-    }
-  }
-
-  getStatusClass(status: ScreeningStatus): string {
-    switch (status) {
-      case ScreeningStatus.COMPLETED:
-        return 'status-completed';
-      case ScreeningStatus.PARTIAL:
-        return 'status-partial';
-      case ScreeningStatus.FAILED:
-        return 'status-failed';
-      case ScreeningStatus.PENDING:
-        return 'status-pending';
-      default:
-        return 'status-unknown';
-    }
-  }
-
-  formatTimestamp(timestamp: string): string {
-    return new Date(timestamp).toLocaleString();
-  }
-
-  getSourceBadges(sources: string[]): string[] {
-    return sources || [];
-  }
-
-  onTableAction(action: TableAction): void {
-    if (action && typeof action === 'object') {
-      // Try to access properties defensively
-      const actionType = (action as any).action || (action as any).type;
-      const row = (action as any).row || (action as any).data;
-      
-      switch (actionType) {
-        case 'view':
-          if (row) this.viewScreeningResult(row);
-          break;
-        case 'delete':
-          if (row) this.deleteScreening(row);
-          break;
-        case 'export':
-          if (row) this.exportScreeningResult(row);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
-  onHeaderAction(action: HeaderAction): void {
-    // HeaderAction might have different structure
-    if (action && typeof action === 'object') {
-      const actionType = (action as any).action || (action as any).type;
-      
-      switch (actionType) {
-        case 'refresh':
-          this.loadScreeningHistory();
-          break;
-        case 'screen':
-          this.onScreen();
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
-  exportScreeningResult(row: ScreeningResponse): void {
-    const data = JSON.stringify(row, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `screening_${row.searchedName}_${row.screeningId}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    this.snackbar.alertSuccess('Screening result exported');
-  }
-
-  getSourcesForCategory(category: ScreeningCategory): SanctionListSource[] {
-    switch (category) {
-      case ScreeningCategory.PEP:
-        return [SanctionListSource.PEP, SanctionListSource.OFAC_NS];
-      case ScreeningCategory.SANCTIONS:
-        return [SanctionListSource.OFAC_SDN, SanctionListSource.EU, SanctionListSource.UN, SanctionListSource.UK];
-      case ScreeningCategory.CRIMINAL_WANTED:
-        return [SanctionListSource.INTERPOL];
-      case ScreeningCategory.CRYPTO:
-        return [SanctionListSource.OFAC_SDN, SanctionListSource.OFAC_NS];
-      case ScreeningCategory.INTERNAL:
-        return [SanctionListSource.CUSTOM];
-      default:
-        return Object.values(SanctionListSource);
-    }
-  }
-
-  getRiskLabel(risk: RiskLevel): string {
-    const labels: Record<RiskLevel, string> = {
-      [RiskLevel.HIGH]: 'High Risk',
-      [RiskLevel.MEDIUM_HIGH]: 'Medium-High Risk',
-      [RiskLevel.MEDIUM]: 'Medium Risk',
-      [RiskLevel.LOW]: 'Low Risk'
-    };
-    return labels[risk] || risk;
-  }
-
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    if (this.screeningDataSource) {
-      this.screeningDataSource.filter = filterValue.trim().toLowerCase();
-    }
-  }
-
-  hasActiveFilters(): boolean {
-    const values = this.screeningForm.value;
-    return !!(values.name ||  (values.sources && values.sources.length > 0) || 
-      values.country ||  values.entityType ||  values.matchThreshold !== 80);
+  viewDetail(row: ScreeningSummary): void {
+    this.router.navigate(['/admin/assessments/alerts/view', row.transactionId]);
   }
 }
