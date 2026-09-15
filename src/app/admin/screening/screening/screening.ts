@@ -39,7 +39,7 @@ export class Screening implements OnInit, OnDestroy {
     { label: 'Transaction ID', field: 'transactionId' },
     { label: 'Score',          field: 'score' },
     { label: 'Severity',       field: 'severity',  type: 'badge' },
-    { label: 'Alert',          field: 'alert',     type: 'badge' },
+    { label: 'Alert',          field: 'alert',     type: 'boolean' },
     { label: 'Threshold',      field: 'alertThreshold' },
     { label: 'Screened At',    field: 'screenedAt', type: 'date' },
   ];
