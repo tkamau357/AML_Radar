@@ -37,8 +37,8 @@
               </label>
               <mat-select id="source" formControlName="source" class="field-select-trigger"
                 [class.field-select-trigger--error]="err('source')"
-                panelClass="field-select-panel">
-                <mat-option value="" disabled>Select source type…</mat-option>
+                panelClass="field-select-panel" placeholder="Select source type">
+                <!-- <mat-option value="" disabled>Select source type…</mat-option> -->
                 <mat-option *ngFor="let s of availableSources" [value]="s">{{ s }}</mat-option>
               </mat-select>
               <span class="field-error" *ngIf="err('source')">Source type is required</span>
@@ -100,8 +100,7 @@
                 Acquisition Mode <span class="required">*</span>
               </label>
               <mat-select id="acquisitionMode" formControlName="acquisitionMode"
-                class="field-select-trigger" panelClass="field-select-panel">
-                <mat-option value="" disabled>Select mode…</mat-option>
+                class="field-select-trigger" panelClass="field-select-panel" placeholder="Select mode">
                 <mat-option *ngFor="let mode of acquisitionModes" [value]="mode.value">
                   {{ mode.label }}
                 </mat-option>
@@ -137,13 +136,12 @@
             <div class="field-row">
               <div class="field-group">
                 <label class="field-label" for="apiFormat">Response Format</label>
-              <mat-select id="apiFormat" formControlName="apiFormat"
-                class="field-select-trigger" panelClass="field-select-panel">
-                <mat-option value="" disabled>Select format…</mat-option>
-                <mat-option value="JSON">JSON</mat-option>
-                <mat-option value="XML">XML</mat-option>
-                <mat-option value="CSV">CSV</mat-option>
-              </mat-select>
+                <mat-select id="apiFormat" formControlName="apiFormat" placeholder="Select format"
+                  class="field-select-trigger" panelClass="field-select-panel">
+                  <mat-option value="JSON">JSON</mat-option>
+                  <mat-option value="XML">XML</mat-option>
+                  <mat-option value="CSV">CSV</mat-option>
+                </mat-select>
               </div>
             </div>
           </div>
@@ -310,9 +308,8 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label" for="syncStrategy">Strategy</label>
-              <mat-select id="syncStrategy" formControlName="syncStrategy"
+              <mat-select id="syncStrategy" formControlName="syncStrategy" placeholder="Select strategy"
                 class="field-select-trigger" panelClass="field-select-panel">
-                <mat-option value="" disabled>Select strategy…</mat-option>
                 <mat-option *ngFor="let s of syncStrategies" [value]="s.value">{{ s.label }}</mat-option>
               </mat-select>
               <span class="field-hint">{{ syncStrategies.find(s => s.value === selectedStrategy)?.description }}</span>

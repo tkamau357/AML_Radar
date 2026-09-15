@@ -1,23 +1,14 @@
-<!-- Audit Trail page -->
 <div class="audit-page">
-
   <!-- ── Page header ─────────────────────────────────────────────────── -->
   <div class="audit-page-header">
     <div>
       <h2 class="audit-page-title">Audit Trail</h2>
       <p class="audit-page-subtitle">System activity log — all recorded events</p>
     </div>
-    <!-- <div class="audit-header-actions">
-      <button class="audit-btn-ghost-sm" (click)="viewMyAudit()" [class.active]="searchMode === 'user'">
-        <mat-icon>person</mat-icon>
-        My Activity
-      </button>
-    </div> -->
   </div>
 
   <!-- ── Filter card (collapsible) ─────────────────────────────────── -->
   <div class="audit-filter-card" [class.collapsed]="filterCollapsed">
-    
     <!-- Filter card header / toggle -->
     <div class="audit-filter-header" (click)="toggleFilter()">
       <div class="audit-filter-header-left">
@@ -38,8 +29,7 @@
           class="audit-filter-clear-btn" 
           *ngIf="hasActiveFilters()"
           (click)="resetFilters(); $event.stopPropagation()"
-          matTooltip="Clear all filters"
-        >
+          matTooltip="Clear all filters">
           <mat-icon>clear</mat-icon>
         </button>
       </div>
@@ -48,7 +38,6 @@
     <!-- Filter content (collapsible) -->
     <div class="audit-filter-body" [class.collapsed]="filterCollapsed">
       <form [formGroup]="dateForm" (ngSubmit)="applyFilters()" class="audit-filter-form">
-
         <div class="audit-filter-row">
           <div class="audit-filter-group">
             <label class="audit-filter-label" for="audit-date">Date</label>
@@ -76,7 +65,8 @@
         <div class="audit-filter-row">
           <div class="audit-filter-group">
             <label class="audit-filter-label">Action Type</label>
-            <mat-select [(ngModel)]="filterAction" [ngModelOptions]="{standalone: true}" class="audit-filter-input">
+            <mat-select [(ngModel)]="filterAction" [ngModelOptions]="{standalone: true}" 
+              class="audit-filter-input" placeholder="Select action type">
               <mat-option *ngFor="let action of allActions" [value]="action.value">
                 {{ action.label }}
               </mat-option>
@@ -111,7 +101,6 @@
 
   <!-- ── Table card ──────────────────────────────────────────────────── -->
   <div class="audit-card">
-
     <!-- Card toolbar -->
     <div class="audit-card-toolbar">
       <div>
@@ -130,7 +119,6 @@
 
     <!-- Table -->
     <div class="audit-table-wrap">
-
       <!-- Loading -->
       <div *ngIf="loading" class="audit-state">
         <div class="audit-spinner"></div>
@@ -161,8 +149,7 @@
           <tr
             *ngFor="let row of auditData; let i = index"
             class="audit-row"
-            (click)="detailsCall(row)"
-          >
+            (click)="detailsCall(row)">
             <td class="audit-td audit-td--muted audit-td--num">{{ getRowNumber(i) }}</td>
 
             <td class="audit-td">
@@ -218,8 +205,7 @@
           <mat-select
             [(ngModel)]="rowsPerPage"
             (selectionChange)="setRowsPerPage(rowsPerPage)"
-            class="audit-per-page-select"
-          >
+            class="audit-per-page-select">
             <mat-option *ngFor="let n of rowsPerPageOptions" [value]="n">{{ n }}</mat-option>
           </mat-select>
         </div>

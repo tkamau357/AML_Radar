@@ -187,9 +187,8 @@
               <label class="field-label" for="source">
                 Source List <span class="required">*</span>
               </label>
-              <mat-select id="source" formControlName="source" class="field-select-trigger"
+              <mat-select id="source" formControlName="source" class="field-select-trigger" placeholder="Select source"
                 [class.field-select-trigger--error]="err('source')" panelClass="field-select-panel">
-                <mat-option value="" disabled>Select source…</mat-option>
                 <mat-option *ngFor="let source of sources" [value]="source.source">
                   {{ source.displayName }}
                 </mat-option>
@@ -214,8 +213,7 @@
               </label>
               <mat-select id="entityType" formControlName="entityType" class="field-select-trigger"
                 [class.field-select-trigger--error]="err('entityType')"
-                panelClass="field-select-panel">
-                <mat-option value="" disabled>Select type…</mat-option>
+                panelClass="field-select-panel" placeholder="Select type">
                 <mat-option *ngFor="let type of entityTypes" [value]="type">
                   {{ type | titlecase }}
                 </mat-option>

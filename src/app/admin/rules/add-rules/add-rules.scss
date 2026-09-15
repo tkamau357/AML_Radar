@@ -876,3 +876,550 @@ $radius-sm:    7px;
 
   &::placeholder { color: $text-3; font-size: 0.8rem; }
 }
+
+// ── Info grid (catalogue meta, read-only) ─────────────────────────────────
+.rp-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: #f8fafc;
+
+  @media (max-width: 860px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+
+.rp-info-cell {
+  padding: 0.875rem 1.375rem;
+  border-right: 1px solid $border;
+  border-top: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  &:last-child { border-right: none; }
+  &--wide      { grid-column: 1 / -1; border-right: none; }
+
+  &__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-3;
+  }
+
+  &__value {
+    font-size: 0.8125rem;
+    color: $text-1;
+    line-height: 1.4;
+
+    &--muted { color: $text-3; font-style: italic; }
+  }
+
+  @media (max-width: 860px) {
+    &:nth-child(2n) { border-right: none; }
+  }
+}
+
+// ── Feature read-only rows ────────────────────────────────────────────────
+.rp-feature-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 160px;
+  gap: 0;
+  border-bottom: 1px solid $border;
+  transition: background 0.15s;
+
+  &:hover { background: #fafbfd; }
+
+  &--last { border-bottom: none; }
+
+  // accent stripe by default state
+  &--active  { border-left: 3px solid #22c55e; }
+  &--inactive { border-left: 3px solid $border; }
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+
+  // ── left col ──
+  &__left {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-right: 1px solid $border;
+
+    @media (max-width: 900px) { border-right: none; border-bottom: 1px solid $border; }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    border-radius: $radius-sm;
+    display: flex; align-items: center; justify-content: center;
+
+    mat-icon { font-size: 20px; height: 20px; width: 20px; }
+
+    &--active  { background: #dcfce7; mat-icon { color: #16a34a; } }
+    &--inactive { background: $surface-3; mat-icon { color: $text-3; } }
+  }
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: $text-1;
+    line-height: 1.25;
+  }
+
+  &__id {
+    font-size: 0.64rem;
+    color: $text-3;
+    background: $surface-3;
+    border: 1px solid $border;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    align-self: flex-start;
+  }
+
+  // ── centre col ──
+  &__centre {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    @media (max-width: 900px) { border-right: none; border-bottom: 1px solid $border; }
+  }
+
+  &__desc {
+    font-size: 0.8125rem;
+    color: $text-2;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  &__reads, &__params {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  // ── right col ──
+  &__right {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    background: $surface-2;
+  }
+
+  &__score {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+
+    &.score-clear    { color: #16a34a; }
+    &.score-low      { color: #64748b; }
+    &.score-medium   { color: #d97706; }
+    &.score-high     { color: #ea580c; }
+    &.score-critical { color: #dc2626; }
+  }
+
+  &__score-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: $text-3;
+    margin-bottom: 4px;
+  }
+}
+
+// reads label + param text
+.rp-reads-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $text-3;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.rp-param-text {
+  font-size: 0.75rem;
+  color: $text-2;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  line-height: 1.5;
+}
+
+// read-only badge on card header
+.rp-card__header-count--grey {
+  background: $surface-3;
+  color: $text-3;
+  border: 1px solid $border;
+}
+
+// muted card notice
+.rp-card--muted .rp-card__note {
+  padding: 1rem 1.375rem;
+  font-size: 0.875rem;
+  color: $text-2;
+  margin: 0;
+  line-height: 1.6;
+}
+
+// ── Feature description & reads (editable card) ──────────────────────────
+.rp-feature-desc {
+  font-size: 0.875rem;
+  color: $text-2;
+  line-height: 1.6;
+  margin: 0 0 0.75rem 0;
+}
+
+.rp-feature-reads {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+
+// ── Feature toolbar (enabled + score) ────────────────────────────────────
+.rp-feature-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+  padding: 0.875rem 1rem;
+  background: $surface-2;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  margin-bottom: 1.25rem;
+}
+
+.rp-field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  .rp-field__label {
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+// ── Params section ───────────────────────────────────────────────────────
+.rp-params {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $surface;
+}
+
+.rp-param-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;   // ← narrower control column
+  gap: 0;
+  border-bottom: 1px solid $border;
+  transition: background 0.18s ease;
+
+  &:last-child,
+  &--last { border-bottom: none; }
+
+  &:hover {
+    background: #fafbfd;
+    .rp-param-row__control { background: #f8fafc; }
+  }
+
+  &--empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    color: $text-3;
+    font-size: 0.8125rem;
+
+    mat-icon { font-size: 16px; height: 16px; width: 16px; }
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+
+  // ── LEFT: info ──
+  &__info {
+    padding: 0.875rem 1.25rem;   // ← tighter vertical rhythm
+    border-right: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;                     // ← reduced from 8px
+    min-width: 0;
+    justify-content: center;
+
+    @media (max-width: 900px) {
+      border-right: none;
+      border-bottom: 1px dashed $border;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__label {
+    font-size: 0.875rem;         // ← reduced from 0.9375rem
+    font-weight: 700;
+    color: $text-1;
+    line-height: 1.3;
+  }
+
+  &__key {
+    font-size: 0.65rem;
+    color: $text-3;
+    background: $surface-3;
+    border: 1px solid $border;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-weight: 500;
+  }
+
+  &__kind {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #7c3aed;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  &__meaning {
+    font-size: 0.75rem;           // ← reduced from 0.8125rem
+    color: $text-2;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: $text-3;
+    margin: 0;
+    line-height: 1.45;
+
+    &-icon {
+      flex-shrink: 0;
+      font-size: 12px; height: 12px; width: 12px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+  }
+
+  // ── RIGHT: control ──
+  &__control {
+    padding: 0.875rem 1rem;       // ← tighter padding
+    background: $surface-2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    transition: background 0.18s ease;
+
+    @media (max-width: 900px) {
+      padding: 1rem 1.25rem 1.25rem;
+    }
+  }
+
+  &__empty {
+    font-size: 0.65rem;
+    color: $text-3;
+    font-style: italic;
+    line-height: 1.4;
+    padding-top: 1px;
+  }
+}
+
+// ── Material form field overrides (compact + clean) ──────────────────────
+.rp-mat-field {
+  width: 100%;
+  max-width: 240px;               // ← hard cap on input width
+  font-size: 0.8125rem;
+
+  .mat-mdc-text-field-wrapper {
+    background: $surface;
+    border-radius: $radius-sm;
+    padding: 0;
+    transition: box-shadow 0.18s ease;
+  }
+
+  .mat-mdc-form-field-flex {
+    align-items: center;
+    padding: 0 0.625rem;           // ← tighter horizontal padding
+    min-height: 38px;              // ← reduced from 46px
+  }
+
+  // Base outline
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: $border-dark !important;
+    border-width: 1.25px !important;
+    transition: border-color 0.18s ease;
+  }
+
+  .mdc-notched-outline__leading { border-radius: $radius-sm 0 0 $radius-sm !important; }
+  .mdc-notched-outline__trailing { border-radius: 0 $radius-sm $radius-sm 0 !important; }
+
+  // Hover state
+  &:hover:not(.mat-focused) {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $brand !important;
+    }
+  }
+
+  // Focus state — subtle glow
+  &.mat-focused {
+    .mat-mdc-text-field-wrapper {
+      box-shadow: 0 0 0 2.5px $brand-glow;
+    }
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $brand !important;
+      border-width: 1.75px !important;
+    }
+  }
+
+  // Label
+  .mat-mdc-floating-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $text-2;
+  }
+
+  &.mat-focused .mat-mdc-floating-label {
+    color: $brand;
+    font-weight: 600;
+  }
+
+  // Input text
+  .mat-mdc-input-element {
+    font-size: 0.8125rem;
+    color: $text-1;
+    font-weight: 500;
+    caret-color: $brand;
+  }
+
+  // Select value
+  .mat-mdc-select-value-text {
+    font-size: 0.8125rem;
+    color: $text-1;
+    font-weight: 500;
+  }
+
+  .mat-mdc-select-placeholder { color: $text-3; }
+  .mat-mdc-select-arrow       { color: $text-3; }
+
+  // Hint / subscript
+  .mat-mdc-form-field-subscript-wrapper {
+    padding: 0;
+    margin-top: 2px;
+    font-size: 0.65rem;
+  }
+
+  .mat-mdc-form-field-hint {
+    font-size: 0.65rem;
+    color: $text-3;
+    line-height: 1.35;
+    padding-left: 2px;
+  }
+
+  // Invalid
+  &.mat-form-field-invalid {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #ef4444 !important;
+    }
+  }
+}
+
+// ── Chip grid (tag input) polish ─────────────────────────────────────────
+.rp-mat-field {
+  .mat-mdc-chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding: 1px 0;
+  }
+
+  .mat-mdc-chip-row {
+    --mdc-chip-container-height: 22px;   // ← smaller chips
+    font-size: 0.7rem !important;
+    font-weight: 500;
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    color: $brand !important;
+    border-radius: 999px !important;
+    padding: 0 2px !important;
+    margin: 0 !important;
+
+    .mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      color: #93c5fd;
+      transition: color 0.15s;
+
+      &:hover { color: $brand; }
+    }
+  }
+
+  .mat-mdc-chip-input {
+    font-size: 0.8125rem;
+    color: $text-1;
+    min-width: 100px;                    // ← narrower minimum
+
+    &::placeholder { color: $text-3; font-size: 0.75rem; }
+  }
+
+  .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 22px;
+  }
+}
+
+// ── Multi-select value chips polish ──────────────────────────────────────
+.rp-mat-field {
+  .mat-mdc-select-trigger { min-height: 20px; }
+
+  .mat-mdc-select-value .mat-mdc-select-value-text {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    font-size: 0.8125rem;
+  }
+}

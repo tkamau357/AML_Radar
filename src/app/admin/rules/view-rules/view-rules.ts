@@ -1,7 +1,12 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RulesService, RawFeatureDef, EngineConfigRules } from '../rules.service';
+import {
+  RulesService,
+  SubEngineCatalogEntry,
+  SubEngineId,
+  FeatureCatalogEntry,
+} from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
 
 @Component({
@@ -11,10 +16,25 @@ import { NotificationToastService } from '../../../data/services/notification-to
   styleUrl: './view-rules.scss',
 })
 export class ViewRules implements OnInit, OnDestroy {
-  featureDef: RawFeatureDef | null = null;
-  engineConfig: EngineConfigRules | null = null;
-  featureId: string | null = null;
+  /** Full sub-engine entry returned by getSubEngineCatalog. */
+  subEngine: SubEngineCatalogEntry | null = null;
+
+  /** The sub-engine id taken from the route param. */
+  subEngineId: SubEngineId | null = null;
+
   isLoading = false;
+
+  /** Flat rows for the features table. */
+  featureRows: FeatureRow[] = [];
+
+  featureColumns = [
+    { label: '#',             field: 'index'            },
+    { label: 'Feature',       field: 'label'            },
+    { label: 'Description',   field: 'description'      },
+    { label: 'Needs History', field: 'needsHistory',  type: 'badge' },
+    { label: 'Default Score', field: 'defaultScore'     },
+    { label: 'Enabled',       field: 'enabledByDefault', type: 'badge' },
+  ];
 
   private subs: Subscription[] = [];
 
@@ -23,130 +43,107 @@ export class ViewRules implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private snackbar: NotificationToastService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.featureId = this.route.snapshot.paramMap.get('id');
-    if (this.featureId) {
-      this.loadData(this.featureId);
-    } else {
-      this.snackbar.alertError('No feature ID provided');
+    const id = this.route.snapshot.paramMap.get('id') as SubEngineId | null;
+    if (!id) {
+      this.snackbar.alertError('No sub-engine ID provided');
       this.router.navigate(['/admin/assessments/rules']);
+      return;
     }
+    this.subEngineId = id;
+    this.loadSubEngine(id);
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
-  loadData(id: string): void {
+  loadSubEngine(id: SubEngineId): void {
     this.isLoading = true;
-    
-    // Load catalog to get feature definition
     this.subs.push(
-      this.rulesService.getCatalog().subscribe({
+      this.rulesService.getSubEngineCatalog(id).subscribe({
         next: (response) => {
-          const catalog = response.result || [];
-          this.featureDef = catalog.find(f => f.id === id) || null;
-          if (!this.featureDef) {
-            this.snackbar.alertError('Feature not found');
-            this.router.navigate(['/admin/assessments/rules']);
-          }
-          this.checkLoadingComplete();
-        },
-        error: (err) => {
-          this.snackbar.alertError('Failed to load catalog');
+          this.subEngine = response.result ?? null;
+          this.featureRows = (this.subEngine?.features ?? []).map((f) => ({
+            label:           f.label,
+            description:     f.description,
+            needsHistory:    f.needsHistory,
+            defaultScore:    f.defaultScore,
+            enabledByDefault: f.enabledByDefault,
+            paramCount:      f.params?.length ?? 0,
+            _feature:        f,
+          }));
           this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.snackbar.alertError('Failed to load sub-engine details');
+          this.isLoading = false;
+          this.cdr.detectChanges();
         },
       })
     );
-
-    // Load engine config for current values
-    this.subs.push(
-      this.rulesService.getConfig().subscribe({
-        next: (response) => {
-          this.engineConfig = response.result;
-          this.checkLoadingComplete();
-        },
-        error: (err) => {
-          this.snackbar.alertError('Failed to load config');
-          this.isLoading = false;
-        },
-      })
-    );
-  }
-
-  checkLoadingComplete(): void {
-    if (this.featureDef && this.engineConfig) {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  getCurrentConfig(): { enabled: boolean; score: number; params: Record<string, any> } {
-    if (!this.engineConfig || !this.featureId) {
-      return { enabled: false, score: 0, params: {} };
-    }
-    
-    return this.engineConfig.features?.[this.featureId] || {
-      enabled: this.featureDef?.enabledByDefault ?? false,
-      score: this.featureDef?.defaultScore ?? 0,
-      params: this.featureDef?.defaultParams || {},
-    };
-  }
-
-  editFeature(): void {
-    if (this.featureId) {
-      this.router.navigate(['/admin/assessments/rules/edit', this.featureId]);
-    }
   }
 
   backToList(): void {
     this.router.navigate(['/admin/assessments/rules']);
   }
 
-  formatParamValue(key: string, value: any): string {
-    if (Array.isArray(value)) return value.join(', ');
-    return String(value);
+  editFeature(row: FeatureRow): void {
+    this.router.navigate([
+      '/admin/assessments/rules/edit',
+      this.subEngineId,
+      row._feature.id,
+    ]);
   }
 
-  // Options are served directly by the catalog's allowedValues — no hardcoding needed.
-  getEnumOptions(param: any): string[] {
-    return param.allowedValues ?? [];
-  }
+  // ── Template helpers ────────────────────────────────────────────────────
 
-  getStringListOptions(param: any): string[] {
-    return param.allowedValues ?? [];
-  }
-
-  getScoreClass(score: number): string {
-    if (score >= 90) return 'bg-danger';
-    if (score >= 75) return 'bg-warning';
-    if (score >= 60) return 'bg-info';
-    if (score >= 30) return 'bg-primary';
-    return 'bg-secondary';
-  }
-
-  getFeatureIcon(featureId?: string): string {
-    const iconMap: Record<string, string> = {
-      'AMOUNT_ABSOLUTE': 'payments',
-      'AMOUNT_JUST_BELOW': 'trending_down',
-      'AMOUNT_ROUND': 'circle',
-      'VELOCITY_COUNT': 'speed',
-      'VELOCITY_VOLUME': 'swap_vert',
-      'STRUCTURING': 'call_split',
-      'OFF_HOURS': 'schedule',
-      'WEEKEND': 'event_available',
-      'CHANNEL_RISK': 'router',
-      'TYPE_RISK': 'category',
-      'CURRENCY_UNUSUAL': 'currency_exchange',
-      'NARRATION_KEYWORDS': 'text_fields',
-      'NEW_DEVICE': 'devices_other',
-      'HIGH_RISK_COUNTRY': 'public',
-      'RAPID_TURNOVER': 'swap_horiz'
+  getSubEngineIcon(id: string | null): string {
+    const map: Record<string, string> = {
+      RAW_TRANSACTION: 'receipt_long',
+      PARTY:           'person_search',
+      CHANNEL:         'router',
+      DEVICE:          'devices',
+      GEO:             'public',
+      BENEFICIARY:     'account_tree',
     };
-    return iconMap[featureId || ''] || 'rule';
+    return map[id ?? ''] ?? 'rule';
+  }
+
+  getFeatureIcon(featureId: string): string {
+    const map: Record<string, string> = {
+      AMOUNT_ABSOLUTE:    'payments',
+      AMOUNT_JUST_BELOW:  'trending_down',
+      AMOUNT_ROUND:       'circle',
+      VELOCITY_COUNT:     'speed',
+      VELOCITY_VOLUME:    'swap_vert',
+      STRUCTURING:        'call_split',
+      OFF_HOURS:          'schedule',
+      WEEKEND:            'event_available',
+      CHANNEL_RISK:       'router',
+      TYPE_RISK:          'category',
+      CURRENCY_UNUSUAL:   'currency_exchange',
+      NARRATION_KEYWORDS: 'text_fields',
+      NEW_DEVICE:         'devices_other',
+      HIGH_RISK_COUNTRY:  'public',
+      RAPID_TURNOVER:     'swap_horiz',
+      HIGH_RISK_RATING:   'person_off',
+      PEP:                'policy',
+      SANCTIONS_HIT:      'gavel',
+      ADVERSE_MEDIA:      'newspaper',
+      NEW_CUSTOMER:       'person_add',
+      DORMANT_ACCOUNT:    'lock_clock',
+      INCOME_MULTIPLE:    'account_balance_wallet',
+      BALANCE_MULTIPLE:   'balance',
+      PEER_AMOUNT_OUTLIER:'bar_chart',
+      PRIOR_ALERTS:       'warning',
+      CONFIRMED_FRAUD:    'report',
+    };
+    return map[featureId] ?? 'rule';
   }
 
   getScoreColorClass(score: number): string {
@@ -157,11 +154,21 @@ export class ViewRules implements OnInit, OnDestroy {
     return 'score-clear';
   }
 
-  getScoreLabel(score: number): string {
-    if (score >= 90) return 'CRITICAL RISK';
-    if (score >= 75) return 'HIGH RISK';
-    if (score >= 60) return 'MEDIUM RISK';
-    if (score >= 30) return 'LOW RISK';
-    return 'NO RISK';
+  getStatusChipClass(status: string): string {
+    return status === 'ACTIVE' ? 'chip--active' : 'chip--planned';
   }
+
+  getStatusIcon(status: string): string {
+    return status === 'ACTIVE' ? 'check_circle' : 'schedule';
+  }
+}
+
+export interface FeatureRow {
+  label: string;
+  description: string;
+  needsHistory: boolean;
+  defaultScore: number;
+  enabledByDefault: boolean;
+  paramCount: number;
+  _feature: FeatureCatalogEntry;
 }

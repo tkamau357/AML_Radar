@@ -1,17 +1,16 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RulesService, EngineConfigRules, FeatureConfig } from '../rules.service';
+import {
+  RulesService,
+  SubEngineCatalogEntry,
+  SubEngineId,
+  FeatureCatalogEntry,
+  ParamSpec,
+} from '../rules.service';
 import { NotificationToastService } from '../../../data/services/notification-toast.service';
-
-/** A single editable param entry derived from the live engine config. */
-export interface ParamEntry {
-  key: string;
-  value: any;
-  /** Inferred input type: 'number' | 'boolean' | 'array' | 'text' */
-  kind: 'number' | 'boolean' | 'array' | 'text';
-}
+import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
   selector: 'app-add-rules',
@@ -20,29 +19,15 @@ export interface ParamEntry {
   styleUrl: './add-rules.scss',
 })
 export class AddRules implements OnInit, OnDestroy {
-  featureForm: FormGroup;
+  /** Sub-engine enabled toggle + dynamic feature params form. */
+  form: FormGroup;
 
-  /** The live FeatureConfig for the selected feature, loaded from getConfig(). */
-  featureConfig: FeatureConfig | null = null;
+  /** Full sub-engine catalogue entry (used for display). */
+  subEngine: SubEngineCatalogEntry | null = null;
+  subEngineId: SubEngineId = 'RAW_TRANSACTION';
 
-  /** Param definitions derived from featureConfig.params for template rendering. */
-  paramEntries: ParamEntry[] = [];
-
-  /**
-   * Live tag lists for array-kind params.
-   * Key = param.key, value = current list of string tags being edited.
-   * Kept in sync with the corresponding FormControl (which holds a string[]).
-   */
-  tagLists: Record<string, string[]> = {};
-
-  /**
-   * Per-param transient text in the tag text field before it is committed.
-   */
-  tagInputValues: Record<string, string> = {};
-
-  featureId: string | null = null;
-  isEdit = false;
   isLoading = false;
+  isSaving  = false;
 
   private subs: Subscription[] = [];
 
@@ -52,231 +37,300 @@ export class AddRules implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private snackbar: NotificationToastService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {
-    this.featureForm = this.fb.group({
-      enabled: [true],
-      score:   [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      params:  this.fb.group({}),
+    this.form = this.fb.group({
+      enabled: [false],
+      features: this.fb.group({}),
     });
   }
 
   ngOnInit(): void {
-    this.featureId = this.route.snapshot.paramMap.get('id');
-    this.isEdit    = !!this.featureId;
+    // Route shape: edit/:subEngineId/:featureId  OR  edit/:subEngineId  OR  edit/:id (legacy)
+    const subEngineParam = this.route.snapshot.paramMap.get('subEngineId');
+    const legacyId       = this.route.snapshot.paramMap.get('id');
 
-    if (this.isEdit) {
-      this.loadFeature(this.featureId!);
-    }
+    this.subEngineId = (subEngineParam ?? legacyId ?? 'RAW_TRANSACTION') as SubEngineId;
+    this.loadSubEngine();
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
-  // ── Load ──────────────────────────────────────────────────────────────────
-
-  loadFeature(id: string): void {
+  // ── Load ─────────────────────────────────────────────────────────────────
+  loadSubEngine(): void {
     this.isLoading = true;
     this.subs.push(
-      this.rulesService.getConfig().subscribe({
+      this.rulesService.getSubEngineCatalog(this.subEngineId).subscribe({
         next: (response) => {
-          const config: EngineConfigRules = response.result;
-          const feature = config?.rawTransaction?.features?.[id] ?? null;
-
-          if (!feature) {
-            this.snackbar.alertError(`Feature "${id}" not found in engine config`);
-            this.router.navigate(['/admin/assessments/rules']);
+          this.subEngine = response.result ?? null;
+          if (!this.subEngine) {
+            this.snackbar.alertError('Sub-engine not found');
+            this.goBack();
             return;
           }
 
-          this.featureConfig = feature;
-          this.paramEntries  = this.buildParamEntries(feature.params ?? {});
-          this.buildForm(feature);
+          // Build the features FormGroup from the catalogue
+          this.buildFeaturesForm(this.subEngine.features ?? []);
+
+          // Seed the sub-engine enabled toggle
+          this.form.patchValue({ enabled: this.subEngine.enabled });
+
           this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.snackbar.alertError('Failed to load engine config');
+          this.snackbar.alertError('Failed to load sub-engine');
           this.isLoading = false;
         },
-      }),
+      })
     );
   }
 
-  // ── Form builders ─────────────────────────────────────────────────────────
-
-  private buildParamEntries(params: Record<string, any>): ParamEntry[] {
-    return Object.entries(params).map(([key, value]) => ({
-      key,
-      value,
-      kind: this.inferKind(value),
-    }));
-  }
-
-  private inferKind(value: any): ParamEntry['kind'] {
-    if (Array.isArray(value))       return 'array';
-    if (typeof value === 'boolean') return 'boolean';
-    if (typeof value === 'number')  return 'number';
-    return 'text';
-  }
-
-  private buildForm(feature: FeatureConfig): void {
-    const paramsGroup = this.fb.group({});
-    this.tagLists      = {};
-    this.tagInputValues = {};
-
-    Object.entries(feature.params ?? {}).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        // Store as a real array in the form control
-        const tags = [...value];
-        paramsGroup.addControl(key, new FormControl(tags));
-        this.tagLists[key]       = tags;
-        this.tagInputValues[key] = '';
-      } else {
-        paramsGroup.addControl(key, new FormControl(value));
-      }
-    });
-
-    this.featureForm.setControl('params', paramsGroup);
-    this.featureForm.patchValue({
-      enabled: feature.enabled,
-      score:   feature.score,
-    });
-  }
-
-  // ── Tag-input API ─────────────────────────────────────────────────────────
-
   /**
-   * Add the current typed text as a new tag.
-   * Called on Enter, comma, or Tab keypress.
+   * Builds a nested FormGroup for every feature in the catalogue.
+   * Each feature gets:
+   *   - enabled: boolean
+   *   - score:   number
+   *   - params:  FormGroup (one control per ParamSpec)
    */
-  addTag(paramKey: string): void {
-    const raw = (this.tagInputValues[paramKey] ?? '').trim();
-    if (!raw) return;
+  private buildFeaturesForm(features: FeatureCatalogEntry[]): void {
+    const featuresGroup = this.fb.group({});
 
-    // Split by comma so pasting "a, b, c" works in one go
-    const newTags = raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0 && !this.tagLists[paramKey].includes(s));
+    for (const feature of features) {
+      const paramsGroup = this.fb.group({});
 
-    if (newTags.length === 0) {
-      this.tagInputValues[paramKey] = '';
-      return;
+      for (const param of feature.params ?? []) {
+        const defaultVal = this.resolveParamDefault(feature, param);
+        paramsGroup.addControl(
+          param.key,
+          this.createParamControl(param, defaultVal)
+        );
+      }
+
+      featuresGroup.addControl(
+        feature.id,
+        this.fb.group({
+          enabled: [feature.enabledByDefault],
+          score: [feature.defaultScore, [Validators.min(0), Validators.max(100)]],
+          params: paramsGroup,
+        })
+      );
     }
 
-    this.tagLists[paramKey] = [...this.tagLists[paramKey], ...newTags];
-    this.tagInputValues[paramKey] = '';
-    this.syncTagControl(paramKey);
+    this.form.setControl('features', featuresGroup);
   }
 
-  /** Remove a tag by index. */
-  removeTag(paramKey: string, index: number): void {
-    this.tagLists[paramKey] = this.tagLists[paramKey].filter((_, i) => i !== index);
-    this.syncTagControl(paramKey);
+  /** Picks the default value from defaultParams (falling back to param.defaultValue). */
+  private resolveParamDefault(feature: FeatureCatalogEntry, param: ParamSpec): any {
+    const fromDefaults = feature.defaultParams?.[param.key];
+    if (fromDefaults !== undefined && fromDefaults !== null) return fromDefaults;
+    return param.defaultValue;
   }
 
-  /** Handle keydown in the tag text field. */
-  onTagKeydown(event: KeyboardEvent, paramKey: string): void {
-    if (event.key === 'Enter' || event.key === ',' || event.key === 'Tab') {
-      event.preventDefault();
-      this.addTag(paramKey);
-      return;
+  /** Creates the correct AbstractControl for a given ParamSpec. */
+  private createParamControl(param: ParamSpec, defaultValue: any) {
+    switch (param.kind) {
+      case 'STRING_LIST':
+        // Multi-select: default to an array
+        return this.fb.control(Array.isArray(defaultValue) ? defaultValue : []);
+      case 'BOOLEAN':
+        return this.fb.control(!!defaultValue);
+      case 'NUMBER':
+      case 'DECIMAL':
+        return this.fb.control(defaultValue ?? null);
+      case 'ENUM':
+      case 'STRING':
+      default:
+        return this.fb.control(defaultValue ?? '');
     }
-    // Backspace on empty input removes the last tag
-    if (event.key === 'Backspace' && !this.tagInputValues[paramKey] && this.tagLists[paramKey].length > 0) {
-      this.removeTag(paramKey, this.tagLists[paramKey].length - 1);
-    }
-  }
-
-  private syncTagControl(paramKey: string): void {
-    const ctrl = (this.featureForm.get('params') as FormGroup).get(paramKey);
-    ctrl?.setValue([...this.tagLists[paramKey]]);
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
-
   onSubmit(): void {
-    if (this.featureForm.invalid || !this.featureId) {
-      this.snackbar.alertError('Please fill in all required fields');
-      return;
-    }
+    if (this.form.invalid) return;
 
-    const raw = this.featureForm.value;
+    const enabled: boolean = this.form.value.enabled;
+    this.isSaving = true;
 
-    const params: Record<string, any> = {};
-    Object.entries(raw.params as Record<string, any>).forEach(([key, val]) => {
-      const original = this.featureConfig?.params?.[key];
-      if (Array.isArray(original)) {
-        // Value is already a string[] from the form control
-        params[key] = Array.isArray(val) ? val : [];
-      } else if (typeof original === 'number') {
-        params[key] = val === '' || val === null ? null : Number(val);
-      } else if (typeof original === 'boolean') {
-        params[key] = Boolean(val);
-      } else {
-        params[key] = val;
-      }
-    });
-
-    const body = {
-      enabled: raw.enabled,
-      score:   raw.score,
-      params,
-    };
-
-    this.isLoading = true;
     this.subs.push(
-      this.rulesService.patchFeature(this.featureId, body).subscribe({
+      this.rulesService.patchSubEngine(this.subEngineId, enabled).subscribe({
         next: () => {
-          this.snackbar.alertSuccess(`Feature ${this.featureId} updated successfully`);
-          this.router.navigate(['/admin/assessments/rules']);
+          // Persist each feature's params + score + enabled state
+          this.saveFeatures();
         },
         error: () => {
-          this.snackbar.alertError('Failed to update feature');
-          this.isLoading = false;
+          this.snackbar.alertError('Failed to update sub-engine');
+          this.isSaving = false;
         },
-      }),
+      })
     );
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  /** Saves every feature back to the backend via patchFeature. */
+  private saveFeatures(): void {
+    if (!this.subEngine?.features?.length) {
+      this.finishSave();
+      return;
+    }
 
-  onCancel(): void {
-    this.router.navigate(['/admin/assessments/rules']);
+    const calls = this.subEngine.features.map((feature) => {
+      const fg = this.form.get(['features', feature.id]) as FormGroup;
+      const body = {
+        enabled: fg.get('enabled')?.value ?? false,
+        score: fg.get('score')?.value ?? feature.defaultScore,
+        params: fg.get('params')?.value ?? {},
+      };
+      return this.rulesService.patchFeature(this.subEngineId, feature.id, body);
+    });
+
+    // Fire them sequentially to avoid hammering the backend
+    let index = 0;
+    const next = () => {
+      if (index >= calls.length) {
+        this.finishSave();
+        return;
+      }
+      const call = calls[index++];
+      this.subs.push(
+        call.subscribe({
+          next: () => next(),
+          error: () => {
+            this.snackbar.alertError(
+              `Failed to update feature ${this.subEngine?.features?.[index - 1]?.id ?? ''}`
+            );
+            this.isSaving = false;
+          },
+        })
+      );
+    };
+    next();
   }
 
+  private finishSave(): void {
+    this.snackbar.alertSuccess(
+      `${this.subEngine?.label ?? this.subEngineId} updated successfully`
+    );
+    this.goBack();
+  }
+
+  onCancel(): void { this.goBack(); }
+
   onReset(): void {
-    if (this.featureConfig) {
-      this.buildForm(this.featureConfig);
+    if (this.subEngine) {
+      this.buildFeaturesForm(this.subEngine.features ?? []);
+      this.form.patchValue({ enabled: this.subEngine.enabled });
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  getCurrentScore(): number {
-    return this.featureForm.get('score')?.value ?? 0;
+  private goBack(): void {
+    this.router.navigate(['/admin/assessments/rules']);
   }
 
-  getScoreClass(score: number): string {
-    if (score >= 90) return 'bg-danger';
-    if (score >= 75) return 'bg-warning';
-    if (score >= 60) return 'bg-info';
-    if (score >= 30) return 'bg-primary';
-    return 'bg-secondary';
+  // ── Template helpers ──────────────────────────────────────────────────────
+
+    // ── Tag input helpers (free-form STRING_LIST params) ──────────────────────
+
+  /** Adds a tag to a STRING_LIST param when the user presses Enter/comma. */
+  addTag(featureId: string, paramKey: string, event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (!value) return;
+
+    const control = this.featureParamsGroup(featureId).get(paramKey);
+    if (!control) return;
+
+    const current: string[] = Array.isArray(control.value) ? control.value : [];
+
+    // Avoid duplicates
+    if (!current.includes(value)) {
+      control.setValue([...current, value]);
+      control.markAsDirty();
+    }
+
+    // Clear the input
+    event.chipInput?.clear();
   }
 
-  getScoreColorClass(score: number): string {
-    if (score >= 90) return 'score-critical';
-    if (score >= 75) return 'score-high';
-    if (score >= 60) return 'score-medium';
-    if (score >= 30) return 'score-low';
-    return 'score-clear';
+  /** Removes a tag from a STRING_LIST param. */
+  removeTag(featureId: string, paramKey: string, value: string): void {
+    const control = this.featureParamsGroup(featureId).get(paramKey);
+    if (!control) return;
+
+    const current: string[] = Array.isArray(control.value) ? control.value : [];
+    const next = current.filter((v) => v !== value);
+
+    control.setValue(next);
+    control.markAsDirty();
   }
 
-  getFeatureIcon(featureId?: string): string {
-    const iconMap: Record<string, string> = {
+  /** Returns the FormGroup for a feature. */
+  featureGroup(featureId: string): FormGroup {
+    return this.form.get(['features', featureId]) as FormGroup;
+  }
+
+  /** Returns the FormGroup holding params for a feature. */
+  featureParamsGroup(featureId: string): FormGroup {
+    return this.featureGroup(featureId).get('params') as FormGroup;
+  }
+
+  /** Whether a param should render as a multi-select. */
+  isMultiSelect(param: ParamSpec): boolean {
+    return (
+      param.kind === 'STRING_LIST' ||
+      param.uiControl === 'MULTI_SELECT' ||
+      (param.allowedValues?.length ?? 0) > 1 &&
+        (param.uiControl === 'SELECT' || param.uiControl === 'MULTI_SELECT')
+    );
+  }
+
+  /** Whether a param should render as a single mat-select. */
+  isSingleSelect(param: ParamSpec): boolean {
+    return !this.isMultiSelect(param) && (
+      param.kind === 'ENUM' ||
+      param.uiControl === 'SELECT'
+    );
+  }
+
+  /** Whether a param should render as a plain text input. */
+  isTextInput(param: ParamSpec): boolean {
+    return !this.isMultiSelect(param) && !this.isSingleSelect(param) && (
+      param.kind === 'STRING' || param.uiControl === 'TEXT_INPUT'
+    );
+  }
+
+  /** Whether a param should render as a number input. */
+  isNumberInput(param: ParamSpec): boolean {
+    return !this.isMultiSelect(param) && !this.isSingleSelect(param) && (
+      param.kind === 'NUMBER' ||
+      param.kind === 'DECIMAL' ||
+      param.uiControl === 'NUMBER_INPUT'
+    );
+  }
+
+  /** Whether a param should render as a tag input (free-form string list). */
+  isTagInput(param: ParamSpec): boolean {
+    return (
+      param.kind === 'STRING_LIST' &&
+      param.uiControl === 'TAG_INPUT' &&
+      (!param.allowedValues || param.allowedValues.length === 0)
+    );
+  }
+
+  getSubEngineIcon(id: string | null): string {
+    const map: Record<string, string> = {
+      RAW_TRANSACTION: 'receipt_long',
+      PARTY:           'person_search',
+      CHANNEL:         'router',
+      DEVICE:          'devices',
+      GEO:             'public',
+      BENEFICIARY:     'account_tree',
+    };
+    return map[id ?? ''] ?? 'rule';
+  }
+
+  getFeatureIcon(featureId: string): string {
+    const map: Record<string, string> = {
       AMOUNT_ABSOLUTE:    'payments',
       AMOUNT_JUST_BELOW:  'trending_down',
       AMOUNT_ROUND:       'circle',
@@ -292,59 +346,39 @@ export class AddRules implements OnInit, OnDestroy {
       NEW_DEVICE:         'devices_other',
       HIGH_RISK_COUNTRY:  'public',
       RAPID_TURNOVER:     'swap_horiz',
+      HIGH_RISK_RATING:   'person_off',
+      PEP:                'policy',
+      SANCTIONS_HIT:      'gavel',
+      ADVERSE_MEDIA:      'newspaper',
+      NEW_CUSTOMER:       'person_add',
+      DORMANT_ACCOUNT:    'lock_clock',
+      INCOME_MULTIPLE:    'account_balance_wallet',
+      BALANCE_MULTIPLE:   'balance',
+      PEER_AMOUNT_OUTLIER:'bar_chart',
+      PRIOR_ALERTS:       'warning',
+      CONFIRMED_FRAUD:    'report',
     };
-    return iconMap[featureId ?? ''] || 'rule';
+    return map[featureId] ?? 'rule';
   }
 
-  getParamIcon(key: string): string {
-    const iconMap: Record<string, string> = {
-      operator:            'compare_arrows',
-      threshold:           'attach_money',
-      currency:            'currency_exchange',
-      applyToTypes:        'category',
-      applyToChannels:     'router',
-      windowMinutes:       'schedule',
-      windowHours:         'schedule',
-      maxCount:            'numbers',
-      maxVolume:           'swap_vert',
-      groupBy:             'group',
-      onMissing:           'error_outline',
-      keywords:            'search',
-      reportingThreshold:  'flag',
-      bandPct:             'percent',
-      divisor:             'calculate',
-      minAmount:           'money_off',
-      startHour:           'timer',
-      endHour:             'timer',
-      timezone:            'public',
-      riskProfiles:        'shield',
-      channels:            'router',
-      types:               'category',
-      countries:           'public',
-      baseCurrency:        'currency_exchange',
-      mode:                'tune',
-      flaggedCurrencies:   'flag',
-      proximityPct:        'close',
-      minCount:            'numbers',
-      amountTolerancePct:  'percent',
-    };
-    return iconMap[key] || 'settings';
+  getStatusIcon(status: string): string {
+    return status === 'ACTIVE' ? 'check_circle' : 'schedule';
   }
 
-  getParamHint(entry: ParamEntry): string {
-    switch (entry.kind) {
-      case 'array':   return 'Press Enter, Tab or comma to add a value · Backspace to remove last';
-      case 'number':  return 'Numeric value';
-      case 'boolean': return 'Toggle on / off';
-      default:        return '';
-    }
+  getScoreColorClass(score: number): string {
+    if (score >= 90) return 'score-critical';
+    if (score >= 75) return 'score-high';
+    if (score >= 60) return 'score-medium';
+    if (score >= 30) return 'score-low';
+    return 'score-clear';
   }
 
-  /** Template-safe display of a param's original value. */
-  formatParamValue(entry: ParamEntry): string {
-    const v = entry.value;
-    if (Array.isArray(v))                          return v.length ? v.join(', ') : '—';
-    if (v === null || v === undefined || v === '') return '—';
-    return String(v);
+  formatParams(f: FeatureCatalogEntry): string {
+    const entries = Object.entries(f.defaultParams ?? {});
+    if (!entries.length) return '—';
+    return entries.map(([k, v]) => {
+      const val = Array.isArray(v) ? (v.length ? v.join(', ') : '—') : String(v ?? '—');
+      return `${k}: ${val}`;
+    }).join(' · ');
   }
 }

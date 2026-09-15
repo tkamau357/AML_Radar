@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: '', component: Rules, canActivate: [AuthGuard] },
   { path: 'add', component: AddRules, canActivate: [AuthGuard] },
   { path: 'view/:id', component: ViewRules, canActivate: [AuthGuard] },
-  { path: 'edit/:id', component: AddRules, canActivate: [AuthGuard] },
+  { path: 'edit/:subEngineId', component: AddRules, canActivate: [AuthGuard] },
   { path: 'config', component: EngineConfig, canActivate: [AuthGuard] },
 ];
 
