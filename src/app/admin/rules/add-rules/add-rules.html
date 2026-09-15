@@ -1,231 +1,320 @@
 <div class="rp">
-  <!-- ═══ STICKY HEADER ══════════════════════════════════════════════════════ -->
+
+  <!-- ═══ STICKY HEADER ═════════════════════════════════════════════════════ -->
   <header class="rp__header">
     <div class="rp__header-inner">
+
       <button class="rp__back-btn" (click)="onCancel()" type="button" aria-label="Go back">
         <mat-icon>arrow_back</mat-icon>
       </button>
 
-      <div *ngIf="featureConfig" class="rp__header-feature">
-        <div class="rp__header-icon-wrap">
-          <mat-icon>{{ getFeatureIcon(featureId!) }}</mat-icon>
+      <ng-container *ngIf="subEngine">
+        <div class="rp__header-feature">
+          <div class="rp__header-icon-wrap">
+            <mat-icon>{{ getSubEngineIcon(subEngine.id) }}</mat-icon>
+          </div>
+          <div class="rp__header-text">
+            <h1 class="rp__header-title">Edit Sub-engine</h1>
+            <p class="rp__header-sub">
+              {{ subEngine.label }}
+              <code class="rp__id-chip">{{ subEngine.id }}</code>
+            </p>
+          </div>
         </div>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <span class="rp__status-chip"
+            [class.rp__status-chip--on]="subEngine.status === 'ACTIVE'"
+            [class.rp__status-chip--off]="subEngine.status !== 'ACTIVE'">
+            <mat-icon>{{ getStatusIcon(subEngine.status) }}</mat-icon>
+            {{ subEngine.status }}
+          </span>
+          <span class="rp__status-chip"
+            [class.rp__status-chip--on]="form.value.enabled"
+            [class.rp__status-chip--off]="!form.value.enabled">
+            <mat-icon>{{ form.value.enabled ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+            {{ form.value.enabled ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!subEngine && !isLoading">
         <div class="rp__header-text">
-          <h1 class="rp__header-title">Edit Rule</h1>
-          <p class="rp__header-sub">
-            Engine feature configuration
-            <code class="rp__id-chip">{{ featureId }}</code>
-          </p>
+          <h1 class="rp__header-title">Edit Sub-engine</h1>
+          <p class="rp__header-sub">Update sub-engine configuration</p>
         </div>
-      </div>
+      </ng-container>
 
-      <div *ngIf="!featureConfig" class="rp__header-text">
-        <h1 class="rp__header-title">Edit Rule</h1>
-        <p class="rp__header-sub">Update rule configuration</p>
-      </div>
-
-      <div class="ms-auto d-flex align-items-center gap-2" *ngIf="featureConfig">
-        <span class="rp__score-chip" [ngClass]="getScoreClass(getCurrentScore())">
-          <mat-icon>speed</mat-icon>Score {{ getCurrentScore() }}
-        </span>
-        <span class="rp__status-chip"
-          [class.rp__status-chip--on]="featureForm.get('enabled')?.value"
-          [class.rp__status-chip--off]="!featureForm.get('enabled')?.value">
-          <mat-icon>{{ featureForm.get('enabled')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
-          {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
-        </span>
-      </div>
     </div>
   </header>
 
-  <!-- ═══ BODY ════════════════════════════════════════════════════════════════ -->
+  <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
   <div class="rp__body">
+
     <!-- Loading -->
-    <div *ngIf="isLoading && !featureConfig" class="rp__state">
+    <div *ngIf="isLoading && !subEngine" class="rp__state">
       <div class="rp__state-spinner">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading…</span>
         </div>
       </div>
-      <p class="rp__state-text">Loading feature configuration…</p>
+      <p class="rp__state-text">Loading sub-engine…</p>
     </div>
 
-    <!-- Error / not found -->
-    <div *ngIf="!isLoading && !featureConfig" class="rp__state rp__state--error">
+    <!-- Error -->
+    <div *ngIf="!isLoading && !subEngine" class="rp__state rp__state--error">
       <div class="rp__state-icon"><mat-icon>error_outline</mat-icon></div>
-      <h4 class="rp__state-heading">Feature Not Found</h4>
-      <p class="rp__state-text">The requested feature could not be loaded from the engine config.</p>
+      <h4 class="rp__state-heading">Sub-engine Not Found</h4>
+      <p class="rp__state-text">Could not load the requested sub-engine.</p>
     </div>
 
-    <!-- Content -->
-    <div *ngIf="featureConfig" class="rp__layout">
-      <!-- ── MAIN COLUMN ─────────────────────────────────────────────────── -->
+    <!-- ── Content ──────────────────────────────────────────────────────── -->
+    <div *ngIf="subEngine" class="rp__layout">
+
+      <!-- ── MAIN COLUMN ──────────────────────────────────────────────── -->
       <div class="rp__main">
-        <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
-          <!-- ── Rule Settings ──────────────────────────────────────────── -->
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <!-- Sub-engine info banner -->
+          <div class="rp__blurb">
+            <div class="rp__blurb-icon"><mat-icon>lightbulb</mat-icon></div>
+            <p class="rp__blurb-text">{{ subEngine.description }}</p>
+          </div>
+
+          <!-- Enable / Disable card -->
           <div class="rp-card">
             <div class="rp-card__header">
               <mat-icon class="rp-card__header-icon">tune</mat-icon>
-              <span class="rp-card__header-title">Rule Settings</span>
+              <span class="rp-card__header-title">Sub-engine Setting</span>
             </div>
             <div class="rp-card__body">
-              <div class="row g-4">
-                <!-- Status toggle -->
-                <div class="col-md-6">
-                  <div class="rp-field">
-                    <label class="rp-field__label">Status</label>
+              <div class="rp-field">
+                <label class="rp-field__label">Engine status</label>
+                <div class="rp-toggle">
+                  <input type="checkbox" id="enabled" formControlName="enabled" class="rp-toggle__input" />
+                  <label for="enabled" class="rp-toggle__track" aria-label="Enable or disable sub-engine">
+                    <span class="rp-toggle__thumb"></span>
+                  </label>
+                  <span class="rp-toggle__label"
+                    [class.rp-toggle__label--on]="form.get('enabled')?.value">
+                    {{ form.get('enabled')?.value ? 'Enabled — this sub-engine will run on every transaction' : 'Disabled — this sub-engine is inactive' }}
+                  </span>
+                </div>
+                <span class="rp-field__hint">
+                  Corresponds to <code>patchSubEngine</code>. Only the enabled state is persisted.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Catalogue meta card -->
+          <div class="rp-card">
+            <div class="rp-card__header">
+              <mat-icon class="rp-card__header-icon">info</mat-icon>
+              <span class="rp-card__header-title">Catalogue Info</span>
+              <span class="rp-card__header-count rp-card__header-count--grey">read-only</span>
+            </div>
+            <div class="rp-info-grid">
+              <div class="rp-info-cell">
+                <span class="rp-info-cell__label">Sub-engine ID</span>
+                <code class="rp-meta__code">{{ subEngine.id }}</code>
+              </div>
+              <div class="rp-info-cell">
+                <span class="rp-info-cell__label">Status</span>
+                <span class="rp-chip"
+                  [class.rp-chip--ok]="subEngine.status === 'ACTIVE'"
+                  [class.rp-chip--warn]="subEngine.status !== 'ACTIVE'">
+                  <mat-icon>{{ getStatusIcon(subEngine.status) }}</mat-icon>
+                  {{ subEngine.status }}
+                </span>
+              </div>
+              <div class="rp-info-cell">
+                <span class="rp-info-cell__label">Feature count</span>
+                <span class="rp-info-cell__value">{{ subEngine.features?.length ?? 0 }}</span>
+              </div>
+              <div class="rp-info-cell rp-info-cell--wide" *ngIf="subEngine.note">
+                <span class="rp-info-cell__label">Note</span>
+                <span class="rp-info-cell__value rp-info-cell__value--muted">{{ subEngine.note }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ EDITABLE FEATURES ═══════════════════════════════════════ -->
+          <ng-container *ngIf="subEngine.features?.length" [formGroup]="form">
+            <div class="rp-card" *ngFor="let f of subEngine.features" [formGroup]="featureGroup(f.id)">
+
+              <!-- Feature header -->
+              <div class="rp-card__header">
+                <mat-icon class="rp-card__header-icon">{{ getFeatureIcon(f.id) }}</mat-icon>
+                <span class="rp-card__header-title">{{ f.label }}</span>
+                <code class="rp-feature-row__id ms-2">{{ f.id }}</code>
+                <span class="rp-card__header-count ms-auto"
+                  [class.rp-card__header-count--grey]="!featureGroup(f.id).get('enabled')?.value">
+                  {{ featureGroup(f.id).get('enabled')?.value ? 'Active' : 'Off' }}
+                </span>
+              </div>
+
+              <!-- Feature body -->
+              <div class="rp-card__body">
+
+                <!-- Feature description -->
+                <p class="rp-feature-desc">{{ f.description }}</p>
+
+                <!-- Reads fields -->
+                <div class="rp-feature-reads" *ngIf="f.readsFields?.length">
+                  <span class="rp-reads-label">Reads</span>
+                  <span class="rp-pill" *ngFor="let field of f.readsFields">{{ field }}</span>
+                </div>
+
+                <!-- Feature-level toggles: enabled + score -->
+                <div class="rp-feature-toolbar">
+
+                  <!-- Enabled toggle -->
+                  <div class="rp-field rp-field--inline">
+                    <label class="rp-field__label">Feature enabled</label>
                     <div class="rp-toggle">
-                      <input type="checkbox" id="enabled" formControlName="enabled" class="rp-toggle__input" />
-                      <label for="enabled" class="rp-toggle__track" aria-label="Enable or disable rule">
+                      <input type="checkbox"
+                        [id]="'feat-enabled-' + f.id"
+                        formControlName="enabled"
+                        class="rp-toggle__input" />
+                      <label [for]="'feat-enabled-' + f.id" class="rp-toggle__track">
                         <span class="rp-toggle__thumb"></span>
                       </label>
                       <span class="rp-toggle__label"
-                        [class.rp-toggle__label--on]="featureForm.get('enabled')?.value">
-                        {{ featureForm.get('enabled')?.value ? 'Active' : 'Inactive' }}
+                        [class.rp-toggle__label--on]="featureGroup(f.id).get('enabled')?.value">
+                        {{ featureGroup(f.id).get('enabled')?.value ? 'On' : 'Off' }}
                       </span>
                     </div>
-                    <span class="rp-field__hint">Toggle to enable or disable this rule</span>
                   </div>
-                </div>
 
-                <!-- Score -->
-                <div class="col-md-6">
-                  <div class="rp-field">
-                    <label class="rp-field__label" for="score">Alert Score</label>
+                  <!-- Score input -->
+                  <div class="rp-field rp-field--inline">
+                    <label class="rp-field__label">Score</label>
                     <div class="rp-score-wrap">
-                      <input id="score" type="number" formControlName="score"
-                        class="rp-input rp-score-input" min="0" max="100"
-                        [class.rp-input--invalid]="featureForm.get('score')?.invalid && featureForm.get('score')?.touched" />
+                      <input type="number"
+                        class="rp-input rp-score-input"
+                        formControlName="score"
+                        min="0" max="100" step="1" />
                       <div class="rp-score-bar">
                         <div class="rp-score-bar__fill"
-                          [ngClass]="getScoreClass(getCurrentScore())"
-                          [style.width.%]="getCurrentScore()"></div>
+                          [ngClass]="getScoreColorClass(featureGroup(f.id).get('score')?.value || 0)"
+                          [style.width.%]="featureGroup(f.id).get('score')?.value || 0"></div>
                       </div>
-                      <span class="rp-score-scale">/ 100</span>
+                      <span class="rp-score-scale">0 – 100</span>
                     </div>
-                    <span class="rp-field__hint">Higher score = higher risk weight</span>
                   </div>
+
                 </div>
+
+                <!-- ═══ PARAMS ═══════════════════════════════════════════════ -->
+                <div class="rp-params" *ngIf="f.params?.length" [formGroup]="featureParamsGroup(f.id)">
+
+                  <div class="rp-param-row" *ngFor="let p of f.params; let last = last"
+                    [class.rp-param-row--last]="last">
+
+                    <!-- LEFT: meta -->
+                    <div class="rp-param-row__info">
+                      <div class="rp-param-row__header">
+                        <span class="rp-param-row__label">{{ p.label }}</span>
+                        <code class="rp-param-row__key">{{ p.key }}</code>
+                        <span class="rp-param-row__kind">{{ p.kind }}</span>
+                      </div>
+                      <p class="rp-param-row__meaning" *ngIf="p.meaning">{{ p.meaning }}</p>
+                      <p class="rp-param-row__hint" *ngIf="p.hint">
+                        <mat-icon class="rp-param-row__hint-icon">info_outline</mat-icon>
+                        {{ p.hint }}
+                      </p>
+                    </div>
+
+                    <!-- RIGHT: control -->
+                    <div class="rp-param-row__control">
+
+                      <!-- MULTI-SELECT -->
+                      <mat-form-field *ngIf="isMultiSelect(p)" appearance="outline" class="rp-mat-field" subscriptSizing="dynamic">
+                        <mat-label>{{ p.label }}</mat-label>
+                        <mat-select [formControlName]="p.key" multiple>
+                          <mat-option *ngFor="let opt of p.allowedValues" [value]="opt">{{ opt }}</mat-option>
+                        </mat-select>
+                        <mat-hint *ngIf="p.inputFormat">{{ p.inputFormat }}</mat-hint>
+                      </mat-form-field>
+
+                      <!-- SINGLE SELECT -->
+                      <mat-form-field *ngIf="isSingleSelect(p)" appearance="outline" class="rp-mat-field" subscriptSizing="dynamic">
+                        <mat-label>{{ p.label }}</mat-label>
+                        <mat-select [formControlName]="p.key">
+                          <mat-option *ngFor="let opt of p.allowedValues" [value]="opt">{{ opt }}</mat-option>
+                        </mat-select>
+                        <mat-hint *ngIf="p.inputFormat">{{ p.inputFormat }}</mat-hint>
+                      </mat-form-field>
+
+                      <!-- TAG INPUT -->
+                      <mat-form-field *ngIf="isTagInput(p)" appearance="outline" class="rp-mat-field" subscriptSizing="dynamic">
+                        <mat-label>{{ p.label }}</mat-label>
+                        <mat-chip-grid #chipGrid>
+                          <mat-chip-row *ngFor="let val of featureParamsGroup(f.id).get(p.key)?.value"
+                            (removed)="removeTag(f.id, p.key, val)">
+                            {{ val }}
+                            <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                          </mat-chip-row>
+                          <input placeholder="Add and press Enter…"
+                            [matChipInputFor]="chipGrid"
+                            [matChipInputSeparatorKeyCodes]="[13, 188]"
+                            [matChipInputAddOnBlur]="true"
+                            (matChipInputTokenEnd)="addTag(f.id, p.key, $event)" />
+                        </mat-chip-grid>
+                        <mat-hint *ngIf="p.inputFormat">{{ p.inputFormat }}</mat-hint>
+                      </mat-form-field>
+
+                      <!-- NUMBER / DECIMAL -->
+                      <mat-form-field *ngIf="isNumberInput(p)" appearance="outline" class="rp-mat-field" subscriptSizing="dynamic">
+                        <mat-label>{{ p.label }}</mat-label>
+                        <input matInput type="number" [formControlName]="p.key" />
+                        <mat-hint *ngIf="p.inputFormat">{{ p.inputFormat }}</mat-hint>
+                      </mat-form-field>
+
+                      <!-- TEXT -->
+                      <mat-form-field *ngIf="isTextInput(p)" appearance="outline" class="rp-mat-field" subscriptSizing="dynamic">
+                        <mat-label>{{ p.label }}</mat-label>
+                        <input matInput type="text" [formControlName]="p.key" />
+                        <mat-hint *ngIf="p.inputFormat">{{ p.inputFormat }}</mat-hint>
+                      </mat-form-field>
+
+                      <span class="rp-param-row__empty" *ngIf="p.emptyValueMeaning">
+                        {{ p.emptyValueMeaning }}
+                      </span>
+
+                    </div>
+                  </div>
+
+                  <!-- No params notice -->
+                  <div class="rp-param-row rp-param-row--empty" *ngIf="!f.params?.length">
+                    <mat-icon>info_outline</mat-icon>
+                    <span>This feature has no configurable parameters.</span>
+                  </div>
+
+                </div>
+
               </div>
             </div>
-          </div>
+          </ng-container>
 
-          <!-- ── Parameters ─────────────────────────────────────────────── -->
-          <div class="rp-card" *ngIf="paramEntries.length > 0">
+          <!-- Planned / no-features notice -->
+          <div class="rp-card rp-card--muted" *ngIf="!subEngine.features?.length">
             <div class="rp-card__header">
-              <mat-icon class="rp-card__header-icon">settings_input_component</mat-icon>
-              <span class="rp-card__header-title">Parameters</span>
-              <span class="rp-card__header-count">{{ paramEntries.length }}</span>
+              <mat-icon class="rp-card__header-icon">schedule</mat-icon>
+              <span class="rp-card__header-title">No Features Available</span>
             </div>
-            <div class="rp-card__params" formGroupName="params">
-              <div class="rp-param" *ngFor="let param of paramEntries; let last = last"
-                [class.rp-param--last]="last">
-                <!-- left: label + input -->
-                <div class="rp-param__left">
-                  <div class="rp-param__header">
-                    <mat-icon class="rp-param__header-icon" *ngIf="getParamIcon(param.key)">
-                      {{ getParamIcon(param.key) }}
-                    </mat-icon>
-                    <span class="rp-param__label">{{ param.key }}</span>
-                    <span class="rp-param__kind">{{ param.kind }}</span>
-                  </div>
-
-                  <div class="rp-param__control">
-                    <!-- Boolean → toggle -->
-                    <ng-container *ngIf="param.kind === 'boolean'">
-                      <div class="rp-toggle">
-                        <input type="checkbox" [id]="'param_' + param.key"
-                          [formControlName]="param.key" class="rp-toggle__input" />
-                        <label [for]="'param_' + param.key" class="rp-toggle__track"
-                          [attr.aria-label]="'Toggle ' + param.key">
-                          <span class="rp-toggle__thumb"></span>
-                        </label>
-                        <span class="rp-toggle__label"
-                          [class.rp-toggle__label--on]="featureForm.get('params')?.get(param.key)?.value">
-                          {{ featureForm.get('params')?.get(param.key)?.value ? 'Enabled' : 'Disabled' }}
-                        </span>
-                      </div>
-                    </ng-container>
-
-                    <!-- Number -->
-                    <ng-container *ngIf="param.kind === 'number'">
-                      <input type="number" class="rp-input"
-                        [formControlName]="param.key"
-                        [id]="'param_' + param.key" />
-                    </ng-container>
-
-                    <!-- Array → tag chip input -->
-                    <ng-container *ngIf="param.kind === 'array'">
-                      <div class="rp-tag-input"
-                        [class.rp-tag-input--empty]="tagLists[param.key]?.length === 0">
-                        <!-- Existing tags as chips -->
-                        <span
-                          *ngFor="let tag of tagLists[param.key]; let ti = index"
-                          class="rp-tag">
-                          {{ tag }}
-                          <button
-                            type="button"
-                            class="rp-tag__remove"
-                            (click)="removeTag(param.key, ti)"
-                            [attr.aria-label]="'Remove ' + tag">
-                            <mat-icon>close</mat-icon>
-                          </button>
-                        </span>
-
-                        <!-- Text field to type new tags -->
-                        <input
-                          type="text"
-                          class="rp-tag__field"
-                          [id]="'param_' + param.key"
-                          [(ngModel)]="tagInputValues[param.key]"
-                          [ngModelOptions]="{ standalone: true }"
-                          (keydown)="onTagKeydown($event, param.key)"
-                          (blur)="addTag(param.key)"
-                          placeholder="Type and press Enter…"
-                          autocomplete="off" />
-                      </div>
-                    </ng-container>
-
-                    <!-- Text / fallback -->
-                    <ng-container *ngIf="param.kind === 'text'">
-                      <input type="text" class="rp-input"
-                        [formControlName]="param.key"
-                        [id]="'param_' + param.key" />
-                    </ng-container>
-                  </div>
-
-                  <span class="rp-field__hint" *ngIf="getParamHint(param)">
-                    {{ getParamHint(param) }}
-                  </span>
-                </div>
-
-                <!-- right: current raw value preview -->
-                <div class="rp-param__right">
-                  <div class="rp-param__ctx-row">
-                    <mat-icon class="rp-param__ctx-icon">data_object</mat-icon>
-                    <span class="rp-param__ctx-label">Current value</span>
-                  </div>
-                  <span class="rp-value-pill">
-                    {{ formatParamValue(param) }}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <p class="rp-card__note">
+              {{ subEngine.note || 'Feature catalogue for this sub-engine has not been defined yet.' }}
+            </p>
           </div>
 
-          <!-- No params notice -->
-          <div class="rp-card rp-card--muted" *ngIf="paramEntries.length === 0">
-            <div class="rp-card__header">
-              <mat-icon class="rp-card__header-icon">info</mat-icon>
-              <span class="rp-card__header-title">No Parameters</span>
-            </div>
-            <p class="rp-card__note">This feature has no configurable parameters.</p>
-          </div>
         </form>
       </div>
 
-      <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+      <!-- ── SIDEBAR ─────────────────────────────────────────────────── -->
       <aside class="rp__sidebar">
+
         <!-- Actions -->
         <div class="rp-side">
           <div class="rp-side__header">
@@ -235,73 +324,73 @@
           <div class="rp-side__body">
             <button mat-flat-button color="primary" type="button"
               class="rp-btn rp-btn--primary"
-              [disabled]="isLoading || featureForm.invalid"
+              [disabled]="isSaving || form.invalid"
               (click)="onSubmit()">
-              <mat-icon>{{ isLoading ? 'hourglass_top' : 'save' }}</mat-icon>
-              {{ isLoading ? 'Saving…' : 'Save Changes' }}
+              <mat-icon>{{ isSaving ? 'hourglass_top' : 'save' }}</mat-icon>
+              {{ isSaving ? 'Saving…' : 'Save Changes' }}
             </button>
             <button mat-stroked-button type="button" class="rp-btn" (click)="onReset()">
               <mat-icon>restart_alt</mat-icon> Reset
             </button>
             <button mat-stroked-button type="button" class="rp-btn" (click)="onCancel()">
-              <mat-icon>arrow_back</mat-icon> Back to List
+              <mat-icon>arrow_back</mat-icon> Back
             </button>
           </div>
         </div>
 
-        <!-- Feature summary -->
-        <div class="rp-side" *ngIf="featureConfig">
+        <!-- Sub-engine summary -->
+        <div class="rp-side">
           <div class="rp-side__header">
             <mat-icon class="rp-side__header-icon">monitor_heart</mat-icon>
-            <span>Feature Summary</span>
+            <span>Summary</span>
           </div>
           <div class="rp-side__rows">
             <div class="rp-meta">
-              <span class="rp-meta__label">Feature ID</span>
-              <code class="rp-meta__code">{{ featureId }}</code>
+              <span class="rp-meta__label">ID</span>
+              <code class="rp-meta__code">{{ subEngine.id }}</code>
             </div>
             <div class="rp-meta">
-              <span class="rp-meta__label">Engine Status</span>
+              <span class="rp-meta__label">Catalogue status</span>
               <span class="rp-chip"
-                [class.rp-chip--ok]="featureConfig.enabled"
-                [class.rp-chip--off]="!featureConfig.enabled">
-                <mat-icon>{{ featureConfig.enabled ? 'check_circle' : 'cancel' }}</mat-icon>
-                {{ featureConfig.enabled ? 'Enabled' : 'Disabled' }}
+                [class.rp-chip--ok]="subEngine.status === 'ACTIVE'"
+                [class.rp-chip--warn]="subEngine.status !== 'ACTIVE'">
+                <mat-icon>{{ getStatusIcon(subEngine.status) }}</mat-icon>
+                {{ subEngine.status }}
               </span>
             </div>
             <div class="rp-meta">
-              <span class="rp-meta__label">Configured Score</span>
-              <span class="rp-meta__value fw-bold">{{ featureConfig.score }}</span>
+              <span class="rp-meta__label">Engine enabled</span>
+              <span class="rp-chip"
+                [class.rp-chip--ok]="form.value.enabled"
+                [class.rp-chip--off]="!form.value.enabled">
+                <mat-icon>{{ form.value.enabled ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ form.value.enabled ? 'Yes' : 'No' }}
+              </span>
             </div>
             <div class="rp-meta">
-              <span class="rp-meta__label">Param Count</span>
-              <span class="rp-meta__value">{{ paramEntries.length }}</span>
+              <span class="rp-meta__label">Features</span>
+              <span class="rp-meta__value">{{ subEngine.features?.length ?? 0 }}</span>
+            </div>
+            <div class="rp-meta">
+              <span class="rp-meta__label">On by default</span>
+              <span class="rp-meta__value">
+                {{ (subEngine.features ?? []).filter(f => f.enabledByDefault).length }}
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Score gauge -->
-        <div class="rp-side rp-side--gauge">
+        <!-- Note -->
+        <div class="rp-side rp-side--info" *ngIf="subEngine.note">
           <div class="rp-side__header">
-            <mat-icon class="rp-side__header-icon">speed</mat-icon>
-            <span>Score Preview</span>
+            <mat-icon class="rp-side__header-icon">sticky_note_2</mat-icon>
+            <span>Note</span>
           </div>
-          <div class="rp-side__body rp-side__body--center">
-            <div class="rp-gauge" [ngClass]="getScoreColorClass(getCurrentScore())">
-              <svg class="rp-gauge__svg" viewBox="0 0 80 80">
-                <circle class="rp-gauge__track" cx="40" cy="40" r="33"/>
-                <circle class="rp-gauge__fill" cx="40" cy="40" r="33"
-                  [style.stroke-dashoffset]="207 - (207 * getCurrentScore() / 100)"/>
-              </svg>
-              <span class="rp-gauge__value">{{ getCurrentScore() }}</span>
-            </div>
-            <span class="rp-gauge__label" [ngClass]="getScoreColorClass(getCurrentScore())">
-              {{ getCurrentScore() >= 90 ? 'CRITICAL RISK' : getCurrentScore() >= 75 ? 'HIGH RISK'     :
-               getCurrentScore() >= 60 ? 'MEDIUM RISK' : getCurrentScore() >= 30 ? 'LOW RISK' 
-               : 'NO RISK' }}
-            </span>
+          <div class="rp-side__body">
+            <p class="rp-side__note">{{ subEngine.note }}</p>
           </div>
         </div>
+
       </aside>
     </div>
   </div>
